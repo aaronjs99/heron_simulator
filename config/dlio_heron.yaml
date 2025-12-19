@@ -1,0 +1,58 @@
+###########################################################
+# DLIO Configuration for Heron USV Simulation
+# Matches sensor positions from heron_sim.urdf.xacro
+###########################################################
+
+dlio:
+
+  version: 1.1.1
+
+  adaptive: true
+
+  odom:
+    odom_frame: "odom"
+    child_frame: "base_link"
+    gravity: 9.80665
+    # GICP parameters - reduced for sparse simulation point clouds
+    gicp:
+      minNumPoints: 16
+      maxIterations: 32
+      kCorrespondences: 16
+      maxCorrespondenceDistance: 0.5
+
+  pointcloud:
+    deskew: true
+    voxelize: true
+
+  imu:
+    calibration: true
+    intrinsics:
+      accel:
+        bias: [ 0.0, 0.0, 0.0 ]
+        sm:   [ 1.,  0.,  0.,
+                0.,  1.,  0.,
+                0.,  0.,  1. ]
+      gyro:
+        bias: [ 0.0, 0.0, 0.0 ]
+
+  # Extrinsics for Heron USV
+  # User frame (x-fwd, y-right, z-down) -> ROS frame (x-fwd, y-left, z-up)
+  # Y and Z are negated
+  # lidar_h: user (0, -91, -268.3)mm -> ROS (0, +0.091, 0.2683)m
+  # IMU: user (65.6, -91, -203)mm -> ROS (0.0656, +0.091, 0.203)m
+  extrinsics:
+    baselink2imu:
+      t: [ 0.0656, 0.091, 0.203 ]
+      R: [ 1.,  0.,  0.,
+           0.,  1.,  0.,
+           0.,  0.,  1. ]
+    baselink2lidar:
+      t: [ 0.,  0.091,  0.2683 ]
+      R: [ 1.,  0.,  0.,
+           0.,  1.,  0.,
+           0.,  0.,  1. ]
+
+  map:
+    sparse:
+      leafSize: 0.25
+    waitUntilMove: true

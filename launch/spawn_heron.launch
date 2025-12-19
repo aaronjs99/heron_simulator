@@ -1,0 +1,30 @@
+<!-- heron_simulator/launch/spawn_heron.launch -->
+<!-- Spawn a Heron USV model into a running Gazebo instance -->
+<launch>
+  <arg name="namespace" default=""/>
+  <arg name="x" default="0.0"/>
+  <arg name="y" default="0.0"/>
+  <arg name="z" default="0.1"/>
+  <arg name="yaw" default="0.0"/>
+
+  <!-- Load robot description -->
+  <param name="robot_description" 
+         command="$(find xacro)/xacro $(find heron_simulator)/urdf/heron_sim.urdf.xacro namespace:=$(arg namespace)"/>
+
+  <!-- Spawn robot in Gazebo -->
+  <node name="spawn_heron" pkg="gazebo_ros" type="spawn_model" 
+        args="-urdf -model heron -param robot_description -x $(arg x) -y $(arg y) -z $(arg z) -Y $(arg yaw)"
+        respawn="false" output="screen"/>
+
+  <!-- Robot state publisher for TF -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" value="50.0"/>
+    <param name="tf_prefix" value="$(arg namespace)"/>
+  </node>
+
+  <!-- Joint state publisher (for fixed joints) -->
+  <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher">
+    <param name="publish_default_velocities" value="true"/>
+    <param name="publish_default_efforts" value="true"/>
+  </node>
+</launch>

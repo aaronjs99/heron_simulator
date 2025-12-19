@@ -1,0 +1,94 @@
+<!-- heron_simulator/launch/simulation.launch -->
+<!-- Main simulation launch: Gazebo + Heron + Navigation + Oracle + Mock Defector -->
+<launch>
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Arguments -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <arg name="world" default="$(find heron_simulator)/worlds/inspection_dock.world"/>
+  <arg name="gui" default="true"/>
+  <arg name="paused" default="false"/>
+  
+  <!-- Robot spawn position (at dock) -->
+  <arg name="x" default="0.0"/>
+  <arg name="y" default="0.0"/>
+  <arg name="z" default="0.1"/>
+  <arg name="yaw" default="0.0"/>
+  
+  <!-- Stack control -->
+  <arg name="use_oracle" default="true"/>
+  <arg name="use_mariner" default="true"/>
+  <arg name="use_mock_defector" default="true"/>
+  
+  <!-- Oracle config -->
+  <arg name="llm_model" default="llama3"/>
+  <arg name="anchor_file" default="$(find heron_simulator)/config/sim_anchors.yaml"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Use simulation time -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <param name="/use_sim_time" value="true"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Gazebo World -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <include file="$(find heron_simulator)/launch/gazebo_world.launch">
+    <arg name="world" value="$(arg world)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="paused" value="$(arg paused)"/>
+  </include>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Spawn Heron -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <include file="$(find heron_simulator)/launch/spawn_heron.launch">
+    <arg name="x" value="$(arg x)"/>
+    <arg name="y" value="$(arg y)"/>
+    <arg name="z" value="$(arg z)"/>
+    <arg name="yaw" value="$(arg yaw)"/>
+  </include>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Static TF: map -> odom (simulation assumes perfect odometry) -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="map_to_odom"
+        args="0 0 0 0 0 0 map odom"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Navigation Stack (move_base) -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <group if="$(arg use_mariner)">
+    <include file="$(find mariner)/launch/move_base.launch">
+      <arg name="base_frame" value="base_link"/>
+      <arg name="odom_frame" value="odom"/>
+      <arg name="cmd_vel_out" value="/cmd_vel"/>
+    </include>
+
+    <!-- Move base goal manager: consume PoseStamped goals from ORACLE -->
+    <node pkg="mariner" type="move_base_goal_manager.py" name="move_base_goal_manager" output="screen">
+      <param name="goal_topic" value="/mariner/final_pose"/>
+      <param name="action_name" value="/move_base"/>
+      <param name="nav_ok_topic" value="mariner/nav_ok"/>
+      <param name="frame_id" value="map"/>
+    </node>
+  </group>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Mock Defector Service -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <node if="$(arg use_mock_defector)" 
+        pkg="heron_simulator" type="mock_defector_service.py" 
+        name="mock_defector" output="screen"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- ORACLE Stack -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <group if="$(arg use_oracle)">
+    <include file="$(find oracle)/launch/oracle.launch">
+      <arg name="anchor_pose_map_file" value="$(arg anchor_file)"/>
+      <arg name="llm_model" value="$(arg llm_model)"/>
+      <arg name="nav_goal_topic" value="/mariner/final_pose"/>
+      <arg name="inspect_service" value="/defector/capture_and_analyze"/>
+    </include>
+  </group>
+
+</launch>

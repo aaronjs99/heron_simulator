@@ -1,0 +1,51 @@
+<launch>
+  <!-- DLIO for Heron USV Simulation -->
+  <!-- Uses lidar_h and IMU for LiDAR-inertial odometry -->
+
+  <arg name="robot_namespace" default=""/>
+  <arg name="rviz" default="false"/>
+
+  <!-- Topic remapping for Heron simulation -->
+  <arg name="pointcloud_topic" default="/lidar_h/velodyne_points"/>
+  <arg name="imu_topic" default="/imu/data"/>
+
+  <!-- DLIO Odometry Node -->
+  <node name="dlio_odom" pkg="direct_lidar_inertial_odometry" type="dlio_odom_node" output="log" clear_params="true">
+
+    <!-- Load default DLIO params first, then Heron-specific overrides -->
+    <rosparam file="$(find direct_lidar_inertial_odometry)/cfg/params.yaml" command="load"/>
+    <rosparam file="$(find heron_simulator)/config/dlio_heron.yaml" command="load"/>
+
+    <!-- Subscriptions -->
+    <remap from="~pointcloud" to="$(arg pointcloud_topic)"/>
+    <remap from="~imu" to="$(arg imu_topic)"/>
+
+    <!-- Publications -->
+    <remap from="~odom"     to="dlio/odom_node/odom"/>
+    <remap from="~pose"     to="dlio/odom_node/pose"/>
+    <remap from="~path"     to="dlio/odom_node/path"/>
+    <remap from="~kf_pose"  to="dlio/odom_node/keyframes"/>
+    <remap from="~kf_cloud" to="dlio/odom_node/pointcloud/keyframe"/>
+    <remap from="~deskewed" to="dlio/odom_node/pointcloud/deskewed"/>
+
+  </node>
+
+  <!-- DLIO Mapping Node -->
+  <node name="dlio_map" pkg="direct_lidar_inertial_odometry" type="dlio_map_node" output="log" clear_params="true">
+
+    <!-- Load default DLIO params first, then Heron-specific overrides -->
+    <rosparam file="$(find direct_lidar_inertial_odometry)/cfg/params.yaml" command="load"/>
+    <rosparam file="$(find heron_simulator)/config/dlio_heron.yaml" command="load"/>
+
+    <!-- Subscriptions -->
+    <remap from="~keyframes" to="dlio/odom_node/pointcloud/keyframe"/>
+
+    <!-- Publications -->
+    <remap from="~map" to="dlio/map_node/map"/>
+
+  </node>
+
+  <!-- RViz for DLIO visualization -->
+  <node pkg="rviz" type="rviz" name="dlio_rviz" args="-d $(find direct_lidar_inertial_odometry)/launch/dlio.rviz" if="$(arg rviz)"/>
+
+</launch>

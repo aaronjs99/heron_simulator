@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>heron_simulator</name>
+  <version>0.4.0</version>
+  <description>
+    Gazebo simulation for Heron USV with SLAM GRANDE stack integration
+    (Oracle, Mariner, Defector). Based on heron_simulator by Clearpath Robotics.
+  </description>
+
+  <!-- SLAM GRANDE maintainer -->
+  <maintainer email="aaronjs@g.ucla.edu">Aaron John Sabu</maintainer>
+
+  <!-- Original Clearpath authors -->
+  <author email="gstoppi@clearpathrobotics.com">Guy Stoppi (Clearpath Robotics)</author>
+  <author email="yanma@clearpathrobotics.com">Yan Ma (Clearpath Robotics)</author>
+  <author email="mpurvis@clearpathrobotics.com">Mike Purvis (Clearpath Robotics)</author>
+
+  <!-- Dual license: BSD for Clearpath code, MIT for SLAM GRANDE extensions -->
+  <license>BSD, MIT</license>
+
+  <url type="repository">https://github.com/aaronjs99/slam_grande</url>
+  <url type="repository">https://github.com/heron/heron_simulator</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roslaunch</build_depend>
+
+  <!-- Core Gazebo -->
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>gazebo_plugins</exec_depend>
+
+  <!-- Heron packages (Clearpath) -->
+  <exec_depend>heron_description</exec_depend>
+  <exec_depend>heron_msgs</exec_depend>
+  <exec_depend>heron_controller</exec_depend>
+  <exec_depend>heron_control</exec_depend>
+
+  <!-- UUV Simulator (hydrodynamics) -->
+  <exec_depend>uuv_simulator</exec_depend>
+  <exec_depend>uuv_gazebo_worlds</exec_depend>
+  <exec_depend>uuv_gazebo_ros_plugins_msgs</exec_depend>
+  <exec_depend>uuv_assistants</exec_depend>
+
+  <!-- Sensor plugins -->
+  <exec_depend>hector_gazebo_plugins</exec_depend>
+  <exec_depend>imu_filter_madgwick</exec_depend>
+
+  <!-- ROS core -->
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>tf</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+
+  <!-- Robot support -->
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>urdf</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+  <!-- Interactive control -->
+  <exec_depend>interactive_marker_twist_server</exec_depend>
+
+  <!-- Navigation -->
+  <exec_depend>move_base</exec_depend>
+  <exec_depend>robot_localization</exec_depend>
+
+  <!-- SLAM GRANDE packages -->
+  <exec_depend>mariner</exec_depend>
+  <exec_depend>oracle</exec_depend>
+  <exec_depend>defector</exec_depend>
+
+  <export>
+    <gazebo_ros gazebo_model_path="${prefix}/models"/>
+  </export>
+</package>

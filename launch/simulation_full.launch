@@ -1,0 +1,121 @@
+<!-- heron_simulator/launch/simulation_full.launch -->
+<!-- Full simulation with UUV Simulator hydrodynamics (realistic water physics) -->
+<launch>
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Arguments -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <arg name="gui" default="true"/>
+  <arg name="paused" default="false"/>
+  
+  <!-- Robot spawn position (at dock) -->
+  <arg name="x" default="0.0"/>
+  <arg name="y" default="0.0"/>
+  <arg name="z" default="0.1"/>
+  <arg name="yaw" default="0.0"/>
+  
+  <!-- Stack control -->
+  <arg name="use_oracle" default="true"/>
+  <arg name="use_mariner" default="true"/>
+  <arg name="use_mock_defector" default="true"/>
+  
+  <!-- Oracle config -->
+  <arg name="llm_model" default="llama3"/>
+  <arg name="anchor_file" default="$(find oracle)/data/anchors.yaml"/>
+  
+  <!-- DLIO SLAM -->
+  <arg name="use_dlio" default="true"/>
+
+  <!-- Benchmark against ig_handle: Use custom sensor URDF extras -->
+  <!-- Note: We use 'config' arg to pass a file that exports HERON_URDF_EXTRAS -->
+  <!-- <env name="HERON_URDF_EXTRAS" ...> was ineffective for xacro command -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Use simulation time -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <param name="/use_sim_time" value="true"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Launch Heron in Gazebo using official heron_gazebo (UUV Simulator) -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <include file="$(find heron_gazebo)/launch/heron_world.launch">
+    <arg name="config" value="ig_handle_benchmark"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="x" value="$(arg x)"/>
+    <arg name="y" value="$(arg y)"/>
+    <arg name="yaw" value="$(arg yaw)"/>
+  </include>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Convert LiDAR scan to PointCloud2 for Mariner -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <node pkg="heron_simulator" type="scan_to_cloud.py" name="scan_to_cloud" output="screen"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Spawn inspection targets (pillars, dock, pipe inlet) -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <node pkg="heron_simulator" type="spawn_inspection_models.py" 
+        name="spawn_inspection_models" output="screen"
+        launch-prefix="bash -c 'sleep 5; $0 $@'"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Static TF: map -> odom (simulation assumes perfect odometry) -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="map_to_odom"
+        args="0 0 0 0 0 0 map odom"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Navigation Stack (move_base) -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <group if="$(arg use_mariner)">
+    <include file="$(find mariner)/launch/move_base.launch">
+      <arg name="base_frame" value="base_link"/>
+      <arg name="odom_frame" value="odom"/>
+      <arg name="cmd_vel_out" value="/cmd_vel"/>
+    </include>
+
+    <!-- Move base goal manager: consume PoseStamped goals from ORACLE -->
+    <node pkg="mariner" type="move_base_goal_manager.py" name="move_base_goal_manager" output="screen">
+      <param name="goal_topic" value="/mariner/final_pose"/>
+      <param name="action_name" value="/move_base"/>
+      <param name="nav_ok_topic" value="mariner/nav_ok"/>
+      <param name="frame_id" value="map"/>
+    </node>
+  </group>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Mock Defector Service -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <node if="$(arg use_mock_defector)" 
+        pkg="heron_simulator" type="mock_defector_service.py" 
+        name="mock_defector" output="screen"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- ORACLE Stack -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <group if="$(arg use_oracle)">
+    <include file="$(find oracle)/launch/oracle.launch">
+      <arg name="anchor_pose_map_file" value="$(arg anchor_file)"/>
+      <arg name="llm_model" value="$(arg llm_model)"/>
+      <arg name="nav_goal_topic" value="/mariner/final_pose"/>
+      <arg name="inspect_service" value="/defector/capture_and_analyze"/>
+    </include>
+  </group>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- DLIO LiDAR-Inertial SLAM -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <group if="$(arg use_dlio)">
+    <include file="$(find heron_simulator)/launch/dlio.launch">
+      <arg name="pointcloud_topic" value="/lidar_h/velodyne_points"/>
+      <arg name="imu_topic" value="/imu/data"/>
+      <arg name="rviz" value="false"/>
+    </include>
+  </group>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Fix for broken navsat_vel_cov node (Python 2 vs 3 issue) -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <node pkg="heron_simulator" type="vel_cov_fixed.py" name="navsat_vel_cov_fixed" output="screen"/>
+
+</launch>

@@ -1,0 +1,17 @@
+<!-- heron_simulator/launch/gazebo_world.launch -->
+<!-- Launch Gazebo with the inspection dock world (no robot) -->
+<launch>
+  <arg name="world" default="$(find heron_simulator)/worlds/inspection_dock.world"/>
+  <arg name="paused" default="false"/>
+  <arg name="gui" default="true"/>
+  <arg name="verbose" default="false"/>
+
+  <!-- Start Gazebo with empty world, then load our world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world)"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="verbose" value="$(arg verbose)"/>
+  </include>
+</launch>

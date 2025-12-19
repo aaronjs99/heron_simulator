@@ -1,0 +1,348 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ====================================================================== -->
+  <!-- IG Handle Sensors Configuration                                        -->
+  <!-- User coordinate frame: x-forward, y-right, z-down                      -->
+  <!-- ROS coordinate frame: x-forward, y-left, z-up                          -->
+  <!-- Conversion: negate Y and Z                                             -->
+  <!-- ====================================================================== -->
+
+  <!-- Material Definitions -->
+  <material name="sensor_black">
+    <color rgba="0.1 0.1 0.1 1"/>
+  </material>
+  <material name="sensor_blue">
+    <color rgba="0.2 0.4 0.8 1"/>
+  </material>
+  <material name="sensor_yellow">
+    <color rgba="0.9 0.8 0.1 1"/>
+  </material>
+
+  <!-- ====================================================================== -->
+  <!-- Lidar H (Horizontal) -->
+  <!-- User: (0, -91, -268.3)mm -> ROS: (0, 0.091, 0.2683)m -->
+  <!-- ====================================================================== -->
+  <!-- Mount pole for Lidar H -->
+  <link name="lidar_h_mount">
+    <visual>
+      <geometry><cylinder radius="0.03" length="0.22"/></geometry>
+      <material name="sensor_black"/>
+    </visual>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="lidar_h_mount_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_h_mount"/>
+    <origin xyz="0 0.091 0.16" rpy="0 0 0"/>
+  </joint>
+
+  <link name="lidar_h_link">
+    <visual>
+      <geometry><cylinder radius="0.05" length="0.07"/></geometry>
+      <material name="sensor_black"/>
+    </visual>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="lidar_h_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_h_link"/>
+    <origin xyz="0 0.091 0.2683" rpy="0 0 0"/>
+  </joint>
+
+  <gazebo reference="lidar_h_link">
+    <sensor type="ray" name="lidar_h_sensor">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>false</visualize>
+      <update_rate>10</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.3</min>
+          <max>100.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin name="gazebo_ros_lidar_h_controller" filename="libgazebo_ros_laser.so">
+        <topicName>/lidar_h/scan</topicName>
+        <frameName>lidar_h_link</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- ====================================================================== -->
+  <!-- Lidar V (Vertical) -->
+  <!-- User: (180, -126, -181)mm -> ROS: (0.180, 0.126, 0.181)m -->
+  <!-- ====================================================================== -->
+  <!-- Mount pole for Lidar V -->
+  <link name="lidar_v_mount">
+    <visual>
+      <geometry><cylinder radius="0.025" length="0.14"/></geometry>
+      <material name="sensor_black"/>
+    </visual>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="lidar_v_mount_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_v_mount"/>
+    <origin xyz="-0.180 0.126 0.11" rpy="0 0 0"/>
+  </joint>
+
+  <link name="lidar_v_link">
+    <visual>
+      <geometry><cylinder radius="0.05" length="0.07"/></geometry>
+      <material name="sensor_black"/>
+    </visual>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="lidar_v_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_v_link"/>
+    <!-- X negated, rotated 90deg pitch for vertical scanning -->
+    <origin xyz="-0.180 0.126 0.181" rpy="0 1.5708 0"/>
+  </joint>
+
+  <gazebo reference="lidar_v_link">
+    <sensor type="ray" name="lidar_v_sensor">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>false</visualize>
+      <update_rate>10</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.3</min>
+          <max>100.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin name="gazebo_ros_lidar_v_controller" filename="libgazebo_ros_laser.so">
+        <topicName>/lidar_v/scan</topicName>
+        <frameName>lidar_v_link</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- ====================================================================== -->
+  <!-- Sonar -->
+  <!-- User: (0, 0, 80)mm -> ROS: (0, 0, -0.08)m (below waterline) -->
+  <!-- ====================================================================== -->
+  <link name="sonar_link">
+    <visual>
+      <geometry><cylinder radius="0.03" length="0.05"/></geometry>
+      <material name="sensor_blue"/>
+    </visual>
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+  </link>
+  <joint name="sonar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="sonar_link"/>
+    <origin xyz="0 0 -0.08" rpy="0 0 0"/>
+  </joint>
+
+  <gazebo reference="sonar_link">
+    <sensor type="ray" name="sonar">
+      <update_rate>10</update_rate>
+      <ray>
+         <scan>
+            <horizontal>
+               <samples>3</samples>
+               <resolution>1</resolution>
+               <min_angle>-0.1</min_angle>
+               <max_angle>0.1</max_angle>
+            </horizontal>
+            <vertical>
+               <samples>3</samples>
+               <resolution>1</resolution>
+               <min_angle>-0.1</min_angle>
+               <max_angle>0.1</max_angle>
+            </vertical>
+         </scan>
+         <range>
+            <min>0.2</min>
+            <max>50.0</max>
+            <resolution>0.01</resolution>
+         </range>
+      </ray>
+      <plugin name="gazebo_ros_range" filename="libgazebo_ros_range.so">
+        <topicName>/sonar/scan</topicName>
+        <frameName>sonar_link</frameName>
+        <radiation>ultrasound</radiation>
+        <fov>0.5</fov>
+        <gaussianNoise>0.005</gaussianNoise>
+        <updateRate>10</updateRate>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- ====================================================================== -->
+  <!-- Camera Mount Pole -->
+  <!-- ====================================================================== -->
+  <link name="camera_mount">
+    <visual>
+      <geometry><cylinder radius="0.03" length="0.20"/></geometry>
+      <material name="sensor_black"/>
+    </visual>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="camera_mount_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_mount"/>
+    <origin xyz="-0.0164 0.1 0.13" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ====================================================================== -->
+  <!-- Camera F1 (Fisheye 1) -->
+  <!-- User: (16.4, -21.3, -230)mm -> ROS: (0.0164, 0.0213, 0.230)m -->
+  <!-- ====================================================================== -->
+  <link name="camera_F1_link">
+    <visual>
+      <geometry><box size="0.06 0.06 0.04"/></geometry>
+      <material name="sensor_blue"/>
+    </visual>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="camera_F1_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_F1_link"/>
+    <origin xyz="-0.0164 0.0213 0.230" rpy="0 0 0"/>
+  </joint>
+
+  <link name="camera_F1_optical_link"/>
+  <joint name="camera_F1_optical_joint" type="fixed">
+    <parent link="camera_F1_link"/>
+    <child link="camera_F1_optical_link"/>
+    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+  </joint>
+
+  <gazebo reference="camera_F1_link">
+    <sensor type="camera" name="camera_F1_sensor">
+      <update_rate>30.0</update_rate>
+      <camera name="front_camera">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>800</width>
+          <height>600</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>heron/camera</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera_F1_link</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- ====================================================================== -->
+  <!-- Camera F2 (Fisheye 2) -->
+  <!-- User: (16.4, -203.3, -230)mm -> ROS: (0.0164, 0.2033, 0.230)m -->
+  <!-- ====================================================================== -->
+  <link name="camera_F2_link">
+    <visual>
+      <geometry><box size="0.06 0.06 0.04"/></geometry>
+      <material name="sensor_blue"/>
+    </visual>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+  </link>
+  <joint name="camera_F2_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_F2_link"/>
+    <origin xyz="-0.0164 0.2033 0.230" rpy="0 0 0"/>
+  </joint>
+
+  <link name="camera_F2_optical_link"/>
+  <joint name="camera_F2_optical_joint" type="fixed">
+    <parent link="camera_F2_link"/>
+    <child link="camera_F2_optical_link"/>
+    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+  </joint>
+
+  <!-- ====================================================================== -->
+  <!-- IMU Visual (for debugging) -->
+  <!-- User: (65.6, -91, -203)mm -> ROS: (0.0656, 0.091, 0.203)m -->
+  <!-- Note: imu_link is already defined in base Heron URDF, just add visual -->
+  <!-- ====================================================================== -->
+  <!-- Debug link marker - placed at approximate IMU location -->
+  <link name="debug_extra_link">
+    <visual>
+      <geometry><box size="0.05 0.03 0.02"/></geometry>
+      <material name="sensor_yellow"/>
+    </visual>
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+  </link>
+  <joint name="debug_extra_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="debug_extra_link"/>
+    <origin xyz="-0.0656 0.091 0.203" rpy="0 0 0"/>
+  </joint>
+
+</robot>

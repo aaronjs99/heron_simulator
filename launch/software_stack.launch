@@ -1,0 +1,37 @@
+<launch>
+  <!-- Software Stack Launch -->
+  <!-- Runs Mariner (Navigation) and Oracle (Mission Planning) -->
+  <!-- Intended to run alongside a running simulation (simulation.launch use_oracle:=false use_mariner:=false) -->
+
+  <!-- Arguments -->
+  <arg name="llm_model" default="llama3"/>
+  <arg name="anchor_file" default="$(find heron_simulator)/config/sim_anchors.yaml"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Navigation Stack (move_base) -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <include file="$(find mariner)/launch/move_base.launch">
+    <arg name="base_frame" value="base_link"/>
+    <arg name="odom_frame" value="odom"/>
+    <arg name="cmd_vel_out" value="/cmd_vel"/>
+  </include>
+
+  <!-- Move base goal manager: consume PoseStamped goals from ORACLE -->
+  <node pkg="mariner" type="move_base_goal_manager.py" name="move_base_goal_manager" output="screen">
+    <param name="goal_topic" value="/mariner/final_pose"/>
+    <param name="action_name" value="/move_base"/>
+    <param name="nav_ok_topic" value="mariner/nav_ok"/>
+    <param name="frame_id" value="map"/>
+  </node>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- ORACLE Stack -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <include file="$(find oracle)/launch/oracle.launch">
+    <arg name="anchor_pose_map_file" value="$(arg anchor_file)"/>
+    <arg name="llm_model" value="$(arg llm_model)"/>
+    <arg name="nav_goal_topic" value="/mariner/final_pose"/>
+    <arg name="inspect_service" value="/defector/capture_and_analyze"/>
+  </include>
+
+</launch>
