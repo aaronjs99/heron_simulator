@@ -2,7 +2,7 @@
 set -e
 
 # Configuration
-RECORDING_DIR="/home/aaronjs/.gemini/antigravity/brain/48e8d8c7-959b-4ace-be86-85af4bbd6e91"
+RECORDING_DIR="/home/ig-handle/.gemini/antigravity/brain/e97c5ab2-694d-4fc0-b7b0-aede8db24f1d"
 BAG_NAME="inspection_mission.bag"
 VIDEO_NAME="inspection_mission.mp4"
 DURATION=60 # Seconds to run
@@ -25,8 +25,8 @@ export DISPLAY=:99
 sleep 3
 
 echo "Starting Simulation..."
-source /home/aaronjs/catkin_ws/devel/setup.bash
-roslaunch heron_simulation simulation.launch gui:=true &
+source /home/ig-handle/catkin_ws/devel/setup.bash
+roslaunch heron_simulator simulation_full.launch gui:=false &
 SIM_PID=$!
 sleep 15 # Wait for Gazebo to load
 
