@@ -277,11 +277,7 @@ Launches complete simulation with all SLAM GRANDE components.
 - Oracle mission planning
 - Mock defector service
 
-### simulation.launch
 
-**Basic Simulation**
-
-Launches simulation without SLAM GRANDE stack.
 
 ### spawn_heron.launch
 
