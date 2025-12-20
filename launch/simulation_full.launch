@@ -118,4 +118,15 @@
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <node pkg="heron_simulator" type="vel_cov_fixed.py" name="navsat_vel_cov_fixed" output="screen"/>
 
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Costmap Visualization for Web (Port 8082) -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <node pkg="mariner" type="costmap_to_image.py" name="costmap_visualizer" output="screen"/>
+  
+  <node pkg="oracle" type="web_viz_node.py" name="web_viz_costmap" output="screen">
+    <param name="port" value="8082"/>
+    <param name="viz_topic" value="/debug/costmap_image"/>
+    <param name="quality" value="50"/>
+  </node>
+
 </launch>
