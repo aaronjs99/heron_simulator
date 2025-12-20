@@ -24,6 +24,12 @@ Xvfb :99 -screen 0 1280x720x24 &
 export DISPLAY=:99
 sleep 3
 
+echo "Cleaning up Viz Ports (8080-8089)..."
+for port in {8080..8089}; do
+  fuser -k -n tcp $port 2>/dev/null || true
+done
+sleep 1
+
 echo "Starting Simulation..."
 source /home/ig-handle/catkin_ws/devel/setup.bash
 roslaunch heron_simulator simulation_full.launch gui:=false &
