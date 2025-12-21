@@ -44,7 +44,16 @@
     <arg name="x" value="$(arg x)"/>
     <arg name="y" value="$(arg y)"/>
     <arg name="yaw" value="$(arg yaw)"/>
+    <!-- Disable EKF if using DLIO to prevent TF conflicts -->
+    <arg name="enable_ekf" value="false" if="$(arg use_dlio)"/>
+    <arg name="enable_ekf" value="true" unless="$(arg use_dlio)"/>
+    <!-- Disable NavSat transform if using DLIO to prevent conflicting TF publications -->
+    <arg name="enable_navsat" value="false" if="$(arg use_dlio)"/>
+    <arg name="enable_navsat" value="true" unless="$(arg use_dlio)"/>
   </include>
+
+  <!-- Remap odometry for controller if DLIO is used (Global remap to affect imported controller) -->
+  <remap from="odometry/filtered" to="/dlio/odom_node/odom" if="$(arg use_dlio)"/>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Convert LiDAR scan to PointCloud2 for Mariner -->
@@ -63,6 +72,21 @@
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <node pkg="tf2_ros" type="static_transform_publisher" name="map_to_odom"
         args="0 0 0 0 0 0 map odom"/>
+
+  <!-- Static TF: odom -> base_link (Initial bootstrap for DLIO startup) -->
+  <!-- DLIO will override this with dynamic odom->base_link once running -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="odom_to_base_link_init"
+        args="0 0 0 0 0 0 odom base_link"/>
+
+  <!-- Static TF: base_link -> imu_link (Bridge for DLIO disconnect) -->
+  <!-- Extrinsics from dlio_heron.yaml: t=[0.0656, 0.091, 0.203] -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="base_to_imu_link"
+        args="0.0656 0.091 0.203 0 0 0 base_link imu_link"/>
+
+  <!-- Static TF: base_link -> lidar_h_link (Bridge for DLIO disconnect) -->
+  <!-- Extrinsics from dlio_heron.yaml: t=[0, 0.091, 0.2683] -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="base_to_lidar_h"
+        args="0 0.091 0.2683 0 0 0 base_link lidar_h_link"/>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Navigation Stack (move_base) -->
@@ -110,6 +134,8 @@
       <arg name="pointcloud_topic" value="/lidar_h/velodyne_points"/>
       <arg name="imu_topic" value="/imu/data"/>
       <arg name="rviz" value="false"/>
+      <!-- Remap DLIO map to /map for Global Costmap -->
+      <remap from="/dlio/map_node/map" to="/map"/>
     </include>
   </group>
 

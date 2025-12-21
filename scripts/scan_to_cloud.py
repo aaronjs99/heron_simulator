@@ -21,8 +21,6 @@ class ScanToCloud:
         rospy.spin()
 
     def scan_callback(self, scan_msg):
-        # Convert the scan to a point cloud
-        # We don't filter or anything, just pure projection
         try:
             cloud_msg = self.laser_projector.projectLaser(scan_msg)
             self.cloud_pub.publish(cloud_msg)

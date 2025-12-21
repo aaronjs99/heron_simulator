@@ -13,19 +13,31 @@ dlio:
     odom_frame: "odom"
     child_frame: "base_link"
     gravity: 9.80665
-    # GICP parameters - reduced for sparse simulation point clouds
+    # GICP parameters - AGGRESSIVELY REDUCED for simulation speed
     gicp:
-      minNumPoints: 16
-      maxIterations: 32
-      kCorrespondences: 16
-      maxCorrespondenceDistance: 0.5
+      minNumPoints: 5
+      maxIterations: 8         # Aggressive reduction (was 16/32)
+      kCorrespondences: 5      # Aggressive reduction (was 10/16)
+      maxCorrespondenceDistance: 1.5 # Looser tolerance
+
+    # Override IMU calibration to skip startup delay
+    imu:
+      calibration:
+        time: 0.01
+
+  # Frame IDs - using defaults (DLIO internal only)
+  frames:
+    odom: "odom"
+    baselink: "base_link"
+    lidar: "lidar"
+    imu: "imu"
 
   pointcloud:
-    deskew: true
+    deskew: false             # Disable deskewing (save CPU)
     voxelize: true
 
   imu:
-    calibration: true
+    calibration: false # Disable for sim
     intrinsics:
       accel:
         bias: [ 0.0, 0.0, 0.0 ]
@@ -54,5 +66,5 @@ dlio:
 
   map:
     sparse:
-      leafSize: 0.25
+      leafSize: 0.5           # Increased to 0.5 for performance (0.25 was too slow)
     waitUntilMove: true

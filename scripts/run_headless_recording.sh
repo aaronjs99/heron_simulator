@@ -5,7 +5,7 @@ set -e
 RECORDING_DIR="/home/ig-handle/.gemini/antigravity/brain/e97c5ab2-694d-4fc0-b7b0-aede8db24f1d"
 BAG_NAME="inspection_mission.bag"
 VIDEO_NAME="inspection_mission.mp4"
-DURATION=60 # Seconds to run
+DURATION=600 # Seconds to run
 
 # Cleanup function
 cleanup() {

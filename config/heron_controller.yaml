@@ -30,3 +30,7 @@ max:
 
 twist_cmd:
   timeout: 1.5
+
+cov_limits:
+  velocity: 100.0
+  imu: 100.0
