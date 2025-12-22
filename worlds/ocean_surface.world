@@ -114,5 +114,21 @@
         <projection_type>perspective</projection_type>
       </camera>
     </gui>
+
+    <!-- Path Visualization Anchor (Invisible but Unit Scale) -->
+    <model name="path_visualizer_model">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+             <!-- CRITICAL: Size must be 1.0 otherwise child DynamicLines are scaled down! -->
+             <box><size>1.0 1.0 1.0</size></box>
+          </geometry>
+          <transparency>1.0</transparency>
+          <plugin name="PathVisualizerPlugin" filename="/home/ig-handle/catkin_ws/devel/.private/heron_simulator/lib/libPathVisualizerPlugin.so"/>
+        </visual>
+      </link>
+      <pose>0 0 0 0 0 0</pose>
+    </model>
   </world>
 </sdf>

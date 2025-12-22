@@ -3,17 +3,30 @@ project(heron_simulator)
 
 find_package(catkin REQUIRED COMPONENTS
   rospy
+  roscpp
   std_srvs
   geometry_msgs
   nav_msgs
   sensor_msgs
 )
 
+find_package(gazebo REQUIRED)
+
 catkin_package()
 
 #############################################################################
 # Install directories (config, launch, worlds, urdf, models, docs)
 #############################################################################
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${GAZEBO_INCLUDE_DIRS}
+)
+
+link_directories(${GAZEBO_LIBRARY_DIRS})
+
+add_library(PathVisualizerPlugin src/PathVisualizerPlugin.cpp)
+target_link_libraries(PathVisualizerPlugin ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 
 install(DIRECTORY config launch worlds urdf models docs
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}

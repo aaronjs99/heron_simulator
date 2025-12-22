@@ -410,11 +410,17 @@
       <ray>
         <scan>
           <horizontal>
-            <samples>360</samples>
+            <samples>1080</samples>
             <resolution>1</resolution>
             <min_angle>-3.14159</min_angle>
             <max_angle>3.14159</max_angle>
           </horizontal>
+          <vertical>
+            <samples>32</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.436</min_angle> <!-- -25 deg -->
+            <max_angle>0.261</max_angle>  <!-- +15 deg -->
+          </vertical>
         </scan>
         <range>
           <min>0.15</min>
@@ -427,8 +433,8 @@
           <stddev>0.01</stddev>
         </noise>
       </ray>
-      <plugin name="lidar_h_plugin" filename="libgazebo_ros_laser.so">
-        <topicName>/lidar_h/scan</topicName>
+      <plugin name="lidar_h_plugin" filename="libgazebo_ros_block_laser.so">
+        <topicName>/lidar_h/velodyne_points</topicName>
         <frameName>lidar_h_link</frameName>
       </plugin>
     </sensor>
