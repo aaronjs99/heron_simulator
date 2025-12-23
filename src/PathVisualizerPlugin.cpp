@@ -16,7 +16,7 @@ namespace gazebo
   class PathVisualizerPlugin : public VisualPlugin
   {
     public:
-      PathVisualizerPlugin() : visual_(nullptr), scene_(nullptr), manual_object_(nullptr), scene_node_(nullptr), robot_visual_(nullptr), new_path_received_(false) {}
+      PathVisualizerPlugin() : visual_(nullptr), scene_(nullptr), manual_object_(nullptr), global_path_object_(nullptr), scene_node_(nullptr), robot_visual_(nullptr), new_path_received_(false), new_global_path_received_(false) {}
       virtual ~PathVisualizerPlugin() 
       {
          if (nh_) {
@@ -41,7 +41,7 @@ namespace gazebo
         this->scene_ = this->visual_->GetScene();
         Ogre::SceneManager *scene_manager = this->scene_->OgreSceneManager();
 
-        // Create ManualObject for Ribbon
+        // Create ManualObject for Ribbon (Local Plan)
         this->scene_node_ = this->visual_->GetSceneNode()->createChildSceneNode();
         this->manual_object_ = scene_manager->createManualObject("PathRibbon_MO");
         this->manual_object_->setDynamic(true);
@@ -49,14 +49,24 @@ namespace gazebo
         this->manual_object_->setBoundingBox(Ogre::AxisAlignedBox::BOX_INFINITE);
         this->scene_node_->attachObject(this->manual_object_);
         
+        // Create ManualObject for Global Plan (thin line)
+        this->global_path_object_ = scene_manager->createManualObject("GlobalPath_MO");
+        this->global_path_object_->setDynamic(true);
+        this->global_path_object_->setBoundingBox(Ogre::AxisAlignedBox::BOX_INFINITE);
+        this->scene_node_->attachObject(this->global_path_object_);
+        
         // Sub to nav path (Local Plan)
         this->sub_ = this->nh_->subscribe("/move_base/TebLocalPlannerROS/local_plan", 1, 
             &PathVisualizerPlugin::PathCallback, this);
+        
+        // Sub to global plan
+        this->global_sub_ = this->nh_->subscribe("/move_base/TebLocalPlannerROS/global_plan", 1, 
+            &PathVisualizerPlugin::GlobalPathCallback, this);
 
         this->update_connection_ = event::Events::ConnectPreRender(
             std::bind(&PathVisualizerPlugin::OnUpdate, this));
 
-        ROS_INFO("[PathVisualizerPlugin] LOADED! Ribbon Mode (ManualObject).");
+        ROS_INFO("[PathVisualizerPlugin] LOADED! Ribbon + Global Line Mode.");
       }
 
     private: 
@@ -65,6 +75,13 @@ namespace gazebo
             std::lock_guard<std::mutex> lock(this->mutex_);
             this->latest_path_ = *msg;
             this->new_path_received_ = true;
+        }
+        
+        void GlobalPathCallback(const nav_msgs::Path::ConstPtr& msg)
+        {
+            std::lock_guard<std::mutex> lock(this->mutex_);
+            this->global_path_ = *msg;
+            this->new_global_path_received_ = true;
         }
 
         void OnUpdate()
@@ -110,11 +127,11 @@ namespace gazebo
             }
 
             // --- 2. Geometry Generation ---
-            // Begin Triangle Strip
-            this->manual_object_->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_TRIANGLE_STRIP);
+            // Begin Triangle Strip - Use a transparent material
+            this->manual_object_->begin("Gazebo/BlueLaser", Ogre::RenderOperation::OT_TRIANGLE_STRIP);
             
             double z_offset = 0.05;
-            double half_width = 0.5; // Total width 1.0m
+            double half_width = 0.3; // Total width 0.6m (narrower)
 
             for (size_t i = 0; i < this->latest_path_.poses.size(); ++i)
             {
@@ -148,16 +165,68 @@ namespace gazebo
                 auto v_right = to_local(v_right_world);
                 
                 // Add Vertices (Triangle Strip Order: Left, Right, Left, Right...)
+                // Darker blue with more transparency (0.05, 0.2, 0.6, 0.4)
                 // Left
                 this->manual_object_->position(v_left.X(), v_left.Y(), v_left.Z() + z_offset);
-                this->manual_object_->colour(0.0, 0.4, 1.0, 0.2); // R 0.0 G 0.4 B 1.0, A 0.2 (Translucent)
+                this->manual_object_->colour(0.05, 0.2, 0.6, 0.4); // Darker blue, more translucent
                 
                 // Right
                 this->manual_object_->position(v_right.X(), v_right.Y(), v_right.Z() + z_offset);
-                this->manual_object_->colour(0.0, 0.4, 1.0, 0.2);
+                this->manual_object_->colour(0.05, 0.2, 0.6, 0.4);
             }
             
             this->manual_object_->end();
+            
+            // --- 3. Global Path (Narrow Dark Blue Ribbon - 15% of local width) ---
+            this->global_path_object_->clear();
+            
+            if (this->global_path_.poses.size() >= 2) {
+                this->global_path_object_->begin("Gazebo/BlueLaser", Ogre::RenderOperation::OT_TRIANGLE_STRIP);
+                
+                double global_z_offset = 0.08;
+                double global_half_width = 0.045;  // 15% of local (0.3) = 0.045, total width 0.09m
+                
+                // Transform from world to local anchor frame
+                auto to_local = [&](ignition::math::Vector3d world_pt) {
+                    return anchor_pose.Rot().Inverse() * (world_pt - anchor_pose.Pos());
+                };
+                
+                for (size_t i = 0; i < this->global_path_.poses.size(); ++i) {
+                    const auto& msg_pose = this->global_path_.poses[i].pose;
+                    ignition::math::Vector3d p_curr(msg_pose.position.x, msg_pose.position.y, 0.0);
+                    
+                    // Calculate direction for perpendicular
+                    ignition::math::Vector3d p_next;
+                    if (i + 1 < this->global_path_.poses.size()) {
+                        const auto& next_pose = this->global_path_.poses[i+1].pose;
+                        p_next = ignition::math::Vector3d(next_pose.position.x, next_pose.position.y, 0.0);
+                    } else if (i > 0) {
+                        const auto& prev_pose = this->global_path_.poses[i-1].pose;
+                        ignition::math::Vector3d p_prev(prev_pose.position.x, prev_pose.position.y, 0.0);
+                        p_next = p_curr + (p_curr - p_prev);
+                    } else {
+                        p_next = p_curr + ignition::math::Vector3d(1, 0, 0);
+                    }
+                    
+                    ignition::math::Vector3d dir = (p_next - p_curr).Normalize();
+                    ignition::math::Vector3d perp(-dir.Y(), dir.X(), 0);
+                    
+                    ignition::math::Vector3d v_left_world = p_curr + perp * global_half_width;
+                    ignition::math::Vector3d v_right_world = p_curr - perp * global_half_width;
+                    
+                    auto v_left = to_local(v_left_world);
+                    auto v_right = to_local(v_right_world);
+                    
+                    // Much darker blue (0.01, 0.05, 0.25)
+                    this->global_path_object_->position(v_left.X(), v_left.Y(), global_z_offset);
+                    this->global_path_object_->colour(0.01, 0.05, 0.25, 0.6);
+                    
+                    this->global_path_object_->position(v_right.X(), v_right.Y(), global_z_offset);
+                    this->global_path_object_->colour(0.01, 0.05, 0.25, 0.6);
+                }
+                
+                this->global_path_object_->end();
+            }
         }
 
         // Helper to get World position
@@ -183,7 +252,11 @@ namespace gazebo
       
       std::mutex mutex_;
       nav_msgs::Path latest_path_;
+      nav_msgs::Path global_path_;
       bool new_path_received_;
+      bool new_global_path_received_;
+      ros::Subscriber global_sub_;
+      Ogre::ManualObject* global_path_object_;
   };
 
   // Register this plugin with the simulator

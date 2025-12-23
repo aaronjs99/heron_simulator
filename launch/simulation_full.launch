@@ -149,10 +149,4 @@
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <node pkg="mariner" type="costmap_to_image.py" name="costmap_visualizer" output="screen"/>
   
-  <node pkg="oracle" type="web_viz_node.py" name="web_viz_costmap" output="screen">
-    <param name="port" value="8082"/>
-    <param name="viz_topic" value="/debug/costmap_image"/>
-    <param name="quality" value="50"/>
-  </node>
-
 </launch>
