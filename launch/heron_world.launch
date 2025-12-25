@@ -32,6 +32,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="namespace" default="" />
 
   <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
   <arg name="paused" default="false"/>
   <arg name="set_timeout" default="false"/>
   <arg name="timeout" default="0.0"/>
@@ -44,7 +45,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <arg name="paused" value="$(arg paused)"/>
       <arg name="use_sim_time" value="true"/>
       <arg name="gui" value="$(arg gui)"/>
-      <arg name="headless" value="false"/>
+      <arg name="headless" value="$(arg headless)"/>
       <arg name="debug" value="false"/>
       <arg name="verbose" value="true"/>
   </include>
