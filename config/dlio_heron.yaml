@@ -13,12 +13,12 @@ dlio:
     odom_frame: "odom"
     child_frame: "base_link"
     gravity: 9.80665
-    # GICP parameters - AGGRESSIVELY REDUCED for simulation speed
+    # GICP parameters
     gicp:
-      minNumPoints: 5
-      maxIterations: 8         # Aggressive reduction (was 16/32)
-      kCorrespondences: 5      # Aggressive reduction (was 10/16)
-      maxCorrespondenceDistance: 1.5 # Looser tolerance
+      minNumPoints: 10
+      maxIterations: 15
+      kCorrespondences: 5
+      maxCorrespondenceDistance: 1.5
 
     # Override IMU calibration to skip startup delay
     imu:
@@ -27,13 +27,14 @@ dlio:
 
   # Frame IDs - using defaults (DLIO internal only)
   frames:
+    map: "map"
     odom: "odom"
     baselink: "base_link"
-    lidar: "lidar"
-    imu: "imu"
+    lidar: "lidar_h_link"
+    imu: "imu_link"
 
   pointcloud:
-    deskew: false             # Disable deskewing (save CPU)
+    deskew: true
     voxelize: true
 
   imu:
@@ -44,8 +45,10 @@ dlio:
         sm:   [ 1.,  0.,  0.,
                 0.,  1.,  0.,
                 0.,  0.,  1. ]
+        noise: 0.005  # derived from sqrt(2.5e-05)
       gyro:
         bias: [ 0.0, 0.0, 0.0 ]
+        noise: 0.005  # derived from sqrt(2.5e-05)
 
   # Extrinsics for Heron USV
   # User frame (x-fwd, y-right, z-down) -> ROS frame (x-fwd, y-left, z-up)
@@ -66,5 +69,6 @@ dlio:
 
   map:
     sparse:
-      leafSize: 0.5           # Increased to 0.5 for performance (0.25 was too slow)
-    waitUntilMove: true
+      leafSize: 0.25
+    publish_map_tf: true
+    waitUntilMove: false

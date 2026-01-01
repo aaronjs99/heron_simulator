@@ -69,23 +69,20 @@
         name="spawn_inspection_models" output="screen"
         launch-prefix="bash -c 'sleep 5; $0 $@'"/>
 
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <!-- Static TF: map -> odom (simulation assumes perfect odometry) -->
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- Static TF: map -> odom -->
   <node pkg="tf2_ros" type="static_transform_publisher" name="map_to_odom"
         args="0 0 0 0 0 0 map odom"/>
 
-  <!-- Static TF: odom -> base_link (Initial bootstrap for DLIO startup) -->
-  <!-- DLIO will override this with dynamic odom->base_link once running -->
+  <!-- Static TF: odom -> base_link -->
   <node pkg="tf2_ros" type="static_transform_publisher" name="odom_to_base_link_init"
         args="0 0 0 0 0 0 odom base_link"/>
 
-  <!-- Static TF: base_link -> imu_link (Bridge for DLIO disconnect) -->
+  <!-- Static TF: base_link -> imu_link -->
   <!-- Extrinsics from dlio_heron.yaml: t=[0.0656, 0.091, 0.203] -->
   <node pkg="tf2_ros" type="static_transform_publisher" name="base_to_imu_link"
         args="0.0656 0.091 0.203 0 0 0 base_link imu_link"/>
 
-  <!-- Static TF: base_link -> lidar_h_link (Bridge for DLIO disconnect) -->
+  <!-- Static TF: base_link -> lidar_h_link -->
   <!-- Extrinsics from dlio_heron.yaml: t=[0, 0.091, 0.2683] -->
   <node pkg="tf2_ros" type="static_transform_publisher" name="base_to_lidar_h"
         args="0 0.091 0.2683 0 0 0 base_link lidar_h_link"/>
@@ -98,6 +95,7 @@
       <arg name="base_frame" value="base_link"/>
       <arg name="odom_frame" value="odom"/>
       <arg name="cmd_vel_out" value="/cmd_vel"/>
+      <!-- <arg name="use_map_server" value="false"/> -->
     </include>
 
     <!-- Move base goal manager: consume PoseStamped goals from ORACLE -->
