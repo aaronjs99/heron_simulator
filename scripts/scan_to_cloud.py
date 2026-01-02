@@ -1,5 +1,15 @@
-#!/usr/bin/env python3
+"""
+Scan to Cloud Converter
+-----------------------
+Converts 2D LaserScan messages to 3D PointCloud2 messages.
+Used in simulation when simulated LiDAR outputs scan data but the stack expects point clouds.
 
+Subscribes:
+- lidar_h/scan (LaserScan)
+
+Publishes:
+- lidar_h/velodyne_points (PointCloud2)
+"""
 import rospy
 from sensor_msgs.msg import LaserScan, PointCloud2
 from laser_geometry import LaserProjection
