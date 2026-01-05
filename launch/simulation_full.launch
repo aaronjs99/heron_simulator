@@ -144,9 +144,6 @@
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <node pkg="heron_simulator" type="vel_cov_fixed.py" name="navsat_vel_cov_fixed" output="screen"/>
 
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <!-- Costmap Visualization for Web (Port 8082) -->
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <node pkg="mariner" type="costmap_to_image.py" name="costmap_visualizer" output="screen"/>
   
 </launch>
