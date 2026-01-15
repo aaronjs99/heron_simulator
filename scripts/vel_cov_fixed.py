@@ -28,12 +28,14 @@ from geometry_msgs.msg import TwistStamped
 from geometry_msgs.msg import TwistWithCovarianceStamped
 from sensor_msgs.msg import NavSatFix
 
+
 def navfix_cb(msg):
     global covariance
 
     covariance[0] = msg.position_covariance[0]
     covariance[7] = msg.position_covariance[4]
     covariance[14] = msg.position_covariance[8]
+
 
 def navsat_cb(msg):
     global vel_pub
@@ -56,11 +58,14 @@ def add_cov():
 
     navsat_sub = rospy.Subscriber("navsat/vel", TwistStamped, navsat_cb)
     navfix_sub = rospy.Subscriber("navsat/fix", NavSatFix, navfix_cb)
-    vel_pub = rospy.Publisher("navsat/vel_cov", TwistWithCovarianceStamped, queue_size=1)
+    vel_pub = rospy.Publisher(
+        "navsat/vel_cov", TwistWithCovarianceStamped, queue_size=1
+    )
 
     covariance = list((10 * np.identity(6)).reshape((36,)))
 
     rospy.spin()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     add_cov()

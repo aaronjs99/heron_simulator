@@ -14,14 +14,14 @@ class SimOdomPublisher:
         self.odom_frame = rospy.get_param("~odom_frame", "odom")
         self.base_frame = rospy.get_param("~base_frame", "base_link")
         self.publish_tf = rospy.get_param("~publish_tf", False)  # planar_move does this
-        
+
         self.tf_broadcaster = tf2_ros.TransformBroadcaster()
         self.odom_pub = rospy.Publisher("/odom", Odometry, queue_size=10)
-        
+
         rospy.Subscriber("/ground_truth/odom", Odometry, self.odom_callback)
         rospy.loginfo(
             "Sim odom publisher: ground_truth/odom -> /odom (TF: %s)",
-            "enabled" if self.publish_tf else "disabled (using planar_move TF)"
+            "enabled" if self.publish_tf else "disabled (using planar_move TF)",
         )
 
     def odom_callback(self, msg: Odometry):
@@ -33,7 +33,7 @@ class SimOdomPublisher:
         out.pose = msg.pose
         out.twist = msg.twist
         self.odom_pub.publish(out)
-        
+
         # Optionally publish TF
         if self.publish_tf:
             t = TransformStamped()
