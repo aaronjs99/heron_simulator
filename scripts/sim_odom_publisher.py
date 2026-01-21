@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
-"""
-Simulation odometry publisher.
-Subscribes to ground_truth/odom and republishes TF + odom for navigation stack.
+"""Simulation Odometry Publisher.
+-----------------------------
+
+Bridges the Gazebo ground truth topic (`/ground_truth/odom`) to the standard
+`/odom` topic expected by the navigation stack.
+
+Features:
+- **Frame Remapping**: Rewrites frame_id to `odom` and child_frame_id to `base_link`.
+- **Optional TF**: Can broadcast the `odom` -> `base_link` transform if the
+  physics engine (e.g., `planar_move` plugin) does not provide it.
 """
 import rospy
 import tf2_ros

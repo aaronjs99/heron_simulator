@@ -1,13 +1,16 @@
-#!/usr/bin/env python3
-"""
-Mock Defector Service for Simulation Testing.
+"""Mock Defector Service: Sensor Simulation & Debug Visualizer.
+------------------------------------------------------------
 
-This node simulates the behavior of the Defector inspection system:
-- Provides a 'capture_and_analyze' service that returns random defect results.
-- Publishes a synthetic debug image stream to '/defector/ai_debug_view' to
-  visualize the "inspection" process in simulation.
+This node mimics the behavior of the `defector` perception stack for realistic
+"Hardware-in-the-Loop" simulation. It serves two key roles:
+1.  **Service Stub**: Responds to `/defector/capture_and_analyze` triggers with
+    probabilistically generated "dummy" defects (random bounding boxes and coverage scores).
+2.  **Visual Simulation**: Publishes a high-fidelity "Heads-Up Display" (HUD) to
+    `/defector/ai_debug_view`, simulating the scanning animations and status overlays
+    that would appear in the real Operator Control Unit.
 
-Author: Heron Dev Team
+Use this node when running full-stack integration tests in Gazebo without valid
+camera data or GPU resources.
 """
 import math
 import random

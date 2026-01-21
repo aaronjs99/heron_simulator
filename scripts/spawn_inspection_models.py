@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
-"""
-Spawn inspection targets (pillars, dock, pipe) into Gazebo.
-Uses gazebo_ros spawn_model service to add static models.
-NOW LOADS DIRECTLY FROM oracle/data/anchors.yaml
+"""Gazebo Prop Spawner: Dynamic World Population.
+----------------------------------------------
+
+Procedurally generates and spawns SDF models into the Gazebo world based on
+the semantic map definition in `oracle/data/anchors.yaml`.
+
+This allows the simulation environment to remain strictly synchronized with the
+Cognitive Map (ORACLE), ensuring that every "Inspection Target" (Pillar, Pipe, Dock)
+that the LLM knows about actually physically exists in the simulation.
 """
 import rospy
 from gazebo_msgs.srv import SpawnModel

@@ -1,4 +1,16 @@
-#!/usr/bin/env python3
+# heron_simulator/scripts/map_gt_publisher.py
+"""Ground Truth Map Publisher.
+---------------------------
+
+Broadcasts the `map` -> `odom` transform based on ground truth data from the simulator.
+Similar to `fake_localize`, but explicitly designed to anchor the map frame
+to the simulator's global coordinate system.
+
+Mathematical Formulation:
+Since $T_{map}^{base} \\equiv T_{GT}$, and we know $T_{odom}^{base}$ from the
+odometry source (DLIO/EKF), we verify the loop:
+$$ T_{map}^{odom} = T_{GT} \\cdot (T_{odom}^{base})^{-1} $$
+"""
 import rospy
 import tf2_ros
 from nav_msgs.msg import Odometry

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# heron_simulator/scripts/vel_cov_fixed.py
 # Software License Agreement (BSD)
 #
 # @author    Guy Stoppi <gstoppi@clearpathrobotics.com>
@@ -21,6 +21,14 @@
 # HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
+"""Velocity Covariance injector for GPS-derived Velocity.
+----------------------------------------------------
+
+Injects a default covariance matrix into `TwistStamped` messages from GPS
+drivers (which often lack covariance), producing `TwistWithCovarianceStamped`.
+This is required for EKF fusion.
+"""
 
 import rospy
 import numpy as np

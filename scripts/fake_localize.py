@@ -1,9 +1,21 @@
-#!/usr/bin/env python3
+# heron_simulator/scripts/fake_localize.py
+"""Fake Localization for Simulation.
+--------------------------------
+
+Publishes a perfect `map` -> `odom` transform by comparing the simulator's
+Ground Truth pose (from Gazebo) with the drift-prone Odometry estimate.
+This aligns the map frame perfectly with the world frame, bypassing
+complex AMCL/SLAM logic for debugging purposes.
+
+Transform Logic:
+$$ T_{map}^{odom} = T_{world}^{base} \\cdot (T_{odom}^{base})^{-1} $$
+"""
 import rospy
 import tf2_ros
 import tf2_geometry_msgs
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TransformStamped
+
 
 
 class FakeLocalization:
