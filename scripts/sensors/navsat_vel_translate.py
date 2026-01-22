@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Software License Agreement (BSD)
 #
 # @author    Guy Stoppi <gstoppi@clearpathrobotics.com>
@@ -23,33 +23,32 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import rospy
-import tf
+from geometry_msgs.msg import TwistStamped
 from geometry_msgs.msg import Vector3Stamped
-from sensor_msgs.msg import Imu
+from geometry_msgs.msg import Vector3
 
-def imu_cb(msg):
-    global rpy_pub
+def vec_cb(msg):
+    global twist_pub
 
-    rpy = Vector3Stamped()
-    rpy.header = msg.header
-    m = msg.orientation
+    twst = TwistStamped()
+    twst.twist.linear.x = -msg.vector.y
+    twst.twist.linear.y = msg.vector.x
+    twst.twist.linear.z = msg.vector.z
 
-    v = tf.transformations.euler_from_quaternion([m.x, m.y, m.z, m.w])
-    rpy.vector.x = v[0]
-    rpy.vector.y = v[1]
-    rpy.vector.z = v[2]
+    twst.header = msg.header
+    twst.twist.angular = Vector3(0, 0, 0)
 
-    rpy_pub.publish(rpy)
+    twist_pub.publish(twst)
 
-def translate():
-    global rpy_pub
+def translate_navvel():
+    global twist_pub
 
-    rospy.init_node("quat_to_euler")
+    rospy.init_node("navvel_translator")
 
-    rpy_pub = rospy.Publisher("imu/rpy", Vector3Stamped, queue_size=1)
-    quat_sub = rospy.Subscriber("imu/data_raw", Imu, imu_cb)
+    twist_pub = rospy.Publisher("navsat/vel", TwistStamped, queue_size=1)
+    vec_sub = rospy.Subscriber("navsat/velocity", Vector3Stamped, vec_cb)
 
     rospy.spin()
 
 if __name__ == '__main__':
-    translate()
+    translate_navvel()

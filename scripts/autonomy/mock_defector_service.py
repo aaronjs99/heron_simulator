@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Mock Defector Service: Sensor Simulation & Debug Visualizer.
 ------------------------------------------------------------
 

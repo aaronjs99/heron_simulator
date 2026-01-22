@@ -18,5 +18,5 @@ if [ "$remaining" -gt 0 ] 2>/dev/null; then
 fi
 
 echo "=== Starting simulation ==="
-roslaunch heron_simulation simulation_full.launch "$@"
+roslaunch heron_simulator simulation_full.launch "$@"
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Software License Agreement (BSD)
 #
 # @author    Guy Stoppi <gstoppi@clearpathrobotics.com>
@@ -23,15 +23,67 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import rospy
-from std_srvs.srv import SetBool
+from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Vector3
 
-def activate():
-    namespace = rospy.get_param("namespace", "")
+def twist_cb(msg):
+    global twist_msg
+    global received
+    global max_fvel
+    global max_bvel
 
-    rospy.wait_for_service("activate_control")
-    active = rospy.ServiceProxy("activate_control", SetBool)
-    out = active(True)
+    twist_msg = msg
+
+    if (twist_msg.linear.x < 0):
+        twist_msg.linear.x = twist_msg.linear.x * max_bvel
+    else:
+        twist_msg.linear.x = twist_msg.linear.x * max_fvel
+
+    twist_msg.angular.z *= 0.5
+
+    received = True
+
+
+def translate():
+    global twist_msg
+    global received
+    global max_fvel
+    global max_bvel
+
+    rospy.init_node("twist_translator")
+
+    received = False
+    zero_message_sent = True
+
+    twist_sub = rospy.Subscriber("cmd_vel_unscaled", Twist, twist_cb)
+    scaled_pub = rospy.Publisher("cmd_vel", Twist, queue_size=1)
+
+    if (rospy.has_param("~max/fwd_vel")):
+        max_fvel = rospy.get_param("~max/fwd_vel")
+    else:
+        max_fvel = 4
+
+    if (rospy.has_param("~max/bck_vel")):
+        max_bvel = rospy.get_param("~max/bck_vel")
+    else:
+        max_bvel = 0.5
+
+    # Ensure thrusters start at zero
+    rospy.sleep(3)
+    twist_msg = Twist()
+
+    r = rospy.Rate(5)
+    while not rospy.is_shutdown():
+        if received:
+            received = False
+            zero_message_sent = False
+            scaled_pub.publish(twist_msg);
+        elif not zero_message_sent:
+            scaled_pub.publish(twist_msg);
+            zero_message_sent = True
+
+        twist_msg = Twist()
+        r.sleep()
 
 if __name__ == '__main__':
-    rospy.init_node("activate_control_service")
-    activate()
+    translate()

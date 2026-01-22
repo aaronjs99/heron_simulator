@@ -39,19 +39,18 @@ install(DIRECTORY config launch worlds urdf models docs
 
 catkin_install_python(PROGRAMS
   # SLAM GRANDE scripts
-  scripts/mock_defector_service.py
-  scripts/sim_odom_publisher.py
-  scripts/scan_to_cloud.py
-  scripts/spawn_inspection_models.py
-  scripts/vel_cov_fixed.py
-  scripts/verify_movement.py
+  scripts/autonomy/mock_defector_service.py
+  scripts/sensors/scan_to_cloud.py
+  scripts/autonomy/spawn_inspection_models.py
+  scripts/sensors/vel_cov_fixed.py
   # Upstream Clearpath scripts (BSD license)
-  scripts/activate_control_service
-  scripts/cmd_drive_translate
-  scripts/navsat_vel_translate
-  scripts/rpy_translator
-  scripts/twist_translate
-  scripts/vector3_to_magnetic_field
+  scripts/control/activate_control_service.py
+  scripts/control/cmd_drive_translate.py
+  scripts/control/vessel_dynamics.py
+  scripts/sensors/navsat_vel_translate.py
+  scripts/sensors/rpy_translator.py
+  scripts/control/twist_translate.py
+  scripts/sensors/vector3_to_magnetic_field.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
@@ -60,8 +59,8 @@ catkin_install_python(PROGRAMS
 #############################################################################
 
 install(PROGRAMS
-  scripts/kill_sim.sh
-  scripts/launch_sim.sh
-  scripts/run_headless_recording.sh
+  scripts/utils/kill_sim.sh
+  scripts/utils/launch_sim.sh
+  scripts/utils/run_headless_recording.sh
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

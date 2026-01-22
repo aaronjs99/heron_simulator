@@ -20,11 +20,12 @@ This package provides a Gazebo-based digital twin of the Heron USV. It supports 
     - GPS / Odometry
 
 ## Nodes
-| Node | Description |
-|------|-------------|
-| `spawn_inspection_models.py` | Reads the semantic map and spawns Gazebo models (SDF) at runtime. |
-| `mock_defector_service.py` | Stand-in for the heavy Deep Learning detector; returns synthetic defect detections relative to ground truth models. |
-| `fake_localize.py` | Publishes perfect ground-truth odometry (for debugging state estimation). |
+| Node | Category | Description |
+|------|----------|-------------|
+| `autonomy/spawn_inspection_models.py` | Autonomy | Reads the semantic map and spawns Gazebo models (SDF) at runtime. |
+| `autonomy/mock_defector_service.py` | Autonomy | Stand-in for the heavy Deep Learning detector; returns synthetic defect detections relative to ground truth models. |
+| `sensors/scan_to_cloud.py` | Sensors | Converts LaserScan to PointCloud2 for Mariner. |
+| `control/cmd_drive_translate.py` | Control | Translates drive efforts to thruster forces. |
 
 ## Usage
 ```bash

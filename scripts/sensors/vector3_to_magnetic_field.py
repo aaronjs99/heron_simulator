@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Handles converting the simulated magnetometer data from the deprecated geometry_msgs/Vector3Stamped to
 the new sensor_msgs/MagneticField messages

@@ -34,12 +34,6 @@
   <exec_depend>heron_controller</exec_depend>
   <exec_depend>heron_control</exec_depend>
 
-  <!-- UUV Simulator (hydrodynamics) -->
-  <exec_depend>uuv_simulator</exec_depend>
-  <exec_depend>uuv_gazebo_worlds</exec_depend>
-  <exec_depend>uuv_gazebo_ros_plugins_msgs</exec_depend>
-  <exec_depend>uuv_assistants</exec_depend>
-
   <!-- Sensor plugins -->
   <exec_depend>hector_gazebo_plugins</exec_depend>
   <exec_depend>imu_filter_madgwick</exec_depend>

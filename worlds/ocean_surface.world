@@ -2,8 +2,6 @@
 <!--
      Copyright (c) 2020 Clearpath Robotics
 
-     Based on UUV Worlds ocean_waves world, details below:
-
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
      You may obtain a copy of the License at
@@ -76,38 +74,6 @@
       <uri>model://sand_heightmap</uri>
       <pose>0 0 -95 0 0 0</pose>
     </include>
-
-    <plugin name="underwater_current_plugin" filename="libuuv_underwater_current_ros_plugin.so">
-      <namespace>hydrodynamics</namespace>
-      <constant_current>
-        <topic>current_velocity</topic>
-        <velocity>
-          <mean>0</mean>
-          <min>0</min>
-          <max>5</max>
-          <mu>0.0</mu>
-          <noiseAmp>0.0</noiseAmp>
-        </velocity>
-
-        <horizontal_angle>
-          <mean>0</mean>
-          <min>-3.141592653589793238</min>
-          <max>3.141592653589793238</max>
-          <mu>0.0</mu>
-          <noiseAmp>0.0</noiseAmp>
-        </horizontal_angle>
-
-        <vertical_angle>
-          <mean>0</mean>
-          <min>-3.141592653589793238</min>
-          <max>3.141592653589793238</max>
-          <mu>0.0</mu>
-          <noiseAmp>0.0</noiseAmp>
-        </vertical_angle>
-      </constant_current>
-    </plugin>
-
-    <plugin name="sc_interface" filename="libuuv_sc_ros_interface_plugin.so"/>
 
     <gui fullscreen='0'>
       <camera name='user_camera'>

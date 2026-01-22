@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Software License Agreement (BSD)
 #
 # @author    Guy Stoppi <gstoppi@clearpathrobotics.com>
@@ -23,32 +23,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import rospy
-from geometry_msgs.msg import TwistStamped
-from geometry_msgs.msg import Vector3Stamped
-from geometry_msgs.msg import Vector3
+from std_srvs.srv import SetBool
 
-def vec_cb(msg):
-    global twist_pub
+def activate():
+    namespace = rospy.get_param("namespace", "")
 
-    twst = TwistStamped()
-    twst.twist.linear.x = -msg.vector.y
-    twst.twist.linear.y = msg.vector.x
-    twst.twist.linear.z = msg.vector.z
-
-    twst.header = msg.header
-    twst.twist.angular = Vector3(0, 0, 0)
-
-    twist_pub.publish(twst)
-
-def translate_navvel():
-    global twist_pub
-
-    rospy.init_node("navvel_translator")
-
-    twist_pub = rospy.Publisher("navsat/vel", TwistStamped, queue_size=1)
-    vec_sub = rospy.Subscriber("navsat/velocity", Vector3Stamped, vec_cb)
-
-    rospy.spin()
+    rospy.wait_for_service("activate_control")
+    active = rospy.ServiceProxy("activate_control", SetBool)
+    out = active(True)
 
 if __name__ == '__main__':
-    translate_navvel()
+    rospy.init_node("activate_control_service")
+    activate()

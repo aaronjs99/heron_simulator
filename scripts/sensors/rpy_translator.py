@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Software License Agreement (BSD)
 #
 # @author    Guy Stoppi <gstoppi@clearpathrobotics.com>
@@ -23,67 +23,33 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import rospy
-from geometry_msgs.msg import Twist
-from geometry_msgs.msg import Vector3
+import tf
+from geometry_msgs.msg import Vector3Stamped
+from sensor_msgs.msg import Imu
 
-def twist_cb(msg):
-    global twist_msg
-    global received
-    global max_fvel
-    global max_bvel
+def imu_cb(msg):
+    global rpy_pub
 
-    twist_msg = msg
+    rpy = Vector3Stamped()
+    rpy.header = msg.header
+    m = msg.orientation
 
-    if (twist_msg.linear.x < 0):
-        twist_msg.linear.x = twist_msg.linear.x * max_bvel
-    else:
-        twist_msg.linear.x = twist_msg.linear.x * max_fvel
+    v = tf.transformations.euler_from_quaternion([m.x, m.y, m.z, m.w])
+    rpy.vector.x = v[0]
+    rpy.vector.y = v[1]
+    rpy.vector.z = v[2]
 
-    twist_msg.angular.z *= 0.5
-
-    received = True
-
+    rpy_pub.publish(rpy)
 
 def translate():
-    global twist_msg
-    global received
-    global max_fvel
-    global max_bvel
+    global rpy_pub
 
-    rospy.init_node("twist_translator")
+    rospy.init_node("quat_to_euler")
 
-    received = False
-    zero_message_sent = True
+    rpy_pub = rospy.Publisher("imu/rpy", Vector3Stamped, queue_size=1)
+    quat_sub = rospy.Subscriber("imu/data_raw", Imu, imu_cb)
 
-    twist_sub = rospy.Subscriber("cmd_vel_unscaled", Twist, twist_cb)
-    scaled_pub = rospy.Publisher("cmd_vel", Twist, queue_size=1)
-
-    if (rospy.has_param("~max/fwd_vel")):
-        max_fvel = rospy.get_param("~max/fwd_vel")
-    else:
-        max_fvel = 4
-
-    if (rospy.has_param("~max/bck_vel")):
-        max_bvel = rospy.get_param("~max/bck_vel")
-    else:
-        max_bvel = 0.5
-
-    # Ensure thrusters start at zero
-    rospy.sleep(3)
-    twist_msg = Twist()
-
-    r = rospy.Rate(5)
-    while not rospy.is_shutdown():
-        if received:
-            received = False
-            zero_message_sent = False
-            scaled_pub.publish(twist_msg);
-        elif not zero_message_sent:
-            scaled_pub.publish(twist_msg);
-            zero_message_sent = True
-
-        twist_msg = Twist()
-        r.sleep()
+    rospy.spin()
 
 if __name__ == '__main__':
     translate()

@@ -4,9 +4,9 @@ Detailed documentation for scripts and nodes in the `heron_simulator` package.
 
 ---
 
-## SLAM GRANDE Extensions
+## Autonomy
 
-### mock_defector_service.py
+### autonomy/mock_defector_service.py
 
 **Simulated Inspection Service**
 
@@ -33,7 +33,31 @@ Provides a mock `/defector/capture_and_analyze` service for testing the full aut
 
 ---
 
-### scan_to_cloud.py
+### autonomy/spawn_inspection_models.py
+
+**Dynamic Model Spawner**
+
+Spawns inspection target models (pillars, pipes) into the Gazebo world.
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `~anchor_file` | string | `oracle/data/anchors.yaml` | Anchor definitions |
+| `~spawn_delay` | float | `0.5` | Delay between spawns |
+
+#### Models Spawned
+
+Based on anchor types in `anchors.yaml`:
+- `pillar` → Cylindrical models
+- `pipe` → Pipe/tube models
+- `home` → Dock marker
+
+---
+
+## Sensors
+
+### sensors/scan_to_cloud.py
 
 **LaserScan to PointCloud2 Converter**
 
@@ -60,49 +84,7 @@ Converts Gazebo LaserScan topics to PointCloud2 for compatibility with Mariner's
 
 ---
 
-### sim_odom_publisher.py
-
-**Simulation Odometry Publisher**
-
-Bridges Gazebo model state to standard odometry for the navigation stack.
-
-#### Published Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/odom` | `nav_msgs/Odometry` | Robot odometry |
-
-#### Published TF
-
-| Transform | Description |
-|-----------|-------------|
-| `odom` → `base_link` | Robot pose from simulation |
-
----
-
-### spawn_inspection_models.py
-
-**Dynamic Model Spawner**
-
-Spawns inspection target models (pillars, pipes) into the Gazebo world.
-
-#### Parameters
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `~anchor_file` | string | `oracle/data/anchors.yaml` | Anchor definitions |
-| `~spawn_delay` | float | `0.5` | Delay between spawns |
-
-#### Models Spawned
-
-Based on anchor types in `anchors.yaml`:
-- `pillar` → Cylindrical models
-- `pipe` → Pipe/tube models
-- `home` → Dock marker
-
----
-
-### vel_cov_fixed.py
+### sensors/vel_cov_fixed.py
 
 **Velocity Covariance Publisher**
 
@@ -122,46 +104,7 @@ Adds covariance information to velocity messages for robot_localization.
 
 ---
 
-### verify_movement.py
-
-**Motion Verification Utility**
-
-Monitors robot movement for debugging navigation issues.
-
-#### Published Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/debug/is_moving` | `std_msgs/Bool` | True if robot is moving |
-
----
-
-## Upstream Clearpath Scripts
-
-Scripts from the original [heron_simulator](https://github.com/heron/heron_simulator) package.
-
-### cmd_drive_translate
-
-**Thruster Command Translator**
-
-Translates `cmd_drive` topic from heron_controller to UUV Simulator thruster topics.
-
-#### Subscribed Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/cmd_drive` | `heron_msgs/Drive` | Drive command |
-
-#### Published Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/thrusters/0/input` | `uuv_thruster_msgs/Float64` | Right thruster |
-| `/thrusters/1/input` | `uuv_thruster_msgs/Float64` | Left thruster |
-
----
-
-### navsat_vel_translate
+### sensors/navsat_vel_translate.py
 
 **GPS Velocity Translator**
 
@@ -181,7 +124,7 @@ Converts GPS velocity from NWU (North-West-Up) to ENU (East-North-Up) convention
 
 ---
 
-### rpy_translator
+### sensors/rpy_translator.py
 
 **Quaternion to RPY Translator**
 
@@ -201,7 +144,51 @@ Converts quaternion orientation to Roll-Pitch-Yaw for magnetometer calibration.
 
 ---
 
-### twist_translate
+### sensors/vector3_to_magnetic_field.py
+
+**Magnetometer Message Converter**
+
+Converts Vector3Stamped magnetometer data to MagneticField message.
+
+#### Subscribed Topics
+
+| Topic | Type | Description |
+|-------|------|-------------|
+| `/imu/mag_sim` | `sensor_msgs/MagneticField` | Simulated magnetometer |
+
+#### Published Topics
+
+| Topic | Type | Description |
+|-------|------|-------------|
+| `/imu/mag_raw` | `geometry_msgs/Vector3Stamped` | Raw magnetic field |
+| `/imu/mag` | `sensor_msgs/MagneticField` | Calibrated field |
+
+---
+
+## Control
+
+### control/cmd_drive_translate.py
+
+**Propulsion Force Translator**
+
+Translates normalized `cmd_drive` efforts from the `heron_controller` into physical Newtonian forces (Wrenches) applied to the Gazebo thruster links. This module implements the empirical thrust interpolation model.
+
+#### Subscribed Topics
+
+| Topic | Type | Description |
+|-------|------|-------------|
+| `/cmd_drive` | `heron_msgs/Drive` | Normalized drive efforts [-1.0, 1.0] |
+
+#### Published Topics
+
+| Topic | Type | Description |
+|-------|------|-------------|
+| `/thrusters/0/input` | `geometry_msgs/Wrench` | Calculated force for the Right thruster |
+| `/thrusters/1/input` | `geometry_msgs/Wrench` | Calculated force for the Left thruster |
+
+---
+
+### control/twist_translate.py
 
 **Interactive Marker Velocity Scaler**
 
@@ -227,28 +214,7 @@ Configured via `config/heron_controller.yaml`:
 
 ---
 
-### vector3_to_magnetic_field
-
-**Magnetometer Message Converter**
-
-Converts Vector3Stamped magnetometer data to MagneticField message.
-
-#### Subscribed Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/imu/mag_sim` | `sensor_msgs/MagneticField` | Simulated magnetometer |
-
-#### Published Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/imu/mag_raw` | `geometry_msgs/Vector3Stamped` | Raw magnetic field |
-| `/imu/mag` | `sensor_msgs/MagneticField` | Calibrated field |
-
----
-
-### activate_control_service
+### control/activate_control_service.py
 
 **Control Activation Service**
 
@@ -276,8 +242,6 @@ Launches complete simulation with all SLAM GRANDE components.
 - Mariner navigation
 - Oracle mission planning
 - Mock defector service
-
-
 
 ### spawn_heron.launch
 
