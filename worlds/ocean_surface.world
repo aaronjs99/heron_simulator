@@ -58,22 +58,28 @@
     </light>
 
     <!-- Virtual NED frame -->
+    <!--
     <include>
       <uri>model://ned_frame</uri>
       <pose>0 0 0 0 0 0</pose>
     </include>
+    -->
 
     <!-- Bounding box with sea surface -->
+    <!--
     <include>
       <uri>model://ocean</uri>
       <pose>0 0 0 0 0 0</pose>
     </include>
+    -->
 
     <!-- Heightmap -->
+    <!--
     <include>
       <uri>model://sand_heightmap</uri>
       <pose>0 0 -95 0 0 0</pose>
     </include>
+    -->
 
     <gui fullscreen='0'>
       <camera name='user_camera'>
@@ -93,7 +99,7 @@
              <box><size>1.0 1.0 1.0</size></box>
           </geometry>
           <transparency>1.0</transparency>
-          <plugin name="PathVisualizerPlugin" filename="/home/ig-handle/catkin_ws/devel/.private/heron_simulator/lib/libPathVisualizerPlugin.so"/>
+          <plugin name="PathVisualizerPlugin" filename="libPathVisualizerPlugin.so"/>
         </visual>
       </link>
       <pose>0 0 0 0 0 0</pose>

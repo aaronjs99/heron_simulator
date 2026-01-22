@@ -91,21 +91,48 @@ def main():
 
     rospy.loginfo("Spawning inspection models...")
 
-    for anchor_id, props in data.items():
+    # Support both hierarchical dictionary and list-based formats
+    anchors_list = []
+    if isinstance(data, dict):
+        if "anchors" in data and isinstance(data["anchors"], list):
+            anchors_list = data["anchors"]
+        else:
+            # Fallback to old dict format where keys are IDs
+            for aid, props in data.items():
+                if isinstance(props, dict):
+                    props["id"] = aid
+                    anchors_list.append(props)
+    
+    for props in anchors_list:
+        anchor_id = props.get("id")
+        if not anchor_id:
+            continue
+
         # Only spawn items that have 'sim' metadata
         if "sim" not in props:
             continue
 
         sim = props["sim"]
-        pose_data = props["pose"]
+        
+        # Robust pose extraction
+        try:
+            if "pose" in props:
+                pose_data = props["pose"]
+                p = pose_data["position"]
+                o = pose_data["orientation"]
+            else:
+                # Handle flat format or other variations if necessary
+                p = props.get("position", {"x": 0, "y": 0, "z": 0})
+                o = props.get("orientation", {"x": 0, "y": 0, "z": 0, "w": 1})
+                if isinstance(p, list): # handle [x,y,z] format
+                   p = {"x": p[0], "y": p[1], "z": p[2]}
 
-        # Extract pose
-        p = pose_data["position"]
-        o = pose_data["orientation"]
-
-        pose = Pose()
-        pose.position = Point(p["x"], p["y"], p["z"])
-        pose.orientation = Quaternion(o["x"], o["y"], o["z"], o["w"])
+            pose = Pose()
+            pose.position = Point(float(p.get("x",0)), float(p.get("y",0)), float(p.get("z",0)))
+            pose.orientation = Quaternion(float(o.get("x",0)), float(o.get("y",0)), float(o.get("z",0)), float(o.get("w",1)))
+        except Exception as e:
+            rospy.logwarn(f"  Skipping {anchor_id} due to invalid pose data: {e}")
+            continue
 
         # Generate SDF
         # Now passing the whole 'sim' dictionary

@@ -44,8 +44,13 @@ class ThrusterTranslator:
         self.input_points = np.array([-1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
         self.output_thrust = np.array([-19.88, -16.52, -12.6, -5.6, -1.4, 0.0, 2.24, 9.52, 21.28, 28.0, 33.6])
         
-        self.p_left = rospy.Publisher(f"/{namespace}/thrusters/1/input", Wrench, queue_size=1)
-        self.p_right = rospy.Publisher(f"/{namespace}/thrusters/0/input", Wrench, queue_size=1)
+        if namespace:
+            prefix = f"/{namespace}"
+        else:
+            prefix = ""
+        
+        self.p_left = rospy.Publisher(f"{prefix}/thrusters/1/input", Wrench, queue_size=1)
+        self.p_right = rospy.Publisher(f"{prefix}/thrusters/0/input", Wrench, queue_size=1)
         
         self.sub = rospy.Subscriber("cmd_drive", Drive, self.callback)
         rospy.loginfo(f"Thruster translator initialized for namespace: {namespace}")

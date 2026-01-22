@@ -134,9 +134,9 @@
       <arg name="pointcloud_topic" value="/lidar_h/velodyne_points"/>
       <arg name="imu_topic" value="/imu/data"/>
       <arg name="rviz" value="false"/>
-      <!-- Remap DLIO map to /map for Global Costmap -->
-      <remap from="/dlio/map_node/map" to="/map"/>
     </include>
+    <!-- Remap DLIO map to /map for Global Costmap -->
+    <remap from="/dlio/map_node/map" to="/map"/>
   </group>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
