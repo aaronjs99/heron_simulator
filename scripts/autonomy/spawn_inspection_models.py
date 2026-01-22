@@ -68,9 +68,9 @@ def make_sdf(name, sim_data):
 
 
 def load_anchors():
-    """Load anchors from oracle package."""
+    """Load anchors from slam_grande package."""
     rospack = rospkg.RosPack()
-    path = os.path.join(rospack.get_path("oracle"), "data", "anchors.yaml")
+    path = os.path.join(rospack.get_path("slam_grande"), "config", "anchors.yaml")
     with open(path, "r") as f:
         return yaml.safe_load(f)
 
@@ -86,7 +86,7 @@ def main():
         return
 
     rospy.loginfo("Waiting for gazebo/spawn_sdf_model service...")
-    rospy.wait_for_service("/gazebo/spawn_sdf_model", timeout=30.0)
+    rospy.wait_for_service("/gazebo/spawn_sdf_model", timeout=60.0)
     spawn_model = rospy.ServiceProxy("/gazebo/spawn_sdf_model", SpawnModel)
 
     rospy.loginfo("Spawning inspection models...")

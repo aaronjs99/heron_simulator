@@ -21,7 +21,7 @@
   
   <!-- Oracle config -->
   <arg name="llm_model" default="llama3"/>
-  <arg name="anchor_file" default="$(find oracle)/data/anchors.yaml"/>
+  <arg name="anchor_file" default="$(find slam_grande)/config/anchors.yaml"/>
   
   <!-- DLIO SLAM -->
   <arg name="use_dlio" default="true"/>
@@ -60,12 +60,12 @@
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Convert LiDAR scan to PointCloud2 for Mariner -->
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <node pkg="heron_simulator" type="sensors/scan_to_cloud.py" name="scan_to_cloud" output="screen"/>
+  <node pkg="heron_simulator" type="scan_to_cloud.py" name="scan_to_cloud" output="screen"/>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Spawn inspection targets (pillars, dock, pipe inlet) -->
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <node pkg="heron_simulator" type="autonomy/spawn_inspection_models.py" 
+  <node pkg="heron_simulator" type="spawn_inspection_models.py" 
         name="spawn_inspection_models" output="screen"
         launch-prefix="bash -c 'sleep 5; $0 $@'"/>
 
@@ -111,7 +111,7 @@
   <!-- Mock Defector Service -->
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <node if="$(arg use_mock_defector)" 
-        pkg="heron_simulator" type="autonomy/mock_defector_service.py" 
+        pkg="heron_simulator" type="mock_defector_service.py" 
         name="mock_defector" output="screen"/>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -142,7 +142,7 @@
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Fix for broken navsat_vel_cov node (Python 2 vs 3 issue) -->
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <node pkg="heron_simulator" type="sensors/vel_cov_fixed.py" name="navsat_vel_cov_fixed" output="screen"/>
+  <node pkg="heron_simulator" type="vel_cov_fixed.py" name="navsat_vel_cov_fixed" output="screen"/>
 
   <node pkg="mariner" type="costmap_to_image.py" name="costmap_visualizer" output="screen"/>
   
