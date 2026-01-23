@@ -27,6 +27,7 @@ from geometry_msgs.msg import TwistStamped
 from geometry_msgs.msg import Vector3Stamped
 from geometry_msgs.msg import Vector3
 
+
 def vec_cb(msg):
     global twist_pub
 
@@ -40,6 +41,7 @@ def vec_cb(msg):
 
     twist_pub.publish(twst)
 
+
 def translate_navvel():
     global twist_pub
 
@@ -50,5 +52,6 @@ def translate_navvel():
 
     rospy.spin()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     translate_navvel()

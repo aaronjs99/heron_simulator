@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <model name="ocean">
+    <static>true</static>
+    <link name="ocean_link">
+      <visual name="ocean_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2000 2000 0.1</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0 0.3 0.7 1</ambient>
+          <diffuse>0 0.3 0.7 0.8</diffuse>
+          <specular>0.1 0.1 0.1 1</specular>
+        </material>
+      </visual>
+      <collision name="ocean_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2000 2000 0.1</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>

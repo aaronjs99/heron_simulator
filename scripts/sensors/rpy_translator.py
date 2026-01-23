@@ -27,6 +27,7 @@ import tf
 from geometry_msgs.msg import Vector3Stamped
 from sensor_msgs.msg import Imu
 
+
 def imu_cb(msg):
     global rpy_pub
 
@@ -41,6 +42,7 @@ def imu_cb(msg):
 
     rpy_pub.publish(rpy)
 
+
 def translate():
     global rpy_pub
 
@@ -51,5 +53,6 @@ def translate():
 
     rospy.spin()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     translate()

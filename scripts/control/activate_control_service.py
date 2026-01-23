@@ -25,6 +25,7 @@
 import rospy
 from std_srvs.srv import SetBool
 
+
 def activate():
     namespace = rospy.get_param("namespace", "")
 
@@ -32,6 +33,7 @@ def activate():
     active = rospy.ServiceProxy("activate_control", SetBool)
     out = active(True)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     rospy.init_node("activate_control_service")
     activate()

@@ -102,7 +102,7 @@ def main():
                 if isinstance(props, dict):
                     props["id"] = aid
                     anchors_list.append(props)
-    
+
     for props in anchors_list:
         anchor_id = props.get("id")
         if not anchor_id:
@@ -113,7 +113,7 @@ def main():
             continue
 
         sim = props["sim"]
-        
+
         # Robust pose extraction
         try:
             if "pose" in props:
@@ -124,12 +124,19 @@ def main():
                 # Handle flat format or other variations if necessary
                 p = props.get("position", {"x": 0, "y": 0, "z": 0})
                 o = props.get("orientation", {"x": 0, "y": 0, "z": 0, "w": 1})
-                if isinstance(p, list): # handle [x,y,z] format
-                   p = {"x": p[0], "y": p[1], "z": p[2]}
+                if isinstance(p, list):  # handle [x,y,z] format
+                    p = {"x": p[0], "y": p[1], "z": p[2]}
 
             pose = Pose()
-            pose.position = Point(float(p.get("x",0)), float(p.get("y",0)), float(p.get("z",0)))
-            pose.orientation = Quaternion(float(o.get("x",0)), float(o.get("y",0)), float(o.get("z",0)), float(o.get("w",1)))
+            pose.position = Point(
+                float(p.get("x", 0)), float(p.get("y", 0)), float(p.get("z", 0))
+            )
+            pose.orientation = Quaternion(
+                float(o.get("x", 0)),
+                float(o.get("y", 0)),
+                float(o.get("z", 0)),
+                float(o.get("w", 1)),
+            )
         except Exception as e:
             rospy.logwarn(f"  Skipping {anchor_id} due to invalid pose data: {e}")
             continue

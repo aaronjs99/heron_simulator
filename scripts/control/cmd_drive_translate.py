@@ -27,6 +27,7 @@ from heron_msgs.msg import Drive
 import rospy
 import numpy as np
 
+
 class ThrusterTranslator:
     """
     Translates normalized drive commands to physical thrust forces (Newtons)
@@ -34,24 +35,32 @@ class ThrusterTranslator:
     This implementation maps the control input directly to Newtonian forces 
     applied to the vehicle's propulsion links within the Gazebo environment.
     """
-    
+
     def __init__(self):
         rospy.init_node("cmd_drive_to_thrusters")
-        
+
         namespace = rospy.get_param("~namespace", "heron")
-        
+
         # Thrust model parameters (from empirical data)
-        self.input_points = np.array([-1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
-        self.output_thrust = np.array([-19.88, -16.52, -12.6, -5.6, -1.4, 0.0, 2.24, 9.52, 21.28, 28.0, 33.6])
-        
+        self.input_points = np.array(
+            [-1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+        )
+        self.output_thrust = np.array(
+            [-19.88, -16.52, -12.6, -5.6, -1.4, 0.0, 2.24, 9.52, 21.28, 28.0, 33.6]
+        )
+
         if namespace:
             prefix = f"/{namespace}"
         else:
             prefix = ""
-        
-        self.p_left = rospy.Publisher(f"{prefix}/thrusters/1/input", Wrench, queue_size=1)
-        self.p_right = rospy.Publisher(f"{prefix}/thrusters/0/input", Wrench, queue_size=1)
-        
+
+        self.p_left = rospy.Publisher(
+            f"{prefix}/thrusters/1/input", Wrench, queue_size=1
+        )
+        self.p_right = rospy.Publisher(
+            f"{prefix}/thrusters/0/input", Wrench, queue_size=1
+        )
+
         self.sub = rospy.Subscriber("cmd_drive", Drive, self.callback)
         rospy.loginfo(f"Thruster translator initialized for namespace: {namespace}")
 
@@ -64,13 +73,14 @@ class ThrusterTranslator:
         left_wrench = Wrench()
         left_wrench.force.x = self.get_thrust(msg.left)
         self.p_left.publish(left_wrench)
-        
+
         # Right Thruster
         right_wrench = Wrench()
         right_wrench.force.x = self.get_thrust(msg.right)
         self.p_right.publish(right_wrench)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     try:
         node = ThrusterTranslator()
         rospy.spin()

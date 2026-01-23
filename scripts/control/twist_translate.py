@@ -26,6 +26,7 @@ import rospy
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Vector3
 
+
 def twist_cb(msg):
     global twist_msg
     global received
@@ -34,7 +35,7 @@ def twist_cb(msg):
 
     twist_msg = msg
 
-    if (twist_msg.linear.x < 0):
+    if twist_msg.linear.x < 0:
         twist_msg.linear.x = twist_msg.linear.x * max_bvel
     else:
         twist_msg.linear.x = twist_msg.linear.x * max_fvel
@@ -58,12 +59,12 @@ def translate():
     twist_sub = rospy.Subscriber("cmd_vel_unscaled", Twist, twist_cb)
     scaled_pub = rospy.Publisher("cmd_vel", Twist, queue_size=1)
 
-    if (rospy.has_param("~max/fwd_vel")):
+    if rospy.has_param("~max/fwd_vel"):
         max_fvel = rospy.get_param("~max/fwd_vel")
     else:
         max_fvel = 4
 
-    if (rospy.has_param("~max/bck_vel")):
+    if rospy.has_param("~max/bck_vel"):
         max_bvel = rospy.get_param("~max/bck_vel")
     else:
         max_bvel = 0.5
@@ -77,13 +78,14 @@ def translate():
         if received:
             received = False
             zero_message_sent = False
-            scaled_pub.publish(twist_msg);
+            scaled_pub.publish(twist_msg)
         elif not zero_message_sent:
-            scaled_pub.publish(twist_msg);
+            scaled_pub.publish(twist_msg)
             zero_message_sent = True
 
         twist_msg = Twist()
         r.sleep()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     translate()

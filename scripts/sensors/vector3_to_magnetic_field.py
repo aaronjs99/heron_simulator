@@ -13,11 +13,13 @@ from sensor_msgs.msg import MagneticField
 from geometry_msgs.msg import Vector3Stamped
 from geometry_msgs.msg import Vector3
 
+
 def on_mag_recv(data, node):
     node.on_mag_data(data)
 
+
 class Vector3Stamped_to_MagneticField_node:
-    def __init__(self, node, mag_in='mag_in', mag_out='mag_out'):
+    def __init__(self, node, mag_in="mag_in", mag_out="mag_out"):
         self.node = node
         self.mag_out = rospy.Publisher(mag_out, MagneticField, queue_size=10)
         self.mag_in = rospy.Subscriber(mag_in, Vector3Stamped, on_mag_recv, self)
@@ -27,16 +29,18 @@ class Vector3Stamped_to_MagneticField_node:
 
         msg.header = data.header
         msg.magnetic_field = data.vector
-        msg.magnetic_field_covariance = [0,0,0,0,0,0,0,0,0]
+        msg.magnetic_field_covariance = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         self.mag_out.publish(msg)
 
-def vector3_to_magneticField():
-    node = rospy.init_node('vector3_to_magneticField', anonymous=True)
 
-    controller = Vector3Stamped_to_MagneticField_node(node, 'mag_in', 'mag_out')
+def vector3_to_magneticField():
+    node = rospy.init_node("vector3_to_magneticField", anonymous=True)
+
+    controller = Vector3Stamped_to_MagneticField_node(node, "mag_in", "mag_out")
 
     rospy.spin()
 
-if __name__=='__main__':
+
+if __name__ == "__main__":
     vector3_to_magneticField()
