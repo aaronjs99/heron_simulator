@@ -94,7 +94,7 @@
     <include file="$(find mariner)/launch/move_base.launch">
       <arg name="base_frame" value="base_link"/>
       <arg name="odom_frame" value="odom"/>
-      <arg name="cmd_vel_out" value="/cmd_vel"/>
+      <arg name="cmd_vel_out" value="/cmd_vel_raw"/>
       <!-- <arg name="use_map_server" value="false"/> -->
     </include>
 
