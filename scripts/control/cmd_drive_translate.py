@@ -32,7 +32,7 @@ class ThrusterTranslator:
     """
     Translates normalized drive commands to physical thrust forces (Newtons)
     using a linear interpolation model derived from empirical vessel trials.
-    This implementation maps the control input directly to Newtonian forces 
+    This implementation maps the control input directly to Newtonian forces
     applied to the vehicle's propulsion links within the Gazebo environment.
     """
 
@@ -52,7 +52,9 @@ class ThrusterTranslator:
         if namespace:
             prefix = f"/{namespace}"
         else:
-            prefix = ""
+            # Match the double slash artifact from xacro if it's happening there
+            # snippets.xacro: /${robot_namespace}/thrusters/... -> //thrusters/...
+            prefix = "/"
 
         self.p_left = rospy.Publisher(
             f"{prefix}/thrusters/1/input", Wrench, queue_size=1

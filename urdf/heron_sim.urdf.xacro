@@ -35,12 +35,13 @@
   <!-- ====================================================================== -->
   <!-- Heron Base Link (Hull) -->
   <!-- ====================================================================== -->
+  <!-- Heron Base Link (Hull) -->
   <link name="base_link">
     <visual>
       <geometry>
-        <box size="1.35 1.0 0.25"/>
+        <mesh filename="package://heron_description/meshes/heron_base.stl" scale="1 1 1"/>
       </geometry>
-      <origin xyz="0 0 0.05" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <material name="heron_grey"/>
     </visual>
     <collision>
@@ -60,9 +61,10 @@
   <link name="left_pontoon">
     <visual>
       <geometry>
-        <box size="1.2 0.2 0.15"/>
+        <mesh filename="package://heron_description/meshes/left_panel.stl" scale="1 1 1"/>
       </geometry>
       <material name="heron_yellow"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
     </visual>
     <inertial>
       <mass value="0.1"/>
@@ -72,16 +74,17 @@
   <joint name="left_pontoon_joint" type="fixed">
     <parent link="base_link"/>
     <child link="left_pontoon"/>
-    <origin xyz="0 0.4 -0.05" rpy="0 0 0"/>
+    <origin xyz="0 0.34495 0.04959" rpy="0 0 0"/>
   </joint>
 
   <!-- Right pontoon (visual only) -->
   <link name="right_pontoon">
     <visual>
       <geometry>
-        <box size="1.2 0.2 0.15"/>
+        <mesh filename="package://heron_description/meshes/right_panel.stl" scale="1 1 1"/>
       </geometry>
       <material name="heron_yellow"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
     </visual>
     <inertial>
       <mass value="0.1"/>
@@ -91,7 +94,7 @@
   <joint name="right_pontoon_joint" type="fixed">
     <parent link="base_link"/>
     <child link="right_pontoon"/>
-    <origin xyz="0 -0.4 -0.05" rpy="0 0 0"/>
+    <origin xyz="0 -0.34495 0.04959" rpy="0 0 0"/>
   </joint>
 
   <!-- ====================================================================== -->
@@ -405,7 +408,7 @@
   <gazebo reference="lidar_h_link">
     <sensor type="ray" name="lidar_h_sensor">
       <pose>0 0 0 0 0 0</pose>
-      <visualize>true</visualize>
+      <visualize>false</visualize>
       <update_rate>10</update_rate>
       <ray>
         <scan>
@@ -446,7 +449,7 @@
   <gazebo reference="lidar_v_link">
     <sensor type="ray" name="lidar_v_sensor">
       <pose>0 0 0 1.5708 0 0</pose>
-      <visualize>true</visualize>
+      <visualize>false</visualize>
       <update_rate>10</update_rate>
       <ray>
         <scan>

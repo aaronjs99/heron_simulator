@@ -32,7 +32,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <!-- Vehicle's initial pose -->
   <arg name="x"     default="0"/>
   <arg name="y"     default="0"/>
-  <arg name="z"     default="0.14"/>
+  <arg name="z"     default="0.0"/>
   <arg name="roll"  value="0"/>
   <arg name="pitch" value="0"/>
   <arg name="yaw"   default="0"/>
@@ -42,95 +42,43 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
   <group ns="/$(arg namespace)">
 
-    <!-- Translates /cmd_drive message to thrusters/*/input commands -->
-    <node pkg="heron_simulator" type="cmd_drive_translate.py" name="cmd_drive_to_thrusters">
-      <param name="namespace" value="$(arg namespace)" />
-    </node>
+    <!-- Load the Standalone Heron Simulator URDF (Kinematic Planar Move) -->
+    <param name="robot_description"
+           command="$(find xacro)/xacro '$(find heron_simulator)/urdf/heron_sim.urdf.xacro'
+                    namespace:=$(arg namespace)" />
 
-    <!-- Vessel Dynamics Engine (Buoyancy and Damping) -->
-    <node pkg="heron_simulator" type="vessel_dynamics.py" name="vessel_dynamics">
-      <param name="namespace" value="$(arg namespace)" />
-    </node>
+    <!-- Publish robot state (TF) -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" />
 
-    <!-- Filter for Imu message -->
-    <node pkg="imu_filter_madgwick" type="imu_filter_node" name="imu_filter_madgwick">
-      <param name="~use_magnetic_field_msg" value="true" />
-      <param name="~use_mag" value="true" />
-      <param name="world_frame" value="enu" />
-      <param name="publish_debug_topics" value="true" />
-      <param name="~publish_tf" value="false" />
-    </node>
-    <!--
-      The filter needs MagneticField messages, so start a node to translate from the Vector3Stamped messages
-      provided by the plugin
-    -->
-    <node pkg="heron_simulator" type="vector3_to_magnetic_field.py" name="mag_translation">
-      <remap from="mag_in"    to="imu/mag_raw" />
-      <remap from="mag_out"   to="imu/mag" />
-    </node>
+    <!-- Spawn the model in Gazebo -->
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+          args="-urdf -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw) 
+                -model $(arg namespace)heron -param robot_description"/>
 
-    <!-- Heron thruster controller -->
-    <node pkg="heron_controller" type="controller" name="controller">
-      <rosparam file="$(find heron_simulator)/config/heron_controller.yaml" />
-      <remap from="cmd_vel" to="/cmd_vel"/>
-      <remap from="cmd_drive" to="/cmd_drive"/>
-      <remap from="odometry/filtered" to="/dlio/odom_node/odom"/>
-    </node>
-
-    <!-- Translate Imu's quaternion to Roll/Pitch/Yaw -->
-    <node pkg="heron_simulator" type="rpy_translator.py" name="rpy_translator" />
-
-    <group if="$(eval namespace == '')">
-      <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
-      <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-            args="-urdf -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw) -model heron -param /robot_description"/>
-    </group>
-
-    <group unless="$(eval namespace == '')">
-      <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
-      <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-            args="-urdf -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw) -model $(arg namespace) -param /$(arg namespace)/robot_description"/>
-    </group>
-
+    <!-- Launch Teleop (optional, for joystick) -->
     <include file="$(find heron_control)/launch/teleop.launch">
       <arg name="joystick"  value="false" />
       <arg name="namespace" value="$(arg namespace)" />
     </include>
 
-    <!-- Translate Twist message from twist_server to Wrench message -->
-    <node pkg="heron_simulator" type="twist_translate.py" name="twist_translate">
-	     <rosparam file="$(find heron_simulator)/config/heron_controller.yaml" />
-       <param name="cov_limits/velocity" value="0.01" />
-    </node>
-
-    <!-- Translates navsat/velocity from Vector3Stamped to TwistStamped on navsat/vel -->
+    <!-- Translate navsat/velocity for compatibility (optional) -->
     <node pkg="heron_simulator" type="navsat_vel_translate.py" name="navvel_translate" />
-
-    <node pkg="heron_simulator" type="activate_control_service.py" name="activate_control_service" />
 
   </group>
 
-
+  <!-- Localization Stack (EKF/NavSat) -->
   <arg name="enable_ekf" default="true"/>
   <arg name="enable_navsat" default="true"/>
-  <arg name="run_robot_state_publisher" default="true"/>
-
-  <!-- Basic localization -->
-  <rosparam param="/$(arg namespace)/ekf_localization_node/tf_prefix" subst_value="True">$(arg namespace)</rosparam>
-  <rosparam param="/$(arg namespace)/navsat_transform_node/tf_prefix" subst_value="True">$(arg namespace)</rosparam>
-  <rosparam param="/$(arg namespace)/navsat_transform_node/use_odometry_yaw">true</rosparam>
-  <include file="$(find heron_control)/launch/control.launch" ns="/$(arg namespace)">
-    <arg name="enable_ekf" value="$(arg enable_ekf)"/>
-    <arg name="enable_navsat" value="$(arg enable_navsat)"/>
-  </include>
-
-  <!-- Launches Heron's description nodes -->
-  <include file="$(find heron_description)/launch/description.launch">
-    <arg name="namespace"   value="$(arg namespace)" />
-    <arg name="hydro_debug" value="$(arg hydro_debug)" />
-    <arg name="simulation"  value="true" />
-    <arg name="config"      value="$(arg config)" />
-    <arg name="run_robot_state_publisher" value="$(arg run_robot_state_publisher)"/>
-  </include>
+  
+  <group ns="/$(arg namespace)">
+      <rosparam param="ekf_localization_node/tf_prefix" subst_value="True">$(arg namespace)</rosparam>
+      <rosparam param="navsat_transform_node/tf_prefix" subst_value="True">$(arg namespace)</rosparam>
+      <rosparam param="navsat_transform_node/use_odometry_yaw">true</rosparam>
+      
+      <include file="$(find heron_control)/launch/control.launch">
+        <arg name="enable_ekf" value="$(arg enable_ekf)"/>
+        <arg name="enable_navsat" value="$(arg enable_navsat)"/>
+      </include>
+  </group>
 
 </launch>
