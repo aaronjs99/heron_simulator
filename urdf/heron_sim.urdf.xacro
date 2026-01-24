@@ -436,7 +436,7 @@
           <stddev>0.01</stddev>
         </noise>
       </ray>
-      <plugin name="lidar_h_plugin" filename="libgazebo_ros_block_laser.so">
+      <plugin name="lidar_h_plugin" filename="libgazebo_ros_laser.so">
         <topicName>/lidar_h/velodyne_points</topicName>
         <frameName>lidar_h_link</frameName>
       </plugin>
@@ -444,7 +444,7 @@
   </gazebo>
 
   <!-- ====================================================================== -->
-  <!-- Vertical Lidar Gazebo Plugin (downward facing) -->
+  <!-- Vertical Lidar Gazebo Plugin -->
   <!-- ====================================================================== -->
   <gazebo reference="lidar_v_link">
     <sensor type="ray" name="lidar_v_sensor">
@@ -471,8 +471,8 @@
           <stddev>0.01</stddev>
         </noise>
       </ray>
-      <plugin name="lidar_v_plugin" filename="libgazebo_ros_laser.so">
-        <topicName>/lidar_v/scan</topicName>
+      <plugin name="lidar_v_plugin" filename="libgazebo_ros_velodyne_laser.so">
+        <topicName>/lidar_v/velodyne_points</topicName>
         <frameName>lidar_v_link</frameName>
       </plugin>
     </sensor>
