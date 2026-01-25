@@ -228,6 +228,52 @@ Enables/disables the control interface for the Heron.
 
 ---
 
+### control/vessel_dynamics.py
+
+**Fossen Hydrodynamic Model**
+
+High-fidelity vessel dynamics engine implementing Fossen's equations of motion for realistic USV behavior.
+
+#### Overview
+
+Computes hydrodynamic forces applied to the Heron hull:
+- **Damping**: Linear + quadratic drag (stiffened sway/yaw for rail-like handling)
+- **Buoyancy**: Hydrostatic lift based on displaced volume
+- **Coriolis**: Rigid-body coupling during turns
+- **Restoring moments**: Metacentric roll/pitch stability
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `~namespace` | string | `heron` | Robot namespace for topics |
+
+#### Physical Model
+
+```
+M·dv/dt + C(v)·v + D(v)·v + g(η) = τ
+```
+
+| Coefficient | Surge | Sway | Heave | Roll | Pitch | Yaw |
+|-------------|-------|------|-------|------|-------|-----|
+| Linear Damping | 30 | 80 | 100 | 20 | 50 | 50 |
+| Quadratic Damping | 15 | 50 | 100 | 15 | 50 | 50 |
+| Added Mass | 20 | 40 | 40 | 0 | 20 | 20 |
+
+#### Subscribed Topics
+
+| Topic | Type | Description |
+|-------|------|-------------|
+| `/ground_truth/odom` | `nav_msgs/Odometry` | Current vessel state |
+
+#### Published Topics
+
+| Topic | Type | Description |
+|-------|------|-------------|
+| `/{namespace}/hydro_forces` | `geometry_msgs/Wrench` | Computed hydrodynamic forces |
+
+---
+
 ## Launch Files
 
 ### simulation_full.launch
