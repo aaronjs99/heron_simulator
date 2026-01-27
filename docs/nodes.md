@@ -43,7 +43,7 @@ Spawns inspection target models (pillars, pipes) into the Gazebo world.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `~anchor_file` | string | `oracle/data/anchors.yaml` | Anchor definitions |
+| `~anchor_file` | string | `slam_grande/data/anchors.yaml` | Anchor definitions |
 | `~spawn_delay` | float | `0.5` | Delay between spawns |
 
 #### Models Spawned
