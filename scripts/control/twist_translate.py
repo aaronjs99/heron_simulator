@@ -62,7 +62,7 @@ def translate():
     if rospy.has_param("~max/fwd_vel"):
         max_fvel = rospy.get_param("~max/fwd_vel")
     else:
-        max_fvel = 4
+        max_fvel = 3.0
 
     if rospy.has_param("~max/bck_vel"):
         max_bvel = rospy.get_param("~max/bck_vel")
