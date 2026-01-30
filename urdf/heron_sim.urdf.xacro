@@ -35,7 +35,15 @@
   <!-- ====================================================================== -->
   <!-- Heron Base Link (Hull) -->
   <!-- ====================================================================== -->
-  <!-- Heron Base Link (Hull) -->
+
+  <link name="base_footprint"/>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="base_footprint" />
+    <child link="base_link" />
+  </joint>
+
   <link name="base_link">
     <visual>
       <geometry>
@@ -436,9 +444,14 @@
           <stddev>0.01</stddev>
         </noise>
       </ray>
-      <plugin name="lidar_h_plugin" filename="libgazebo_ros_laser.so">
+      <plugin name="lidar_h_plugin" filename="libgazebo_ros_velodyne_laser.so">
         <topicName>/lidar_h/velodyne_points</topicName>
         <frameName>lidar_h_link</frameName>
+        <min_range>1.2</min_range>
+        <max_range>130.0</max_range>
+        <gaussianNoise>0.01</gaussianNoise>
+        <min_intensity>0.0</min_intensity>
+        <organize_cloud>true</organize_cloud>
       </plugin>
     </sensor>
   </gazebo>
@@ -474,6 +487,11 @@
       <plugin name="lidar_v_plugin" filename="libgazebo_ros_velodyne_laser.so">
         <topicName>/lidar_v/velodyne_points</topicName>
         <frameName>lidar_v_link</frameName>
+        <min_range>1.2</min_range>
+        <max_range>130.0</max_range>
+        <gaussianNoise>0.01</gaussianNoise>
+        <min_intensity>0.0</min_intensity>
+        <organize_cloud>true</organize_cloud>
       </plugin>
     </sensor>
   </gazebo>
@@ -573,6 +591,7 @@
       <odometryRate>50.0</odometryRate>
       <robotBaseFrame>base_link</robotBaseFrame>
       <publishOdomTF>false</publishOdomTF>
+      <cmdTimeout>-1.0</cmdTimeout>
     </plugin>
   </gazebo>
 
