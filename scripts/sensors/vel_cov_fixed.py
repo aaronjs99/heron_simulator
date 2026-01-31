@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # heron_simulator/scripts/vel_cov_fixed.py
 # Software License Agreement (BSD)
 #
