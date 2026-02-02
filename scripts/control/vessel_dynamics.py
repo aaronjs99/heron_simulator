@@ -23,12 +23,34 @@ import tf.transformations as tr
 
 
 def skew(v):
-    """Returns the skew-symmetric matrix of a 3D vector."""
+    """Compute the skew-symmetric matrix of a 3D vector.
+
+    Args:
+        v (array-like): A 3-element vector.
+
+    Returns:
+        np.ndarray: 3x3 skew-symmetric matrix.
+    """
     return np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
 
 
 class VesselDynamics:
+    """Fossen-model hydrodynamic simulation for the Heron USV.
+
+    Computes hydrodynamic forces including buoyancy, damping, Coriolis effects,
+    and metacentric restoring moments. Uses a "heavy" damping configuration
+    for realistic handling.
+
+    Attributes:
+        mass (float): Vessel mass in kg.
+        Ma (np.ndarray): 6x6 added mass matrix.
+        D_linear (np.ndarray): 6x6 linear damping matrix.
+        D_quad (np.ndarray): 6x6 quadratic damping matrix.
+        pub (rospy.Publisher): Publisher for hydrodynamic wrench.
+    """
+
     def __init__(self):
+        """Initialize the VesselDynamics node with physical parameters."""
         rospy.init_node("vessel_dynamics")
 
         # --- Physical Parameters ---
@@ -63,6 +85,14 @@ class VesselDynamics:
         rospy.loginfo("Fossen Dynamics Engine initialized (Heavy Tune).")
 
     def odom_cb(self, msg):
+        """Compute and publish hydrodynamic forces from odometry.
+
+        Calculates buoyancy, damping, Coriolis, and restoring forces based
+        on the vessel's current state.
+
+        Args:
+            msg (Odometry): Current vessel odometry.
+        """
         # 1. State Extraction
         p = msg.pose.pose.position
         q_obj = msg.pose.pose.orientation
