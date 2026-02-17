@@ -12,9 +12,9 @@ sleep 2
 # Verify all cleaned
 remaining=$(pgrep -c -f "gzserver|rosmaster|roscore" 2>/dev/null || echo "0")
 if [ "$remaining" -gt 0 ] 2>/dev/null; then
-    echo "Warning: Force killing remaining processes..."
-    pkill -9 -f "gzserver|rosmaster|roscore" 2>/dev/null || true
-    sleep 1
+  echo "Warning: Force killing remaining processes..."
+  pkill -9 -f "gzserver|rosmaster|roscore" 2>/dev/null || true
+  sleep 1
 fi
 
 echo "=== Starting simulation ==="

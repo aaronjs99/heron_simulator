@@ -4,7 +4,7 @@ Vessel Dynamics Engine for Heron USV (Fossen Model).
 --------------------------------------------------
 High-fidelity hydrodynamic model replacing UUV Simulator plugins.
 Implements Fossen's Equations of Motion:
-    M_rb*dv/dt + C_rb(v)*v + M_a*dv/dt + C_a(v)*v + D(v)*v + g(eta) = tau
+  M_rb*dv/dt + C_rb(v)*v + M_a*dv/dt + C_a(v)*v + D(v)*v + g(eta) = tau
 
 Reference: https://github.com/heron/heron_simulator/
 The official Heron simulation uses the UUV Simulator Fossen plugin with:
@@ -26,10 +26,10 @@ def skew(v):
     """Compute the skew-symmetric matrix of a 3D vector.
 
     Args:
-        v (array-like): A 3-element vector.
+      v (array-like): A 3-element vector.
 
     Returns:
-        np.ndarray: 3x3 skew-symmetric matrix.
+      np.ndarray: 3x3 skew-symmetric matrix.
     """
     return np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
 
@@ -42,11 +42,11 @@ class VesselDynamics:
     for realistic handling.
 
     Attributes:
-        mass (float): Vessel mass in kg.
-        Ma (np.ndarray): 6x6 added mass matrix.
-        D_linear (np.ndarray): 6x6 linear damping matrix.
-        D_quad (np.ndarray): 6x6 quadratic damping matrix.
-        pub (rospy.Publisher): Publisher for hydrodynamic wrench.
+      mass (float): Vessel mass in kg.
+      Ma (np.ndarray): 6x6 added mass matrix.
+      D_linear (np.ndarray): 6x6 linear damping matrix.
+      D_quad (np.ndarray): 6x6 quadratic damping matrix.
+      pub (rospy.Publisher): Publisher for hydrodynamic wrench.
     """
 
     def __init__(self):
@@ -91,7 +91,7 @@ class VesselDynamics:
         on the vessel's current state.
 
         Args:
-            msg (Odometry): Current vessel odometry.
+          msg (Odometry): Current vessel odometry.
         """
         # 1. State Extraction
         p = msg.pose.pose.position

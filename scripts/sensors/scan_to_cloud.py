@@ -24,9 +24,9 @@ class ScanToCloud:
     3D space for compatibility with point cloud processing pipelines.
 
     Attributes:
-        laser_projector (LaserProjection): Projection utility instance.
-        scan_sub (rospy.Subscriber): Subscriber for LaserScan messages.
-        cloud_pub (rospy.Publisher): Publisher for PointCloud2 messages.
+      laser_projector (LaserProjection): Projection utility instance.
+      scan_sub (rospy.Subscriber): Subscriber for LaserScan messages.
+      cloud_pub (rospy.Publisher): Publisher for PointCloud2 messages.
     """
 
     def __init__(self):
@@ -51,7 +51,7 @@ class ScanToCloud:
         """Convert LaserScan to PointCloud2 and publish.
 
         Args:
-            scan_msg (LaserScan): Incoming 2D laser scan message.
+          scan_msg (LaserScan): Incoming 2D laser scan message.
         """
         try:
             cloud_msg = self.laser_projector.projectLaser(scan_msg)

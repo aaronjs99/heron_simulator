@@ -15,9 +15,9 @@ This package provides a Gazebo-based digital twin of the Heron USV platform. Arc
 - **On-Demand Perception Emulation**: Provides high-performance mock interfaces for vision-based defect detection when computational resources are prioritize for control or planning.
 - **Stochastic Disturbance Modeling**: Simulates complex maritime environment dynamics, including fluid currents and aerodynamic wind disturbances.
 - **Multi-Modal Sensor Synthesis**: 
-    - Stereoscopic Vision (Fisheye geometry emulation)
-    - Inertial Navigation (IMU)
-    - Global Positioning and Odometry (GPS/INS)
+  - Stereoscopic Vision (Fisheye geometry emulation)
+  - Inertial Navigation (IMU)
+  - Global Positioning and Odometry (GPS/INS)
 
 ## Analytical Modules
 | Module | Category | Functional Description |

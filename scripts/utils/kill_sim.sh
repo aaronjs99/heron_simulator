@@ -24,9 +24,9 @@ sleep 2
 # Verify
 remaining=$(pgrep -c -f "gzserver|rosmaster|roscore" 2>/dev/null || echo "0")
 if [ "$remaining" -gt 0 ]; then
-    echo "Warning: Some processes may still be running. Attempting force kill..."
-    pkill -9 -f "gzserver|rosmaster|roscore"
-    sleep 1
+  echo "Warning: Some processes may still be running. Attempting force kill..."
+  pkill -9 -f "gzserver|rosmaster|roscore"
+  sleep 1
 fi
 
 echo "All ROS/Gazebo processes killed. Ready to launch."

@@ -9,12 +9,12 @@ DURATION=600 # Seconds to run
 
 # Cleanup function
 cleanup() {
-    echo "Stopping recording..."
-    kill $FFMPEG_PID 2>/dev/null || true
-    kill $ROSBAG_PID 2>/dev/null || true
-    echo "Stopping simulation..."
-    rosnode kill -a
-    killall -9 gzserver gzclient rosmaster Xvfb 2>/dev/null || true
+  echo "Stopping recording..."
+  kill $FFMPEG_PID 2>/dev/null || true
+  kill $ROSBAG_PID 2>/dev/null || true
+  echo "Stopping simulation..."
+  rosnode kill -a
+  killall -9 gzserver gzclient rosmaster Xvfb 2>/dev/null || true
 }
 trap cleanup EXIT
 

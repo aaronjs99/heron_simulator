@@ -48,21 +48,21 @@ def make_sdf(name, sim_data):
 
     return f"""<?xml version="1.0"?>
 <sdf version="1.6">
-  <model name="{name}">
-    <static>true</static>
-    <link name="link">
-      <visual name="visual">
-        <geometry>{vis_xml}</geometry>
-        <material>
-          <ambient>{a_str}</ambient>
-          <diffuse>{d_str}</diffuse>
-        </material>
-      </visual>
-      <collision name="collision">
-        <geometry>{col_xml}</geometry>
-      </collision>
-    </link>
-  </model>
+ <model name="{name}">
+  <static>true</static>
+  <link name="link">
+   <visual name="visual">
+    <geometry>{vis_xml}</geometry>
+    <material>
+     <ambient>{a_str}</ambient>
+     <diffuse>{d_str}</diffuse>
+    </material>
+   </visual>
+   <collision name="collision">
+    <geometry>{col_xml}</geometry>
+   </collision>
+  </link>
+ </model>
 </sdf>
 """
 

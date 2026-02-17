@@ -5,10 +5,10 @@
 This node mimics the behavior of the `defector` perception stack for realistic
 "Hardware-in-the-Loop" simulation. It serves two key roles:
 1.  **Service Stub**: Responds to `/defector/capture_and_analyze` triggers with
-    probabilistically generated "dummy" defects (random bounding boxes and coverage scores).
+  probabilistically generated "dummy" defects (random bounding boxes and coverage scores).
 2.  **Visual Simulation**: Publishes a high-fidelity "Heads-Up Display" (HUD) to
-    `/defector/ai_debug_view`, simulating the scanning animations and status overlays
-    that would appear in the real Operator Control Unit.
+  `/defector/ai_debug_view`, simulating the scanning animations and status overlays
+  that would appear in the real Operator Control Unit.
 
 Use this node when running full-stack integration tests in Gazebo without valid
 camera data or GPU resources.
@@ -56,10 +56,10 @@ class MockDefectorService:
         Handle a capture request by generating a random result.
 
         Args:
-            req: Trigger request (empty).
+          req: Trigger request (empty).
 
         Returns:
-            TriggerResponse with success=True and a descriptive message.
+          TriggerResponse with success=True and a descriptive message.
         """
         self.capture_count += 1
 
