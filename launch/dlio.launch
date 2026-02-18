@@ -6,7 +6,7 @@
   <arg name="rviz" default="false"/>
 
   <!-- Topic remapping for Heron simulation -->
-  <arg name="pointcloud_topic" default="/lidar_h/velodyne_points"/>
+  <arg name="pointcloud_topic" default="/sensors/lidar/hori/points"/>
   <arg name="imu_topic" default="/imu/data"/>
 
   <!-- DLIO Odometry Node -->

@@ -49,7 +49,7 @@ echo "Settling..."
 sleep 5
 
 echo "Triggering Mission: Inspect Pillar 2..."
-rostopic pub -1 /oracle/query/voice std_msgs/String "data: 'inspect pillar 2'"
+rostopic pub -1 /oracle/input oracle/HumanQueryInput "{utterance: 'inspect pillar 2', session_id: 'headless_recording', execute: true, include_inspect: true, return_anchor: ''}"
 
 echo "Waiting for mission to execute ($DURATION seconds)..."
 sleep $DURATION

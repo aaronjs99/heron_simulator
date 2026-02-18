@@ -9,7 +9,7 @@ Subscribes:
 - lidar_h/scan (LaserScan)
 
 Publishes:
-- lidar_h/velodyne_points (PointCloud2)
+- /sensors/lidar/hori/points (PointCloud2)
 """
 
 import rospy
@@ -40,9 +40,9 @@ class ScanToCloud:
         self.scan_sub = rospy.Subscriber("lidar_h/scan", LaserScan, self.scan_callback)
 
         # Publish to the PointCloud2 topic
-        # Assuming the topic name based on the mariner config we are reverting to (lidar_h/velodyne_points)
-        self.cloud_pub = rospy.Publisher(
-            "lidar_h/velodyne_points", PointCloud2, queue_size=1
+        # Assuming the topic name based on the mariner config we are reverting to (/sensors/lidar/hori/points)
+        self.cloud_pub = rospy.get_publisher(
+            "/sensors/lidar/hori/points", PointCloud2, queue_size=1
         )
 
         rospy.spin()

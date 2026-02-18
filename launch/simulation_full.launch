@@ -59,7 +59,7 @@
   </include>
 
   <!-- Remap odometry for controller if DLIO is used (Global remap to affect imported controller) -->
-  <remap from="odometry/filtered" to="/dlio/odom_node/odom" if="$(arg use_dlio)"/>
+  <remap from="/odometry/filtered" to="/state/odometry/filtered" if="$(arg use_dlio)"/>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Convert LiDAR scan to PointCloud2 for Mariner -->
@@ -135,8 +135,8 @@
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <group if="$(arg use_dlio)">
     <include file="$(find heron_simulator)/launch/dlio.launch">
-      <arg name="pointcloud_topic" value="/lidar_h/velodyne_points"/>
-      <arg name="imu_topic" value="/imu/data"/>
+      <arg name="pointcloud_topic" value="/sensors/lidar/hori/points"/>
+      <arg name="imu_topic" value="/sensors/imu/data"/>
       <arg name="rviz" value="false"/>
     </include>
     <!-- Remap DLIO map to /map for Global Costmap -->
