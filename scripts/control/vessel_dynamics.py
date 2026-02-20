@@ -54,23 +54,21 @@ class VesselDynamics:
         rospy.init_node("vessel_dynamics")
 
         # --- Physical Parameters ---
-        self.mass = 28.0
-        self.volume = 0.13  # Displaced volume approx
-        self.rho = 1000.0  # Water density
+        self.mass = 38.0
+        self.volume = 0.1  # Realistic displacement volume for catamaran hulls
+        self.rho = 1025.0  # Seawater density (approx)
         self.g = 9.81
         self.hull_height = 0.32
-        self.water_level = 0.3  # Fixed verified water level
+        self.water_level = 0.0  # Ocean visual is at z=0
 
         # --- Added Mass Matrix (M_a) ---
-        # Official Repo: Zeros.
-        # Custom: Added inertial mass to prevent "drift car" feel.
-        self.Ma = np.diag([20.0, 40.0, 40.0, 0.0, 20.0, 20.0])
+        # Tuned for high payload (38kg)
+        self.Ma = np.diag([30.0, 60.0, 60.0, 0.0, 30.0, 30.0])
 
         # --- Damping Matrices ---
-        # Official Repo: Linear=[25,24,150...], Quad=[5,5,15...]
-        # Custom: Stiffened Sway(1) and Yaw(5) to lock movement to rails.
-        self.D_linear = np.diag([30.0, 80.0, 100.0, 20.0, 50.0, 50.0])
-        self.D_quad = np.diag([15.0, 50.0, 100.0, 15.0, 50.0, 50.0])
+        # Scaled for 38kg to maintain 'heavy' realistic feel
+        self.D_linear = np.diag([30.0, 70.0, 90.0, 20.0, 45.0, 45.0])
+        self.D_quad = np.diag([15.0, 45.0, 80.0, 15.0, 45.0, 45.0])
 
         # --- Stability ---
         self.gm_roll = 0.2

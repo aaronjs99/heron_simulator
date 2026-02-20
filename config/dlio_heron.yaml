@@ -34,7 +34,7 @@ dlio:
     imu: "imu_link"
 
   pointcloud:
-    deskew: true
+    deskew: false
     voxelize: true
 
   imu:

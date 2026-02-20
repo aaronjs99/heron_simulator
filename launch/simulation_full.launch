@@ -11,7 +11,7 @@
   <!-- Robot spawn position (at dock) -->
   <arg name="x" default="0.0"/>
   <arg name="y" default="0.0"/>
-  <arg name="z" default="0.1"/>
+  <arg name="z" default="-0.1"/>
   <arg name="yaw" default="0.0"/>
   
   <!-- Stack control -->
@@ -62,11 +62,6 @@
   <remap from="/odometry/filtered" to="/state/odometry/filtered" if="$(arg use_dlio)"/>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <!-- Convert LiDAR scan to PointCloud2 for Mariner -->
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <node pkg="heron_simulator" type="scan_to_cloud.py" name="scan_to_cloud" output="screen"/>
-
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Spawn inspection targets (pillars, dock, pipe inlet) -->
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <node pkg="heron_simulator" type="spawn_inspection_models.py" 
@@ -77,19 +72,7 @@
   <node pkg="tf2_ros" type="static_transform_publisher" name="map_to_odom"
         args="0 0 0 0 0 0 map odom"/>
 
-  <!-- Static TF: odom -> base_link -->
-  <node pkg="tf2_ros" type="static_transform_publisher" name="odom_to_base_link_init"
-        args="0 0 0 0 0 0 odom base_link"/>
-
-  <!-- Static TF: base_link -> imu_link -->
-  <!-- Extrinsics from dlio_heron.yaml: t=[0.0656, 0.091, 0.203] -->
-  <node pkg="tf2_ros" type="static_transform_publisher" name="base_to_imu_link"
-        args="0.0656 0.091 0.203 0 0 0 base_link imu_link"/>
-
-  <!-- Static TF: base_link -> lidar_h_link -->
-  <!-- Extrinsics from dlio_heron.yaml: t=[0, 0.091, 0.2683] -->
-  <node pkg="tf2_ros" type="static_transform_publisher" name="base_to_lidar_h"
-        args="0 0.091 0.2683 0 0 0 base_link lidar_h_link"/>
+  <!-- Sensor TFs are handled by URDF and robot_state_publisher -->
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Navigation Stack (move_base) -->
@@ -149,5 +132,12 @@
   <node pkg="heron_simulator" type="vel_cov_fixed.py" name="navsat_vel_cov_fixed" output="screen"/>
 
   <node pkg="mariner" type="costmap_to_image.py" name="costmap_visualizer" output="screen"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- External Hydrodynamics / Buoyancy Engine -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <node pkg="heron_simulator" type="vessel_dynamics.py" name="vessel_dynamics" output="screen">
+    <param name="namespace" value="heron"/>
+  </node>
   
 </launch>

@@ -69,6 +69,12 @@
             <min_angle>-3.14159</min_angle>
             <max_angle>3.14159</max_angle>
           </horizontal>
+          <vertical>
+            <samples>16</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.261799</min_angle> <!-- -15 deg -->
+            <max_angle>0.261799</max_angle>  <!-- +15 deg -->
+          </vertical>
         </scan>
         <range>
           <min>0.3</min>
@@ -81,9 +87,12 @@
           <stddev>0.01</stddev>
         </noise>
       </ray>
-      <plugin name="gazebo_ros_lidar_h_controller" filename="libgazebo_ros_laser.so">
-        <topicName>/lidar_h/scan</topicName>
+      <plugin name="gazebo_ros_lidar_h_controller" filename="libgazebo_ros_velodyne_laser.so">
+        <topicName>/sensors/lidar/hori/points</topicName>
         <frameName>lidar_h_link</frameName>
+        <min_range>0.1</min_range>
+        <max_range>100.0</max_range>
+        <gaussianNoise>0.005</gaussianNoise>
       </plugin>
     </sensor>
   </gazebo>
@@ -139,6 +148,12 @@
             <min_angle>-3.14159</min_angle>
             <max_angle>3.14159</max_angle>
           </horizontal>
+          <vertical>
+            <samples>16</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.261799</min_angle> <!-- -15 deg -->
+            <max_angle>0.261799</max_angle>  <!-- +15 deg -->
+          </vertical>
         </scan>
         <range>
           <min>0.3</min>
@@ -151,9 +166,12 @@
           <stddev>0.01</stddev>
         </noise>
       </ray>
-      <plugin name="gazebo_ros_lidar_v_controller" filename="libgazebo_ros_laser.so">
-        <topicName>/lidar_v/scan</topicName>
+      <plugin name="gazebo_ros_lidar_v_controller" filename="libgazebo_ros_velodyne_laser.so">
+        <topicName>/sensors/lidar/vert/points</topicName>
         <frameName>lidar_v_link</frameName>
+        <min_range>0.1</min_range>
+        <max_range>100.0</max_range>
+        <gaussianNoise>0.005</gaussianNoise>
       </plugin>
     </sensor>
   </gazebo>
@@ -203,7 +221,7 @@
          </range>
       </ray>
       <plugin name="gazebo_ros_range" filename="libgazebo_ros_range.so">
-        <topicName>/sonar/scan</topicName>
+        <topicName>/sensors/sonar/scan</topicName>
         <frameName>sonar_link</frameName>
         <radiation>ultrasound</radiation>
         <fov>0.5</fov>
@@ -282,7 +300,7 @@
       <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
         <alwaysOn>true</alwaysOn>
         <updateRate>0.0</updateRate>
-        <cameraName>heron/camera</cameraName>
+        <cameraName>sensors/camera/f1</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
         <frameName>camera_F1_link</frameName>
@@ -344,5 +362,20 @@
     <child link="debug_extra_link"/>
     <origin xyz="-0.0656 0.091 0.203" rpy="0 0 0"/>
   </joint>
+
+  <gazebo>
+    <plugin name="imu_controller" filename="libhector_gazebo_ros_imu.so">
+      <updateRate>50.0</updateRate>
+      <bodyName>base_link</bodyName>
+      <frameId>imu_link</frameId>
+      <topicName>/sensors/imu/data</topicName>
+      <accelDrift>0.005 0.005 0.005</accelDrift>
+      <accelGaussianNoise>0.005 0.005 0.005</accelGaussianNoise>
+      <rateDrift>0.005 0.005 0.005 </rateDrift>
+      <rateGaussianNoise>0.005 0.005 0.005 </rateGaussianNoise>
+      <headingDrift>0.005</headingDrift>
+      <headingGaussianNoise>0.005</headingGaussianNoise>
+    </plugin>
+  </gazebo>
 
 </robot>

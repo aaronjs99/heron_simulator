@@ -59,9 +59,9 @@
       <origin xyz="0 0 0.05" rpy="0 0 0"/>
     </collision>
     <inertial>
-      <mass value="30.0"/>
+      <mass value="38.0"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
-      <inertia ixx="2.5" ixy="0" ixz="0" iyy="4.5" iyz="0" izz="5.5"/>
+      <inertia ixx="3.4" ixy="0" ixz="0" iyy="6.0" iyz="0" izz="9.0"/>
     </inertial>
   </link>
 
@@ -127,6 +127,21 @@
     <child link="imu_link"/>
     <origin xyz="0.0656 0.091 0.203" rpy="0 0 0"/>
   </joint>
+  
+  <gazebo>
+    <plugin name="imu_controller" filename="libhector_gazebo_ros_imu.so">
+      <updateRate>50.0</updateRate>
+      <bodyName>imu_link</bodyName>
+      <frameId>imu_link</frameId>
+      <topicName>/sensors/imu/data</topicName>
+      <accelDrift>0.005 0.005 0.005</accelDrift>
+      <accelGaussianNoise>0.005 0.005 0.005</accelGaussianNoise>
+      <rateDrift>0.005 0.005 0.005 </rateDrift>
+      <rateGaussianNoise>0.005 0.005 0.005 </rateGaussianNoise>
+      <headingDrift>0.005</headingDrift>
+      <headingGaussianNoise>0.005</headingGaussianNoise>
+    </plugin>
+  </gazebo>
 
   <!-- ====================================================================== -->
   <!-- GPS/NavSat link (same position as IMU for now) -->
@@ -352,6 +367,41 @@
     <child link="sonar_link"/>
     <origin xyz="0 0 -0.08" rpy="0 0 0"/>
   </joint>
+  
+  <gazebo reference="sonar_link">
+    <sensor type="ray" name="sonar">
+      <update_rate>10</update_rate>
+      <ray>
+         <scan>
+            <horizontal>
+               <samples>3</samples>
+               <resolution>1</resolution>
+               <min_angle>-0.1</min_angle>
+               <max_angle>0.1</max_angle>
+            </horizontal>
+            <vertical>
+               <samples>3</samples>
+               <resolution>1</resolution>
+               <min_angle>-0.1</min_angle>
+               <max_angle>0.1</max_angle>
+            </vertical>
+         </scan>
+         <range>
+            <min>0.2</min>
+            <max>50.0</max>
+            <resolution>0.01</resolution>
+         </range>
+      </ray>
+      <plugin name="gazebo_ros_range" filename="libgazebo_ros_range.so">
+        <topicName>/sensors/sonar/scan</topicName>
+        <frameName>sonar_link</frameName>
+        <radiation>ultrasound</radiation>
+        <fov>0.5</fov>
+        <gaussianNoise>0.005</gaussianNoise>
+        <updateRate>10</updateRate>
+      </plugin>
+    </sensor>
+  </gazebo>
 
   <!-- ====================================================================== -->
   <!-- Debug/Extra Links (for compatibility) -->
@@ -427,10 +477,10 @@
             <max_angle>3.14159</max_angle>
           </horizontal>
           <vertical>
-            <samples>32</samples>
+            <samples>16</samples>
             <resolution>1</resolution>
-            <min_angle>-0.436</min_angle> <!-- -25 deg -->
-            <max_angle>0.261</max_angle>  <!-- +15 deg -->
+            <min_angle>-0.261799</min_angle> <!-- -15 deg -->
+            <max_angle>0.261799</max_angle>  <!-- +15 deg -->
           </vertical>
         </scan>
         <range>
@@ -445,13 +495,12 @@
         </noise>
       </ray>
       <plugin name="lidar_h_plugin" filename="libgazebo_ros_velodyne_laser.so">
-        <topicName>/lidar_h/velodyne_points</topicName>
+        <topicName>/sensors/lidar/hori/points</topicName>
         <frameName>lidar_h_link</frameName>
-        <min_range>1.2</min_range>
+        <min_range>0.1</min_range>
         <max_range>130.0</max_range>
-        <gaussianNoise>0.01</gaussianNoise>
+        <gaussianNoise>0.005</gaussianNoise>
         <min_intensity>0.0</min_intensity>
-        <organize_cloud>true</organize_cloud>
       </plugin>
     </sensor>
   </gazebo>
@@ -467,11 +516,17 @@
       <ray>
         <scan>
           <horizontal>
-            <samples>180</samples>
+            <samples>360</samples>
             <resolution>1</resolution>
-            <min_angle>-1.5708</min_angle>
-            <max_angle>1.5708</max_angle>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
           </horizontal>
+          <vertical>
+            <samples>16</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.261799</min_angle>
+            <max_angle>0.261799</max_angle>
+          </vertical>
         </scan>
         <range>
           <min>0.1</min>
@@ -485,13 +540,11 @@
         </noise>
       </ray>
       <plugin name="lidar_v_plugin" filename="libgazebo_ros_velodyne_laser.so">
-        <topicName>/lidar_v/velodyne_points</topicName>
+        <topicName>/sensors/lidar/vert/points</topicName>
         <frameName>lidar_v_link</frameName>
-        <min_range>1.2</min_range>
+        <min_range>0.1</min_range>
         <max_range>130.0</max_range>
-        <gaussianNoise>0.01</gaussianNoise>
-        <min_intensity>0.0</min_intensity>
-        <organize_cloud>true</organize_cloud>
+        <gaussianNoise>0.005</gaussianNoise>
       </plugin>
     </sensor>
   </gazebo>
@@ -522,7 +575,7 @@
       <plugin name="camera_F1_controller" filename="libgazebo_ros_camera.so">
         <alwaysOn>true</alwaysOn>
         <updateRate>30.0</updateRate>
-        <cameraName>camera_F1</cameraName>
+        <cameraName>sensors/camera/f1</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
         <frameName>camera_F1_optical_link</frameName>
@@ -556,7 +609,7 @@
       <plugin name="camera_F2_controller" filename="libgazebo_ros_camera.so">
         <alwaysOn>true</alwaysOn>
         <updateRate>30.0</updateRate>
-        <cameraName>camera_F2</cameraName>
+        <cameraName>sensors/camera/f2</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
         <frameName>camera_F2_optical_link</frameName>
@@ -586,12 +639,24 @@
   <gazebo>
     <plugin name="object_controller" filename="libgazebo_ros_planar_move.so">
       <commandTopic>/cmd_vel</commandTopic>
-      <odometryTopic>odom</odometryTopic>
+      <odometryTopic>/state/odometry</odometryTopic>
       <odometryFrame>odom</odometryFrame>
       <odometryRate>50.0</odometryRate>
       <robotBaseFrame>base_link</robotBaseFrame>
       <publishOdomTF>false</publishOdomTF>
       <cmdTimeout>-1.0</cmdTimeout>
+    </plugin>
+  </gazebo>
+
+  <!-- ====================================================================== -->
+  <!-- Force plugin for external buoyancy (receives from vessel_dynamics.py) -->
+  <!-- ====================================================================== -->
+  <gazebo>
+    <plugin name="gazebo_ros_force" filename="libgazebo_ros_force.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>50.0</updateRate>
+      <bodyName>base_link</bodyName>
+      <topicName>heron/hydro_forces</topicName>
     </plugin>
   </gazebo>
 

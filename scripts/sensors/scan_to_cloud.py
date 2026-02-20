@@ -37,11 +37,11 @@ class ScanToCloud:
 
         # Subscribe to the LaserScan topic
         # Assuming the topic name based on the mariner config we are reverting from (lidar_h/scan)
-        self.scan_sub = rospy.Subscriber("lidar_h/scan", LaserScan, self.scan_callback)
+        self.scan_sub = rospy.Subscriber("/sensors/lidar/hori/scan", LaserScan, self.scan_callback)
 
         # Publish to the PointCloud2 topic
         # Assuming the topic name based on the mariner config we are reverting to (/sensors/lidar/hori/points)
-        self.cloud_pub = rospy.get_publisher(
+        self.cloud_pub = rospy.Publisher(
             "/sensors/lidar/hori/points", PointCloud2, queue_size=1
         )
 
