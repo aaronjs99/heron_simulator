@@ -26,6 +26,13 @@
   <!-- DLIO SLAM -->
   <arg name="use_dlio" default="true"/>
 
+  <!-- Gazebo ownership -->
+  <arg name="start_gazebo" default="true"/>
+  <arg name="gazebo_master_port" default="11345"/>
+
+  <!-- Ensure all included nodes use the same Gazebo master -->
+  <env name="GAZEBO_MASTER_URI" value="http://127.0.0.1:$(arg gazebo_master_port)"/>
+
   <!-- Benchmark against ig_handle: Use custom sensor URDF extras -->
   <!-- Note: We use 'config' arg to pass a file that exports HERON_URDF_EXTRAS -->
   <!-- <env name="HERON_URDF_EXTRAS" ...> was ineffective for xacro command -->
@@ -43,6 +50,8 @@
   <node pkg="slam_grande" type="select_anchors.sh" name="anchor_updater" args="sim" output="screen" unless="$(arg use_oracle)" />
 
   <include file="$(find heron_simulator)/launch/heron_world.launch">
+    <arg name="start_gazebo" value="$(arg start_gazebo)"/>
+    <arg name="gazebo_master_port" value="$(arg gazebo_master_port)"/>
     <arg name="config" value="ig_handle_benchmark"/>
     <arg name="gui" value="$(arg gui)"/>
     <arg name="headless" value="$(arg headless)"/>
@@ -50,12 +59,8 @@
     <arg name="x" value="$(arg x)"/>
     <arg name="y" value="$(arg y)"/>
     <arg name="yaw" value="$(arg yaw)"/>
-    <!-- Disable EKF if using DLIO to prevent TF conflicts -->
-    <arg name="enable_ekf" value="false" if="$(arg use_dlio)"/>
-    <arg name="enable_ekf" value="true" unless="$(arg use_dlio)"/>
-    <!-- Disable NavSat transform if using DLIO to prevent conflicting TF publications -->
-    <arg name="enable_navsat" value="false" if="$(arg use_dlio)"/>
-    <arg name="enable_navsat" value="true" unless="$(arg use_dlio)"/>
+    <arg name="enable_ekf"   value="$(eval 'false' if arg('use_dlio')=='true' else 'true')"/>
+    <arg name="enable_navsat" value="$(eval 'false' if arg('use_dlio')=='true' else 'true')"/>
   </include>
 
   <!-- Remap odometry for controller if DLIO is used (Global remap to affect imported controller) -->

@@ -59,8 +59,6 @@ catkin_install_python(PROGRAMS
 #############################################################################
 
 install(PROGRAMS
-  scripts/utils/kill_sim.sh
-  scripts/utils/launch_sim.sh
-  scripts/utils/run_headless_recording.sh
+  scripts/tools/reset_gazebo.sh
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
