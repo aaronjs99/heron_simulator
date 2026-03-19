@@ -1,0 +1,11 @@
+rate: 30.0
+cmd_timeout: 0.75
+time_constant_up: 0.35
+time_constant_down: 0.25
+max_delta_per_sec: 2.5
+command_deadband: 0.03
+left_scale: 1.0
+right_scale: 1.0
+left_bias: 0.0
+right_bias: 0.0
+thrust_noise_stddev: 0.0

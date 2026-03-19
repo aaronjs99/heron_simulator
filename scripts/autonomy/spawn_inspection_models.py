@@ -10,11 +10,43 @@ Cognitive Map (ORACLE), ensuring that every "Inspection Target" (Pillar, Pipe, D
 that the LLM knows about actually physically exists in the simulation.
 """
 import rospy
-from gazebo_msgs.srv import SpawnModel
+from gazebo_msgs.srv import GetWorldProperties, SpawnModel
 from geometry_msgs.msg import Pose, Point, Quaternion
 import yaml
 import os
 import rospkg
+
+
+def _make_service_proxy(service_name, service_type, persistent=True):
+    proxy = rospy.ServiceProxy(service_name, service_type, persistent=persistent)
+    return proxy
+
+
+def _call_spawn_model(proxy, anchor_id, sdf, pose, retries=3):
+    last_error = None
+    for attempt in range(1, retries + 1):
+        if rospy.is_shutdown():
+            break
+        try:
+            return proxy(anchor_id, sdf, "", pose, "world"), proxy
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            last_error = e
+            rospy.logwarn(
+                "  Spawn call for %s failed on attempt %d/%d: %s",
+                anchor_id,
+                attempt,
+                retries,
+                e,
+            )
+            try:
+                proxy.close()
+            except Exception:
+                pass
+            if attempt < retries:
+                rospy.sleep(0.25)
+                rospy.wait_for_service("/gazebo/spawn_sdf_model", timeout=5.0)
+                proxy = _make_service_proxy("/gazebo/spawn_sdf_model", SpawnModel)
+    raise last_error
 
 
 def make_sdf(name, sim_data):
@@ -26,14 +58,30 @@ def make_sdf(name, sim_data):
     def get_geom_xml(props, gtype):
         if gtype == "box":
             s = props.get("size", [1, 1, 1])
-            rospy.loginfo(f"  > {name} {gtype} size={s}")
             return f"<box><size>{s[0]} {s[1]} {s[2]}</size></box>"
         elif gtype == "cylinder":
             r = float(props.get("radius", 0.5))
             l = float(props.get("length", 1.0))
-            rospy.loginfo(f"  > {name} {gtype} r={r:.2f} l={l:.2f}")
             return f"<cylinder><radius>{r}</radius><length>{l}</length></cylinder>"
         return ""
+
+    def describe_geom(props, gtype):
+        if gtype == "box":
+            s = props.get("size", [1, 1, 1])
+            return f"{gtype} size={s}"
+        if gtype == "cylinder":
+            r = float(props.get("radius", 0.5))
+            l = float(props.get("length", 1.0))
+            return f"{gtype} r={r:.2f} l={l:.2f}"
+        return gtype
+
+    vis_desc = describe_geom(visual, geom_type)
+    col_desc = describe_geom(collision, geom_type)
+    if vis_desc == col_desc:
+        rospy.loginfo(f"  > {name} {vis_desc}")
+    else:
+        rospy.loginfo(f"  > {name} visual {vis_desc}")
+        rospy.loginfo(f"  > {name} collision {col_desc}")
 
     vis_xml = get_geom_xml(visual, geom_type)
     col_xml = get_geom_xml(collision, geom_type)
@@ -77,6 +125,7 @@ def load_anchors():
 
 def main():
     rospy.init_node("spawn_inspection_models", anonymous=True)
+    hold_open = rospy.get_param("~hold_open", True)
 
     rospy.loginfo("Loading anchors from YAML...")
     try:
@@ -87,9 +136,21 @@ def main():
 
     rospy.loginfo("Waiting for gazebo/spawn_sdf_model service...")
     rospy.wait_for_service("/gazebo/spawn_sdf_model", timeout=60.0)
-    spawn_model = rospy.ServiceProxy("/gazebo/spawn_sdf_model", SpawnModel)
+    spawn_model = _make_service_proxy("/gazebo/spawn_sdf_model", SpawnModel)
+    get_world_properties = None
+    existing_models = set()
+    try:
+        rospy.wait_for_service("/gazebo/get_world_properties", timeout=5.0)
+        get_world_properties = _make_service_proxy(
+            "/gazebo/get_world_properties", GetWorldProperties
+        )
+        existing_models = set(get_world_properties().model_names)
+        rospy.loginfo("Existing Gazebo models: %d", len(existing_models))
+    except (rospy.ROSException, rospy.ServiceException) as e:
+        rospy.logwarn("Could not query existing Gazebo models: %s", e)
 
     rospy.loginfo("Spawning inspection models...")
+    failures = []
 
     # Support both hierarchical dictionary and list-based formats
     anchors_list = []
@@ -145,18 +206,45 @@ def main():
         # Now passing the whole 'sim' dictionary
         sdf = make_sdf(anchor_id, sim)
 
+        if anchor_id in existing_models:
+            rospy.loginfo(f"  Skipping {anchor_id}: model already exists.")
+            continue
+
         try:
-            resp = spawn_model(anchor_id, sdf, "", pose, "world")
+            resp, spawn_model = _call_spawn_model(spawn_model, anchor_id, sdf, pose)
             if resp.success:
+                existing_models.add(anchor_id)
                 rospy.loginfo(
                     f"  Spawned {anchor_id} at ({p['x']}, {p['y']}, {p['z']})"
                 )
             else:
+                failures.append((anchor_id, resp.status_message))
                 rospy.logwarn(f"  Failed to spawn {anchor_id}: {resp.status_message}")
-        except rospy.ServiceException as e:
+        except (rospy.ServiceException, rospy.ROSException) as e:
+            failures.append((anchor_id, str(e)))
             rospy.logerr(f"  Service call failed for {anchor_id}: {e}")
 
-    rospy.loginfo("Inspection models spawned successfully!")
+    try:
+        spawn_model.close()
+    except Exception:
+        pass
+    try:
+        get_world_properties.close()
+    except Exception:
+        pass
+
+    if failures:
+        rospy.logerr(
+            "Inspection models completed with %d failures: %s",
+            len(failures),
+            ", ".join(anchor_id for anchor_id, _ in failures[:10]),
+        )
+        raise SystemExit(1)
+    else:
+        rospy.loginfo("Inspection models spawned successfully!")
+        if hold_open:
+            rospy.loginfo("Inspection model spawner standing by.")
+            rospy.spin()
 
 
 if __name__ == "__main__":

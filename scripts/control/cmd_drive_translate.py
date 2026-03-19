@@ -39,7 +39,7 @@ class ThrusterTranslator:
     def __init__(self):
         rospy.init_node("cmd_drive_to_thrusters")
 
-        namespace = rospy.get_param("~namespace", "heron")
+        namespace = rospy.get_param("~namespace", "")
 
         # Thrust model parameters (from empirical data)
         self.input_points = np.array(
@@ -52,9 +52,22 @@ class ThrusterTranslator:
         if namespace:
             prefix = f"/{namespace}"
         else:
-            # Match the double slash artifact from xacro if it's happening there
-            # snippets.xacro: /${robot_namespace}/thrusters/... -> //thrusters/...
-            prefix = "/"
+            prefix = ""
+
+        self.rate_hz = float(rospy.get_param("~rate", 30.0))
+        self.cmd_timeout = float(rospy.get_param("~cmd_timeout", 0.75))
+        self.time_constant_up = float(rospy.get_param("~time_constant_up", 0.35))
+        self.time_constant_down = float(rospy.get_param("~time_constant_down", 0.25))
+        self.max_delta_per_sec = float(rospy.get_param("~max_delta_per_sec", 2.5))
+        self.command_deadband = float(rospy.get_param("~command_deadband", 0.03))
+        self.left_scale = float(rospy.get_param("~left_scale", 1.0))
+        self.right_scale = float(rospy.get_param("~right_scale", 1.0))
+        self.left_bias = float(rospy.get_param("~left_bias", 0.0))
+        self.right_bias = float(rospy.get_param("~right_bias", 0.0))
+        self.thrust_noise_stddev = float(rospy.get_param("~thrust_noise_stddev", 0.0))
+        self.rng = np.random.default_rng(
+            int(rospy.get_param("~random_seed", rospy.Time.now().to_nsec() % 2**32))
+        )
 
         self.p_left = rospy.Publisher(
             f"{prefix}/thrusters/1/input", Wrench, queue_size=1
@@ -64,6 +77,13 @@ class ThrusterTranslator:
         )
 
         self.sub = rospy.Subscriber("cmd_drive", Drive, self.callback)
+        self.target_left = 0.0
+        self.target_right = 0.0
+        self.actual_left = 0.0
+        self.actual_right = 0.0
+        self.last_cmd_time = rospy.Time.now()
+        self.last_update_time = rospy.Time.now()
+        self.timer = rospy.Timer(rospy.Duration(1.0 / self.rate_hz), self.update)
         rospy.loginfo(f"Thruster translator initialized for namespace: {namespace}")
 
     def get_thrust(self, cmd):
@@ -71,14 +91,53 @@ class ThrusterTranslator:
         return np.interp(cmd, self.input_points, self.output_thrust)
 
     def callback(self, msg):
-        # Left Thruster
+        self.target_left = self.shape_command(msg.left, self.left_scale, self.left_bias)
+        self.target_right = self.shape_command(
+            msg.right, self.right_scale, self.right_bias
+        )
+        self.last_cmd_time = rospy.Time.now()
+
+    def shape_command(self, cmd, scale, bias):
+        cmd = float(np.clip(cmd, -1.0, 1.0))
+        if abs(cmd) < self.command_deadband:
+            return 0.0
+        shaped = (cmd * scale) + (bias if cmd > 0.0 else -bias)
+        return float(np.clip(shaped, -1.0, 1.0))
+
+    def slew_and_lag(self, actual, target, dt):
+        max_step = self.max_delta_per_sec * dt
+        slewed_target = actual + np.clip(target - actual, -max_step, max_step)
+        tau = self.time_constant_up if abs(slewed_target) > abs(actual) else self.time_constant_down
+        alpha = 1.0 if tau <= 1e-6 else 1.0 - np.exp(-dt / tau)
+        return actual + alpha * (slewed_target - actual)
+
+    def update(self, _event):
+        now = rospy.Time.now()
+        dt = max((now - self.last_update_time).to_sec(), 1e-3)
+        self.last_update_time = now
+
+        if (now - self.last_cmd_time).to_sec() > self.cmd_timeout:
+            self.target_left = 0.0
+            self.target_right = 0.0
+
+        self.actual_left = self.slew_and_lag(self.actual_left, self.target_left, dt)
+        self.actual_right = self.slew_and_lag(
+            self.actual_right, self.target_right, dt
+        )
+
+        left_force = self.get_thrust(self.actual_left)
+        right_force = self.get_thrust(self.actual_right)
+
+        if self.thrust_noise_stddev > 0.0:
+            left_force += self.rng.normal(0.0, self.thrust_noise_stddev)
+            right_force += self.rng.normal(0.0, self.thrust_noise_stddev)
+
         left_wrench = Wrench()
-        left_wrench.force.x = self.get_thrust(msg.left)
+        left_wrench.force.x = left_force
         self.p_left.publish(left_wrench)
 
-        # Right Thruster
         right_wrench = Wrench()
-        right_wrench.force.x = self.get_thrust(msg.right)
+        right_wrench.force.x = right_force
         self.p_right.publish(right_wrench)
 
 

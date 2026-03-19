@@ -45,6 +45,7 @@
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>nav_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>gazebo_msgs</exec_depend>
   <exec_depend>tf</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
 
@@ -60,6 +61,8 @@
   <!-- Navigation -->
   <exec_depend>move_base</exec_depend>
   <exec_depend>robot_localization</exec_depend>
+  <exec_depend>topic_tools</exec_depend>
+  <exec_depend>direct_lidar_inertial_odometry</exec_depend>
 
   <!-- SLAM GRANDE packages -->
   <exec_depend>mariner</exec_depend>

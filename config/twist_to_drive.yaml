@@ -1,0 +1,12 @@
+max_linear: 1.0
+max_angular: 0.35
+mix_gain: 1.0
+deadband: 0.01
+floor: 0.06
+alpha: 0.35
+rate: 25.0
+timeout: 0.5
+ramp_down: 0.75
+sign_hysteresis: 0.02
+sign_dwell: 0.05
+no_reverse_v_thresh: 0.25

@@ -73,14 +73,62 @@ class VesselDynamics:
         # --- Stability ---
         self.gm_roll = 0.2
         self.gm_pitch = 0.2
+        self.rho_air = 1.225
+        # The Heron has low freeboard, so calm-water wind loads should stay modest by default.
+        self.wind_drag_coeff = float(rospy.get_param("~wind_drag_coeff", 0.85))
+        self.wind_area = np.array(
+            rospy.get_param("~wind_area", [0.18, 0.45]), dtype=float
+        )
+
+        self.current_mean = np.array(
+            rospy.get_param("~water_current_mean", [0.08, 0.02, 0.0]), dtype=float
+        )
+        self.current_std = np.array(
+            rospy.get_param("~water_current_std", [0.03, 0.02, 0.0]), dtype=float
+        )
+        self.current_tau = float(rospy.get_param("~water_current_tau", 15.0))
+
+        self.wind_mean = np.array(
+            rospy.get_param("~wind_mean", [0.25, 0.08, 0.0]), dtype=float
+        )
+        self.wind_std = np.array(
+            rospy.get_param("~wind_std", [0.12, 0.08, 0.0]), dtype=float
+        )
+        self.wind_tau = float(rospy.get_param("~wind_tau", 16.0))
+        self.wind_speed_limit = float(rospy.get_param("~wind_speed_limit", 0.6))
+
+        self.wave_force_std = np.array(
+            rospy.get_param("~wave_force_std", [0.0, 1.5, 4.0]), dtype=float
+        )
+        self.wave_torque_std = np.array(
+            rospy.get_param("~wave_torque_std", [1.2, 1.2, 0.25]), dtype=float
+        )
+        self.wave_tau = float(rospy.get_param("~wave_tau", 2.5))
+        self.rng = np.random.default_rng(
+            int(rospy.get_param("~random_seed", rospy.Time.now().to_nsec() % 2**32))
+        )
+        self.current_state = self.current_mean.copy()
+        self.wind_state = self.wind_mean.copy()
+        self.wave_force_state = np.zeros(3)
+        self.wave_torque_state = np.zeros(3)
+        self.last_stamp = None
 
         # --- ROS Setup ---
-        namespace = rospy.get_param("~namespace", "heron")
+        namespace = rospy.get_param("~namespace", "")
+        odom_topic = rospy.get_param("~odom_topic", "pose_gt")
         topic_name = f"/{namespace}/hydro_forces" if namespace else "/hydro_forces"
         self.pub = rospy.Publisher(topic_name, Wrench, queue_size=1)
-        self.sub = rospy.Subscriber("ground_truth/odom", Odometry, self.odom_cb)
+        self.sub = rospy.Subscriber(odom_topic, Odometry, self.odom_cb)
 
         rospy.loginfo("Fossen Dynamics Engine initialized (Heavy Tune).")
+
+    def update_ou_state(self, state, mean, std, tau, dt):
+        """Advance an Ornstein-Uhlenbeck disturbance state."""
+        if tau <= 1e-6:
+            return mean.copy()
+        sigma = np.sqrt(2.0 / tau) * std
+        noise = self.rng.normal(0.0, 1.0, size=state.shape)
+        return state + ((mean - state) / tau) * dt + sigma * np.sqrt(dt) * noise
 
     def odom_cb(self, msg):
         """Compute and publish hydrodynamic forces from odometry.
@@ -95,6 +143,12 @@ class VesselDynamics:
         p = msg.pose.pose.position
         q_obj = msg.pose.pose.orientation
         q = [q_obj.x, q_obj.y, q_obj.z, q_obj.w]
+        stamp = msg.header.stamp if msg.header.stamp != rospy.Time() else rospy.Time.now()
+        if self.last_stamp is None:
+            dt = 0.02
+        else:
+            dt = max((stamp - self.last_stamp).to_sec(), 1e-3)
+        self.last_stamp = stamp
 
         # Linear/Angular Velocities (in Body Frame)
         nu_lin = np.array(
@@ -124,6 +178,28 @@ class VesselDynamics:
         f_b_world = np.array([0, 0, f_buoyancy])
         f_b_body = np.dot(rot_mat.T, f_b_world)
 
+        self.current_state = self.update_ou_state(
+            self.current_state, self.current_mean, self.current_std, self.current_tau, dt
+        )
+        self.wind_state = self.update_ou_state(
+            self.wind_state, self.wind_mean, self.wind_std, self.wind_tau, dt
+        )
+        wind_xy = self.wind_state[:2]
+        wind_xy_speed = np.linalg.norm(wind_xy)
+        if self.wind_speed_limit > 1e-6 and wind_xy_speed > self.wind_speed_limit:
+            self.wind_state[:2] = wind_xy * (self.wind_speed_limit / wind_xy_speed)
+        self.wave_force_state = self.update_ou_state(
+            self.wave_force_state, np.zeros(3), self.wave_force_std, self.wave_tau, dt
+        )
+        self.wave_torque_state = self.update_ou_state(
+            self.wave_torque_state, np.zeros(3), self.wave_torque_std, self.wave_tau, dt
+        )
+
+        current_body = np.dot(rot_mat.T, self.current_state)
+        wind_body = np.dot(rot_mat.T, self.wind_state)
+        rel_water_lin = nu_lin - current_body
+        rel_air_lin = wind_body - nu_lin
+
         # Metacentric Righting Moments
         r, p_ang, y = tr.euler_from_quaternion(q)
         tau_restoring = np.array(
@@ -135,29 +211,62 @@ class VesselDynamics:
         )
 
         # 3. Damping Forces D(nu)*nu
-        # D_total = D_lin + D_quad * |nu|
-        D_total = self.D_linear + self.D_quad * np.abs(
-            np.diag(nu)
-        )  # Simplified element-wise
-        f_damping = -np.dot(D_total, nu)
+        rel_nu = np.concatenate([rel_water_lin, nu_ang])
+        D_total = self.D_linear + np.diag(np.diag(self.D_quad) * np.abs(rel_nu))
+        f_damping = -np.dot(D_total, rel_nu)
 
         # 4. Coriolis Forces C(nu)*nu
         # Only implementing Rigid Body Coriolis (C_rb) for simplicity,
         # acts to destabilize/couple axes during turns.
-        f_coriolis_lin = -self.mass * np.cross(nu_ang, nu_lin)
+        f_coriolis_lin = -self.mass * np.cross(nu_ang, rel_water_lin)
         f_coriolis = np.concatenate([f_coriolis_lin, [0, 0, 0]])
+
+        wind_force = np.array(
+            [
+                0.5
+                * self.rho_air
+                * self.wind_drag_coeff
+                * self.wind_area[0]
+                * rel_air_lin[0]
+                * abs(rel_air_lin[0]),
+                0.5
+                * self.rho_air
+                * self.wind_drag_coeff
+                * self.wind_area[1]
+                * rel_air_lin[1]
+                * abs(rel_air_lin[1]),
+                0.0,
+            ]
+        )
+        wind_torque = np.array(
+            [
+                0.10 * wind_force[1],
+                -0.08 * wind_force[0],
+                0.20 * wind_force[1],
+            ]
+        )
 
         # 5. Summation
         wrench = Wrench()
         # Linear Forces
-        wrench.force.x = f_damping[0] + f_coriolis[0] + f_b_body[0]
-        wrench.force.y = f_damping[1] + f_coriolis[1] + f_b_body[1]
-        wrench.force.z = f_damping[2] + f_coriolis[2] + f_b_body[2]
+        wrench.force.x = (
+            f_damping[0] + f_coriolis[0] + f_b_body[0] + wind_force[0] + self.wave_force_state[0]
+        )
+        wrench.force.y = (
+            f_damping[1] + f_coriolis[1] + f_b_body[1] + wind_force[1] + self.wave_force_state[1]
+        )
+        wrench.force.z = f_damping[2] + f_coriolis[2] + f_b_body[2] + self.wave_force_state[2]
 
         # Torques
-        wrench.torque.x = f_damping[3] + f_coriolis[3] + tau_restoring[0]
-        wrench.torque.y = f_damping[4] + f_coriolis[4] + tau_restoring[1]
-        wrench.torque.z = f_damping[5] + f_coriolis[5] + tau_restoring[2]
+        wrench.torque.x = (
+            f_damping[3] + f_coriolis[3] + tau_restoring[0] + wind_torque[0] + self.wave_torque_state[0]
+        )
+        wrench.torque.y = (
+            f_damping[4] + f_coriolis[4] + tau_restoring[1] + wind_torque[1] + self.wave_torque_state[1]
+        )
+        wrench.torque.z = (
+            f_damping[5] + f_coriolis[5] + tau_restoring[2] + wind_torque[2] + self.wave_torque_state[2]
+        )
 
         self.pub.publish(wrench)
 

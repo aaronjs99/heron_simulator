@@ -17,13 +17,16 @@ class PathVisualizerPlugin : public VisualPlugin {
 public:
   PathVisualizerPlugin()
       : visual_(nullptr),
+        nh_(nullptr),
         scene_(nullptr),
         manual_object_(nullptr),
         global_path_object_(nullptr),
         scene_node_(nullptr),
         robot_visual_(nullptr),
         new_path_received_(false),
-        new_global_path_received_(false) {}
+        new_global_path_received_(false),
+        initialized_(false),
+        warned_waiting_for_ros_(false) {}
   virtual ~PathVisualizerPlugin() {
     if (nh_) {
       nh_->shutdown();
@@ -33,9 +36,22 @@ public:
 
   void Load(rendering::VisualPtr _parent, sdf::ElementPtr _sdf) {
     this->visual_ = _parent;
+    this->update_connection_ =
+        event::Events::ConnectPreRender(std::bind(&PathVisualizerPlugin::OnUpdate, this));
+
+    this->TryInitialize();
+  }
+
+private:
+  void TryInitialize() {
+    if (this->initialized_) return;
+    if (!this->visual_) return;
 
     if (!ros::isInitialized()) {
-      ROS_FATAL_STREAM("A ROS node for Gazebo has not been initialized");
+      if (!this->warned_waiting_for_ros_) {
+        ROS_DEBUG_STREAM("[PathVisualizerPlugin] Gazebo ROS is not ready yet; delaying plugin initialization.");
+        this->warned_waiting_for_ros_ = true;
+      }
       return;
     }
 
@@ -43,18 +59,23 @@ public:
 
     // Get Gazebo Scene
     this->scene_ = this->visual_->GetScene();
+    if (!this->scene_) return;
     Ogre::SceneManager* scene_manager = this->scene_->OgreSceneManager();
+    if (!scene_manager) return;
+
+    static int instance_id = 0;
+    const std::string suffix = "_" + std::to_string(instance_id++);
 
     // Create ManualObject for Ribbon (Local Plan)
     this->scene_node_ = this->visual_->GetSceneNode()->createChildSceneNode();
-    this->manual_object_ = scene_manager->createManualObject("PathRibbon_MO");
+    this->manual_object_ = scene_manager->createManualObject("PathRibbon_MO" + suffix);
     this->manual_object_->setDynamic(true);
     // CRITICAL: Infinite BBox to prevent culling
     this->manual_object_->setBoundingBox(Ogre::AxisAlignedBox::BOX_INFINITE);
     this->scene_node_->attachObject(this->manual_object_);
 
     // Create ManualObject for Global Plan (thin line)
-    this->global_path_object_ = scene_manager->createManualObject("GlobalPath_MO");
+    this->global_path_object_ = scene_manager->createManualObject("GlobalPath_MO" + suffix);
     this->global_path_object_->setDynamic(true);
     this->global_path_object_->setBoundingBox(Ogre::AxisAlignedBox::BOX_INFINITE);
     this->scene_node_->attachObject(this->global_path_object_);
@@ -67,12 +88,10 @@ public:
     this->global_sub_ = this->nh_->subscribe("/move_base/TebLocalPlannerROS/global_plan", 1,
                                              &PathVisualizerPlugin::GlobalPathCallback, this);
 
-    this->update_connection_ = event::Events::ConnectPreRender(std::bind(&PathVisualizerPlugin::OnUpdate, this));
-
+    this->initialized_ = true;
     ROS_INFO("[PathVisualizerPlugin] LOADED! Ribbon + Global Line Mode.");
   }
 
-private:
   void PathCallback(const nav_msgs::Path::ConstPtr& msg) {
     std::lock_guard<std::mutex> lock(this->mutex_);
     this->latest_path_ = *msg;
@@ -86,6 +105,11 @@ private:
   }
 
   void OnUpdate() {
+    if (!this->initialized_) {
+      this->TryInitialize();
+      return;
+    }
+
     if (this->new_path_received_) {
       // ROS_WARN_STREAM_THROTTLE(5.0, "Updating Ribbon...");
       this->new_path_received_ = false;
@@ -257,6 +281,8 @@ private:
   bool new_global_path_received_;
   ros::Subscriber global_sub_;
   Ogre::ManualObject* global_path_object_;
+  bool initialized_;
+  bool warned_waiting_for_ros_;
 };
 
 // Register this plugin with the simulator

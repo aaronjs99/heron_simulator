@@ -25,6 +25,8 @@
     <gravity>0 0 -9.80665</gravity>
     <scene>
       <ambient>0.01 0.01 0.01 1.0</ambient>
+      <background>0.70 0.84 0.95 1.0</background>
+      <grid>false</grid>
       <sky>
         <clouds>
           <speed>12</speed>
@@ -65,11 +67,32 @@
     </include>
     -->
 
-    <!-- Bounding box with sea surface -->
-    <include>
-      <uri>model://ocean</uri>
+    <!-- Inline water surface visual.
+         Keep this in the world file so rendering does not depend on whichever
+         conflicting model://ocean definition Gazebo resolves first. -->
+    <model name="water_surface_visual">
+      <static>true</static>
+      <link name="water_link">
+        <visual name="water_surface">
+          <cast_shadows>false</cast_shadows>
+          <!-- Slightly above z=0 so the GUI grid does not visually dominate it. -->
+          <pose>0 0 0.01 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>2000 2000 0.02</size>
+            </box>
+          </geometry>
+          <transparency>0.12</transparency>
+          <material>
+            <ambient>0.02 0.20 0.42 1</ambient>
+            <diffuse>0.05 0.32 0.62 1</diffuse>
+            <specular>0.08 0.08 0.08 1</specular>
+            <emissive>0.01 0.08 0.16 1</emissive>
+          </material>
+        </visual>
+      </link>
       <pose>0 0 0 0 0 0</pose>
-    </include>
+    </model>
 
     <!-- Heightmap -->
     <!--

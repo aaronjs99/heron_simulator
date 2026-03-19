@@ -34,25 +34,58 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="gui" default="true"/>
   <arg name="headless" default="false"/>
   <arg name="paused" default="false"/>
+  <arg name="verbose" default="false"/>
   <arg name="set_timeout" default="false"/>
   <arg name="timeout" default="0.0"/>
   <arg name="enable_ekf" default="true"/>
   <arg name="enable_navsat" default="true"/>
+  <arg name="use_interactive_marker" default="false"/>
+  <arg name="control_startup_delay_sec" default="0.0"/>
+  <arg name="gui_startup_delay_sec" default="5.0"/>
+  <arg name="force_software_rendering" default="false"/>
+  <arg name="bootstrap_pause" default="true"/>
+  <arg name="autounpause_delay_sec" default="10.0"/>
 
   <arg name="start_gazebo" default="true"/>
   <arg name="gazebo_master_port" default="11345"/>
+  <arg name="gazebo_extra_args" default="--lockstep"/>
   <env name="GAZEBO_MASTER_URI" value="http://127.0.0.1:$(arg gazebo_master_port)"/>
 
   <group if="$(arg start_gazebo)">
+    <env name="LIBGL_DEBUG" value="quiet"/>
+    <env name="MESA_DEBUG" value="silent"/>
+    <env name="MESA_LOG_LEVEL" value="error"/>
+    <env name="MESA_LOG_FILE" value="/dev/null"/>
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
       <arg name="world_name" value="$(find heron_simulator)/worlds/ocean_surface.world"/>
-      <arg name="paused" value="$(arg paused)"/>
+      <arg name="paused" value="$(eval 'true' if str(arg('paused')).lower() == 'true' or str(arg('bootstrap_pause')).lower() == 'true' else 'false')"/>
       <arg name="use_sim_time" value="true"/>
-      <arg name="gui" value="$(arg gui)"/>
+      <arg name="gui" value="false"/>
       <arg name="headless" value="$(arg headless)"/>
       <arg name="debug" value="false"/>
-      <arg name="verbose" value="true"/>
+      <arg name="verbose" value="$(arg verbose)"/>
+      <arg name="extra_gazebo_args" value="$(arg gazebo_extra_args)"/>
     </include>
+
+    <node if="$(eval str(arg('bootstrap_pause')).lower() == 'true' and str(arg('paused')).lower() != 'true')"
+          name="gazebo_startup_unpause"
+          pkg="heron_simulator"
+          type="startup_unpause.py"
+          output="screen">
+      <param name="delay_sec" value="$(arg autounpause_delay_sec)"/>
+      <param name="service" value="/gazebo/unpause_physics"/>
+    </node>
+
+    <node if="$(arg gui)" name="gazebo_gui" pkg="heron_simulator" type="gzclient_plain.py"
+          output="screen"
+          args="$(eval '--verbose' if str(arg('verbose')).lower() == 'true' else '')">
+      <env name="GAZEBO_GUI_STARTUP_DELAY_SEC" value="$(arg gui_startup_delay_sec)"/>
+      <env name="GAZEBO_GUI_SOFTWARE_RENDERING" value="$(arg force_software_rendering)"/>
+      <env name="LIBGL_DEBUG" value="quiet"/>
+      <env name="MESA_DEBUG" value="silent"/>
+      <env name="MESA_LOG_LEVEL" value="error"/>
+      <env name="MESA_LOG_FILE" value="/dev/null"/>
+    </node>
   </group>
 
   <include file="$(find heron_simulator)/launch/spawn_heron.launch">
@@ -63,6 +96,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="config" value="$(arg config)" />
     <arg name="enable_ekf" value="$(arg enable_ekf)" />
     <arg name="enable_navsat" value="$(arg enable_navsat)" />
+    <arg name="use_interactive_marker" value="$(arg use_interactive_marker)" />
+    <arg name="control_startup_delay_sec" value="$(arg control_startup_delay_sec)" />
   </include>
 
 </launch>

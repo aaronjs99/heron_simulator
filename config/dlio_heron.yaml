@@ -7,18 +7,23 @@ dlio:
 
   version: 1.1.1
 
-  adaptive: true
+  adaptive: false
 
   odom:
     odom_frame: "odom"
     child_frame: "base_link"
     gravity: 9.80665
+    preprocessing:
+      cropBoxFilter:
+        size: 0.25
+      voxelFilter:
+        res: 0.05
     # GICP parameters
     gicp:
-      minNumPoints: 10
-      maxIterations: 15
-      kCorrespondences: 5
-      maxCorrespondenceDistance: 1.5
+      minNumPoints: 5
+      maxIterations: 12
+      kCorrespondences: 4
+      maxCorrespondenceDistance: 2.0
 
     # Override IMU calibration to skip startup delay
     imu:
@@ -35,7 +40,7 @@ dlio:
 
   pointcloud:
     deskew: false
-    voxelize: true
+    voxelize: false
 
   imu:
     calibration: false # Disable for sim

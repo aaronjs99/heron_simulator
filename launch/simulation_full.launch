@@ -11,28 +11,33 @@
   <!-- Robot spawn position (at dock) -->
   <arg name="x" default="0.0"/>
   <arg name="y" default="0.0"/>
-  <arg name="z" default="-0.1"/>
+  <arg name="z" default="0.0"/>
   <arg name="yaw" default="0.0"/>
   
   <!-- Stack control -->
   <arg name="use_oracle" default="true"/>
   <arg name="use_mariner" default="true"/>
   <arg name="use_mock_defector" default="true"/>
+  <arg name="use_cbf_filter" default="false"/>
+  <arg name="use_interactive_marker" default="false"/>
   
   <!-- Oracle config -->
   <arg name="llm_model" default="deepseek-v3.1:671b-cloud"/>
   <arg name="anchor_file" default="$(find slam_grande)/data/anchors.yaml"/>
   
-  <!-- DLIO SLAM -->
-  <arg name="use_dlio" default="true"/>
+  <!-- Optional DLIO mapping -->
+  <arg name="use_dlio" default="false"/>
+  <arg name="use_vessel_dynamics" default="false"/>
 
   <!-- Gazebo ownership -->
   <arg name="start_gazebo" default="true"/>
   <arg name="gazebo_master_port" default="11345"/>
+  <arg name="gazebo_verbose" default="false"/>
+  <arg name="force_software_rendering" default="false"/>
+  <arg name="control_startup_delay_sec" default="2.0"/>
 
   <!-- Ensure all included nodes use the same Gazebo master -->
   <env name="GAZEBO_MASTER_URI" value="http://127.0.0.1:$(arg gazebo_master_port)"/>
-
   <!-- Benchmark against ig_handle: Use custom sensor URDF extras -->
   <!-- Note: We use 'config' arg to pass a file that exports HERON_URDF_EXTRAS -->
   <!-- <env name="HERON_URDF_EXTRAS" ...> was ineffective for xacro command -->
@@ -41,6 +46,14 @@
   <!-- Use simulation time -->
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <param name="/use_sim_time" value="true"/>
+
+  <!-- Fail fast if a stale Gazebo or web stack is already running. -->
+  <node pkg="heron_simulator" type="sim_preflight.py" name="simulation_preflight"
+        output="screen" required="true">
+    <param name="gazebo_master_port" value="$(arg gazebo_master_port)"/>
+    <param name="allow_existing_gazebo" value="$(eval str(arg('start_gazebo')).lower() != 'true')"/>
+    <rosparam param="required_free_ports">[8070, 8080, 8081, 9095]</rosparam>
+  </node>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Launch Heron in Gazebo using internal heron_simulator -->
@@ -56,22 +69,31 @@
     <arg name="gui" value="$(arg gui)"/>
     <arg name="headless" value="$(arg headless)"/>
     <arg name="paused" value="$(arg paused)"/>
+    <arg name="verbose" value="$(arg gazebo_verbose)"/>
+    <arg name="force_software_rendering" value="$(arg force_software_rendering)"/>
     <arg name="x" value="$(arg x)"/>
     <arg name="y" value="$(arg y)"/>
     <arg name="yaw" value="$(arg yaw)"/>
-    <arg name="enable_ekf"   value="$(eval 'false' if arg('use_dlio')=='true' else 'true')"/>
-    <arg name="enable_navsat" value="$(eval 'false' if arg('use_dlio')=='true' else 'true')"/>
+    <arg name="enable_ekf" value="true"/>
+    <arg name="enable_navsat" value="true"/>
+    <arg name="use_interactive_marker" value="$(arg use_interactive_marker)"/>
+    <arg name="control_startup_delay_sec" value="$(arg control_startup_delay_sec)"/>
   </include>
 
-  <!-- Remap odometry for controller if DLIO is used (Global remap to affect imported controller) -->
-  <remap from="/odometry/filtered" to="/state/odometry/filtered" if="$(arg use_dlio)"/>
+  <!-- Keep a stable project-wide odometry topic independent of optional DLIO. -->
+  <node pkg="topic_tools" type="relay" name="state_odom_relay"
+        args="/odometry/filtered /state/odometry" output="screen"/>
+  <node pkg="topic_tools" type="relay" name="state_odom_filtered_relay"
+        args="/odometry/filtered /state/odometry/filtered" output="screen"/>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Spawn inspection targets (pillars, dock, pipe inlet) -->
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <node pkg="heron_simulator" type="spawn_inspection_models.py" 
-        name="spawn_inspection_models" output="screen"
-        launch-prefix="bash -c 'sleep 5; $0 $@'"/>
+        name="spawn_inspection_models" output="screen" required="true"
+        launch-prefix="bash -c 'sleep 5; $0 $@'">
+    <param name="hold_open" value="true"/>
+  </node>
 
   <!-- Static TF: map -> odom -->
   <node pkg="tf2_ros" type="static_transform_publisher" name="map_to_odom"
@@ -87,6 +109,7 @@
       <arg name="base_frame" value="base_link"/>
       <arg name="odom_frame" value="odom"/>
       <arg name="cmd_vel_out" value="/cmd_vel_raw"/>
+      <arg name="use_cbf_filter" value="$(arg use_cbf_filter)"/>
       <!-- <arg name="use_map_server" value="false"/> -->
     </include>
 
@@ -98,6 +121,8 @@
       <param name="frame_id" value="map"/>
     </node>
   </group>
+
+  <param name="/move_base/TebLocalPlannerROS/odom_topic" value="/state/odometry"/>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Mock Defector Service -->
@@ -113,6 +138,8 @@
     <include file="$(find oracle)/launch/oracle.launch">
       <arg name="anchor_pose_map_file" value="$(arg anchor_file)"/>
       <arg name="llm_model" value="$(arg llm_model)"/>
+      <arg name="odom_topic" value="/state/odometry"/>
+      <arg name="viz_topic" value="/sensors/camera/f1/image_raw"/>
       <arg name="nav_goal_topic" value="/mariner/final_pose"/>
       <arg name="inspect_service" value="/defector/capture_and_analyze"/>
     </include>
@@ -123,12 +150,15 @@
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <group if="$(arg use_dlio)">
     <include file="$(find heron_simulator)/launch/dlio.launch">
+      <arg name="robot_namespace" value="robot"/>
       <arg name="pointcloud_topic" value="/sensors/lidar/hori/points"/>
       <arg name="imu_topic" value="/sensors/imu/data"/>
+      <arg name="odom_topic" value="/state/dlio/odometry"/>
+      <arg name="pose_topic" value="/state/dlio/pose"/>
+      <arg name="map_topic" value="/state/dlio/map"/>
+      <arg name="path_topic" value="/state/dlio/path"/>
       <arg name="rviz" value="false"/>
     </include>
-    <!-- Remap DLIO map to /map for Global Costmap -->
-    <remap from="/dlio/map_node/map" to="/map"/>
   </group>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -139,10 +169,20 @@
   <node pkg="mariner" type="costmap_to_image.py" name="costmap_visualizer" output="screen"/>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <!-- External Hydrodynamics / Buoyancy Engine -->
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <node pkg="heron_simulator" type="vessel_dynamics.py" name="vessel_dynamics" output="screen">
-    <param name="namespace" value="heron"/>
+  <!-- Optional external hydrodynamics model.
+       Disabled by default because the base Gazebo Heron dynamics are sufficient
+       for nominal navigation runs, and this extra 6DOF wrench model can
+       destabilize the boat when layered on top. -->
+  <node if="$(arg use_vessel_dynamics)" pkg="heron_simulator" type="vessel_dynamics.py"
+        name="vessel_dynamics" output="screen">
+    <param name="namespace" value=""/>
+    <param name="odom_topic" value="/pose_gt"/>
+    <rosparam param="water_current_mean">[0.0, 0.0, 0.0]</rosparam>
+    <rosparam param="water_current_std">[0.0, 0.0, 0.0]</rosparam>
+    <rosparam param="wind_mean">[0.0, 0.0, 0.0]</rosparam>
+    <rosparam param="wind_std">[0.0, 0.0, 0.0]</rosparam>
+    <rosparam param="wave_force_std">[0.0, 0.0, 0.0]</rosparam>
+    <rosparam param="wave_torque_std">[0.0, 0.0, 0.0]</rosparam>
   </node>
   
 </launch>

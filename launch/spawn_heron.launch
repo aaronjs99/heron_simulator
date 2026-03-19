@@ -39,27 +39,52 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
   <arg name="namespace" default=""/>
   <arg name="config" default="base" />
+  <arg name="use_interactive_marker" default="false" />
+  <arg name="control_startup_delay_sec" default="0.0" />
 
   <group ns="/$(arg namespace)">
 
-    <!-- Load the Standalone Heron Simulator URDF (Kinematic Planar Move) -->
-    <param name="robot_description"
-           command="$(find xacro)/xacro '$(find heron_simulator)/urdf/heron_sim.urdf.xacro'
-                    namespace:=$(arg namespace)" />
+    <!-- Load the upstream Heron model in simulation mode so /cmd_vel drives
+         the same cmd_drive -> thruster -> hull path as the real stack. -->
+    <group if="$(eval arg('namespace') == '')">
+      <param name="robot_description"
+             command="$(find heron_description)/scripts/env_run $(find heron_description)/urdf/configs/$(arg config)
+                      $(find xacro)/xacro '$(find heron_description)/urdf/heron.urdf.xacro'
+                      debug:=$(arg hydro_debug) simulation:=true" />
+    </group>
+
+    <group unless="$(eval arg('namespace') == '')">
+      <param name="robot_description"
+             command="$(find heron_description)/scripts/env_run $(find heron_description)/urdf/configs/$(arg config)
+                      $(find xacro)/xacro '$(find heron_description)/urdf/heron.urdf.xacro'
+                      debug:=$(arg hydro_debug) simulation:=true
+                      namespace:=$(arg namespace) suffix_ns:=$(arg namespace)/" />
+    </group>
 
     <!-- Publish robot state (TF) -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" />
 
     <!-- Spawn the model in Gazebo -->
-    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" required="true"
           args="-urdf -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw) 
-                -model $(arg namespace)heron -param robot_description"/>
+                -model $(arg namespace)heron -param robot_description -b"/>
 
     <!-- Launch Teleop (optional, for joystick) -->
     <include file="$(find heron_control)/launch/teleop.launch">
       <arg name="joystick"  value="false" />
       <arg name="namespace" value="$(arg namespace)" />
+      <arg name="use_interactive_marker" value="$(arg use_interactive_marker)" />
     </include>
+
+    <!-- Keep /cmd_vel as the vehicle-facing command interface. -->
+    <node pkg="mariner" type="twist_to_drive.py" name="twist_to_drive" output="screen">
+      <rosparam command="load" file="$(find heron_simulator)/config/twist_to_drive.yaml" />
+    </node>
+
+    <node pkg="heron_simulator" type="cmd_drive_translate.py" name="cmd_drive_to_thrusters" output="screen">
+      <param name="namespace" value="$(arg namespace)" />
+      <rosparam command="load" file="$(find heron_simulator)/config/thruster_dynamics.yaml" />
+    </node>
 
     <!-- Translate navsat/velocity for compatibility (optional) -->
     <node pkg="heron_simulator" type="navsat_vel_translate.py" name="navvel_translate" />
@@ -78,6 +103,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <include file="$(find heron_control)/launch/control.launch">
       <arg name="enable_ekf" value="$(arg enable_ekf)"/>
       <arg name="enable_navsat" value="$(arg enable_navsat)"/>
+      <arg name="startup_delay_sec" value="$(arg control_startup_delay_sec)"/>
     </include>
   </group>
 

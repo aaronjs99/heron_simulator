@@ -500,6 +500,7 @@
         <min_range>0.1</min_range>
         <max_range>130.0</max_range>
         <gaussianNoise>0.005</gaussianNoise>
+        <organize_cloud>false</organize_cloud>
         <min_intensity>0.0</min_intensity>
       </plugin>
     </sensor>
@@ -545,6 +546,8 @@
         <min_range>0.1</min_range>
         <max_range>130.0</max_range>
         <gaussianNoise>0.005</gaussianNoise>
+        <organize_cloud>false</organize_cloud>
+        <min_intensity>0.0</min_intensity>
       </plugin>
     </sensor>
   </gazebo>
