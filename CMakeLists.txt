@@ -28,8 +28,17 @@ link_directories(${GAZEBO_LIBRARY_DIRS})
 add_library(PathVisualizerPlugin src/PathVisualizerPlugin.cpp)
 target_link_libraries(PathVisualizerPlugin ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 
+add_library(RelativeForcePlugin src/RelativeForcePlugin.cpp)
+target_link_libraries(RelativeForcePlugin ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
+
 install(DIRECTORY config launch worlds urdf models docs
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(TARGETS
+  PathVisualizerPlugin
+  RelativeForcePlugin
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 
 #############################################################################
@@ -46,6 +55,7 @@ catkin_install_python(PROGRAMS
   scripts/tools/sim_preflight.py
   scripts/tools/gzclient_plain.py
   scripts/tools/startup_unpause.py
+  scripts/tools/topic_contract_guard.py
   # Upstream Clearpath scripts (BSD license)
   scripts/control/activate_control_service.py
   scripts/control/cmd_drive_translate.py

@@ -69,14 +69,18 @@ class ThrusterTranslator:
             int(rospy.get_param("~random_seed", rospy.Time.now().to_nsec() % 2**32))
         )
 
-        self.p_left = rospy.Publisher(
-            f"{prefix}/thrusters/1/input", Wrench, queue_size=1
-        )
-        self.p_right = rospy.Publisher(
-            f"{prefix}/thrusters/0/input", Wrench, queue_size=1
-        )
+        default_left_topic = f"{prefix}/thrusters/1/input" if prefix else "/thrusters/1/input"
+        default_right_topic = f"{prefix}/thrusters/0/input" if prefix else "/thrusters/0/input"
+        default_drive_topic = "cmd_drive"
 
-        self.sub = rospy.Subscriber("cmd_drive", Drive, self.callback)
+        left_topic = rospy.get_param("~left_thruster_topic", default_left_topic)
+        right_topic = rospy.get_param("~right_thruster_topic", default_right_topic)
+        drive_topic = rospy.get_param("~drive_topic", default_drive_topic)
+
+        self.p_left = rospy.Publisher(left_topic, Wrench, queue_size=1)
+        self.p_right = rospy.Publisher(right_topic, Wrench, queue_size=1)
+
+        self.sub = rospy.Subscriber(drive_topic, Drive, self.callback)
         self.target_left = 0.0
         self.target_right = 0.0
         self.actual_left = 0.0
@@ -84,7 +88,13 @@ class ThrusterTranslator:
         self.last_cmd_time = rospy.Time.now()
         self.last_update_time = rospy.Time.now()
         self.timer = rospy.Timer(rospy.Duration(1.0 / self.rate_hz), self.update)
-        rospy.loginfo(f"Thruster translator initialized for namespace: {namespace}")
+        rospy.loginfo(
+            "Thruster translator initialized for namespace: %s drive=%s left=%s right=%s",
+            namespace,
+            drive_topic,
+            left_topic,
+            right_topic,
+        )
 
     def get_thrust(self, cmd):
         """Linearly interpolate thrust force from normalized command [-1, 1]."""

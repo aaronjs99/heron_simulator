@@ -20,6 +20,37 @@
   <arg name="use_mock_defector" default="true"/>
   <arg name="use_cbf_filter" default="false"/>
   <arg name="use_interactive_marker" default="false"/>
+  <arg name="use_ground_truth_nav" default="true"/>
+  <arg name="topic_contract_guard_delay_sec" default="20.0"/>
+
+  <!-- Canonical Topic Contract -->
+  <arg name="topic_pose_gt" default="/pose_gt"/>
+  <arg name="topic_odom" default="/state/odometry"/>
+  <arg name="topic_odom_filtered" default="/state/odometry/filtered"/>
+  <arg name="topic_cmd_vel_raw" default="/cmd_vel_raw"/>
+  <arg name="topic_cmd_vel" default="/cmd_vel"/>
+  <arg name="topic_cmd_drive" default="/cmd_drive"/>
+  <arg name="topic_thruster_left" default="/thrusters/1/input"/>
+  <arg name="topic_thruster_right" default="/thrusters/0/input"/>
+  <arg name="mixer_config" default="$(find heron_simulator)/config/twist_to_drive.yaml"/>
+  <arg name="topic_nav_goal" default="/mariner/final_pose"/>
+  <arg name="topic_nav_goal_pose" default="/mariner/goal"/>
+  <arg name="topic_nav_goal_anchor" default="/mariner/goal_anchor"/>
+  <arg name="topic_nav_ok" default="/mariner/status/nav_ok"/>
+  <arg name="topic_oracle_input" default="/oracle/input"/>
+  <arg name="topic_oracle_output" default="/oracle/output"/>
+  <arg name="topic_oracle_status" default="/oracle/status"/>
+  <arg name="topic_oracle_anchors" default="/oracle/map/anchors"/>
+  <arg name="topic_imu_data" default="/sensors/imu/data"/>
+  <arg name="topic_lidar_h_points" default="/sensors/lidar/hori/points"/>
+  <arg name="topic_lidar_v_points" default="/sensors/lidar/vert/points"/>
+  <arg name="topic_sonar_scan" default="/sensors/sonar/scan"/>
+  <arg name="topic_camera_f1_image" default="/sensors/camera/f1/image_raw"/>
+  <arg name="topic_camera_f2_image" default="/sensors/camera/f2/image_raw"/>
+  <arg name="topic_dlio_odom" default="/state/dlio/odometry"/>
+  <arg name="topic_dlio_pose" default="/state/dlio/pose"/>
+  <arg name="topic_dlio_path" default="/state/dlio/path"/>
+  <arg name="topic_dlio_map" default="/state/dlio/map"/>
   
   <!-- Oracle config -->
   <arg name="llm_model" default="deepseek-v3.1:671b-cloud"/>
@@ -46,6 +77,40 @@
   <!-- Use simulation time -->
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <param name="/use_sim_time" value="true"/>
+  <rosparam command="load" file="$(find slam_grande)/config/topic_contract.yaml" ns="/topic_contract"/>
+  <param name="/topic_contract/topics/pose_gt" value="$(arg topic_pose_gt)"/>
+  <param name="/topic_contract/topics/odom" value="$(arg topic_odom)"/>
+  <param name="/topic_contract/topics/odom_filtered" value="$(arg topic_odom_filtered)"/>
+  <param name="/topic_contract/topics/cmd_vel_raw" value="$(arg topic_cmd_vel_raw)"/>
+  <param name="/topic_contract/topics/cmd_vel" value="$(arg topic_cmd_vel)"/>
+  <param name="/topic_contract/topics/cmd_drive" value="$(arg topic_cmd_drive)"/>
+  <param name="/topic_contract/topics/thruster_left" value="$(arg topic_thruster_left)"/>
+  <param name="/topic_contract/topics/thruster_right" value="$(arg topic_thruster_right)"/>
+  <param name="/topic_contract/topics/nav_goal" value="$(arg topic_nav_goal)"/>
+  <param name="/topic_contract/topics/nav_goal_pose" value="$(arg topic_nav_goal_pose)"/>
+  <param name="/topic_contract/topics/nav_goal_anchor" value="$(arg topic_nav_goal_anchor)"/>
+  <param name="/topic_contract/topics/nav_ok" value="$(arg topic_nav_ok)"/>
+  <param name="/topic_contract/topics/oracle_input" value="$(arg topic_oracle_input)"/>
+  <param name="/topic_contract/topics/oracle_output" value="$(arg topic_oracle_output)"/>
+  <param name="/topic_contract/topics/oracle_status" value="$(arg topic_oracle_status)"/>
+  <param name="/topic_contract/topics/oracle_anchors" value="$(arg topic_oracle_anchors)"/>
+  <param name="/topic_contract/topics/imu_data" value="$(arg topic_imu_data)"/>
+  <param name="/topic_contract/topics/lidar_h_points" value="$(arg topic_lidar_h_points)"/>
+  <param name="/topic_contract/topics/lidar_v_points" value="$(arg topic_lidar_v_points)"/>
+  <param name="/topic_contract/topics/sonar_scan" value="$(arg topic_sonar_scan)"/>
+  <param name="/topic_contract/topics/camera_f1_image" value="$(arg topic_camera_f1_image)"/>
+  <param name="/topic_contract/topics/camera_f2_image" value="$(arg topic_camera_f2_image)"/>
+  <param name="/topic_contract/topics/dlio_odom" value="$(arg topic_dlio_odom)"/>
+  <param name="/topic_contract/topics/dlio_pose" value="$(arg topic_dlio_pose)"/>
+  <param name="/topic_contract/topics/dlio_path" value="$(arg topic_dlio_path)"/>
+  <param name="/topic_contract/topics/dlio_map" value="$(arg topic_dlio_map)"/>
+  <param name="/topic_contract/modules/simulation_truth/enabled" value="true"/>
+  <param name="/topic_contract/modules/state/enabled" value="true"/>
+  <param name="/topic_contract/modules/mariner/enabled" value="$(arg use_mariner)"/>
+  <param name="/topic_contract/modules/goal_routing/enabled" value="$(eval 'true' if str(arg('use_mariner')).lower() == 'true' and str(arg('use_oracle')).lower() == 'true' else 'false')"/>
+  <param name="/topic_contract/modules/oracle/enabled" value="$(arg use_oracle)"/>
+  <param name="/topic_contract/modules/ig_handle_sensors/enabled" value="true"/>
+  <param name="/topic_contract/modules/dlio/enabled" value="$(arg use_dlio)"/>
 
   <!-- Fail fast if a stale Gazebo or web stack is already running. -->
   <node pkg="heron_simulator" type="sim_preflight.py" name="simulation_preflight"
@@ -74,17 +139,40 @@
     <arg name="x" value="$(arg x)"/>
     <arg name="y" value="$(arg y)"/>
     <arg name="yaw" value="$(arg yaw)"/>
-    <arg name="enable_ekf" value="true"/>
-    <arg name="enable_navsat" value="true"/>
+    <arg name="enable_ekf" value="$(eval 'false' if str(arg('use_ground_truth_nav')).lower() == 'true' else 'true')"/>
+    <arg name="enable_navsat" value="$(eval 'false' if str(arg('use_ground_truth_nav')).lower() == 'true' else 'true')"/>
     <arg name="use_interactive_marker" value="$(arg use_interactive_marker)"/>
     <arg name="control_startup_delay_sec" value="$(arg control_startup_delay_sec)"/>
+    <arg name="cmd_vel_to_mixer" value="$(arg topic_cmd_vel)"/>
+    <arg name="drive_topic" value="$(arg topic_cmd_drive)"/>
+    <arg name="left_thruster_topic" value="$(arg topic_thruster_left)"/>
+    <arg name="right_thruster_topic" value="$(arg topic_thruster_right)"/>
+    <arg name="mixer_config" value="$(arg mixer_config)"/>
   </include>
 
-  <!-- Keep a stable project-wide odometry topic independent of optional DLIO. -->
-  <node pkg="topic_tools" type="relay" name="state_odom_relay"
-        args="/odometry/filtered /state/odometry" output="screen"/>
-  <node pkg="topic_tools" type="relay" name="state_odom_filtered_relay"
-        args="/odometry/filtered /state/odometry/filtered" output="screen"/>
+  <!-- Keep a stable project-wide odometry contract.
+       In simulation, default to Gazebo ground truth for navigation stability.
+       When disabled, fall back to the filtered localization stack. -->
+  <group if="$(arg use_ground_truth_nav)">
+    <node pkg="mariner" type="dlio_odom_to_tf.py" name="sim_pose_gt_to_tf" output="screen">
+      <param name="odom_topic" value="$(arg topic_pose_gt)"/>
+      <param name="parent_frame" value="odom"/>
+      <param name="child_frame" value="base_footprint"/>
+      <param name="respect_msg_frames" value="false"/>
+    </node>
+
+    <node pkg="topic_tools" type="relay" name="state_odom_relay"
+          args="$(arg topic_pose_gt) $(arg topic_odom)" output="screen"/>
+    <node pkg="topic_tools" type="relay" name="state_odom_filtered_relay"
+          args="$(arg topic_pose_gt) $(arg topic_odom_filtered)" output="screen"/>
+  </group>
+
+  <group unless="$(arg use_ground_truth_nav)">
+    <node pkg="topic_tools" type="relay" name="state_odom_relay"
+          args="/odometry/filtered $(arg topic_odom)" output="screen"/>
+    <node pkg="topic_tools" type="relay" name="state_odom_filtered_relay"
+          args="/odometry/filtered $(arg topic_odom_filtered)" output="screen"/>
+  </group>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Spawn inspection targets (pillars, dock, pipe inlet) -->
@@ -108,21 +196,32 @@
     <include file="$(find mariner)/launch/move_base.launch">
       <arg name="base_frame" value="base_link"/>
       <arg name="odom_frame" value="odom"/>
-      <arg name="cmd_vel_out" value="/cmd_vel_raw"/>
+      <arg name="cmd_vel_out" value="$(arg topic_cmd_vel_raw)"/>
+      <arg name="cmd_vel_safe" value="$(arg topic_cmd_vel)"/>
+      <arg name="odom_topic" value="$(arg topic_odom)"/>
       <arg name="use_cbf_filter" value="$(arg use_cbf_filter)"/>
       <!-- <arg name="use_map_server" value="false"/> -->
     </include>
 
     <!-- Move base goal manager: consume PoseStamped goals from ORACLE -->
     <node pkg="mariner" type="move_base_goal_manager.py" name="move_base_goal_manager" output="screen">
-      <param name="goal_topic" value="/mariner/final_pose"/>
+      <param name="goal_topic" value="$(arg topic_nav_goal)"/>
       <param name="action_name" value="/move_base"/>
-      <param name="nav_ok_topic" value="mariner/nav_ok"/>
+      <param name="nav_ok_topic" value="$(arg topic_nav_ok)"/>
       <param name="frame_id" value="map"/>
     </node>
   </group>
 
-  <param name="/move_base/TebLocalPlannerROS/odom_topic" value="/state/odometry"/>
+  <!-- Standardize command semantics:
+       /cmd_vel_raw = planner output
+       /cmd_vel     = vehicle-facing command
+       If safety filtering is disabled, /cmd_vel mirrors /cmd_vel_raw. -->
+  <node unless="$(arg use_cbf_filter)"
+        pkg="topic_tools"
+        type="relay"
+        name="cmd_vel_passthrough"
+        args="$(arg topic_cmd_vel_raw) $(arg topic_cmd_vel)"
+        output="screen"/>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Mock Defector Service -->
@@ -138,9 +237,16 @@
     <include file="$(find oracle)/launch/oracle.launch">
       <arg name="anchor_pose_map_file" value="$(arg anchor_file)"/>
       <arg name="llm_model" value="$(arg llm_model)"/>
-      <arg name="odom_topic" value="/state/odometry"/>
+      <arg name="odom_topic" value="$(arg topic_odom)"/>
       <arg name="viz_topic" value="/sensors/camera/f1/image_raw"/>
-      <arg name="nav_goal_topic" value="/mariner/final_pose"/>
+      <arg name="topic_input" value="$(arg topic_oracle_input)"/>
+      <arg name="topic_output" value="$(arg topic_oracle_output)"/>
+      <arg name="topic_status" value="$(arg topic_oracle_status)"/>
+      <arg name="topic_anchors" value="$(arg topic_oracle_anchors)"/>
+      <arg name="topic_nav_goal_anchor" value="$(arg topic_nav_goal_anchor)"/>
+      <arg name="topic_nav_goal_pose" value="$(arg topic_nav_goal_pose)"/>
+      <arg name="topic_nav_ok" value="$(arg topic_nav_ok)"/>
+      <arg name="nav_goal_topic" value="$(arg topic_nav_goal)"/>
       <arg name="inspect_service" value="/defector/capture_and_analyze"/>
     </include>
   </group>
@@ -151,12 +257,12 @@
   <group if="$(arg use_dlio)">
     <include file="$(find heron_simulator)/launch/dlio.launch">
       <arg name="robot_namespace" value="robot"/>
-      <arg name="pointcloud_topic" value="/sensors/lidar/hori/points"/>
-      <arg name="imu_topic" value="/sensors/imu/data"/>
-      <arg name="odom_topic" value="/state/dlio/odometry"/>
-      <arg name="pose_topic" value="/state/dlio/pose"/>
-      <arg name="map_topic" value="/state/dlio/map"/>
-      <arg name="path_topic" value="/state/dlio/path"/>
+      <arg name="pointcloud_topic" value="$(arg topic_lidar_h_points)"/>
+      <arg name="imu_topic" value="$(arg topic_imu_data)"/>
+      <arg name="odom_topic" value="$(arg topic_dlio_odom)"/>
+      <arg name="pose_topic" value="$(arg topic_dlio_pose)"/>
+      <arg name="map_topic" value="$(arg topic_dlio_map)"/>
+      <arg name="path_topic" value="$(arg topic_dlio_path)"/>
       <arg name="rviz" value="false"/>
     </include>
   </group>
@@ -167,6 +273,12 @@
   <node pkg="heron_simulator" type="vel_cov_fixed.py" name="navsat_vel_cov_fixed" output="screen"/>
 
   <node pkg="mariner" type="costmap_to_image.py" name="costmap_visualizer" output="screen"/>
+
+  <node pkg="heron_simulator" type="topic_contract_guard.py" name="topic_contract_guard"
+        output="screen" required="true"
+        launch-prefix="bash -c 'sleep $(arg topic_contract_guard_delay_sec); $0 $@'">
+    <param name="contract_ns" value="/topic_contract"/>
+  </node>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Optional external hydrodynamics model.

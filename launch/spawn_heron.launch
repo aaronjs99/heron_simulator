@@ -41,6 +41,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="config" default="base" />
   <arg name="use_interactive_marker" default="false" />
   <arg name="control_startup_delay_sec" default="0.0" />
+  <arg name="cmd_vel_to_mixer" default="/cmd_vel" />
+  <arg name="drive_topic" default="/cmd_drive" />
+  <arg name="left_thruster_topic" default="/thrusters/1/input" />
+  <arg name="right_thruster_topic" default="/thrusters/0/input" />
+  <arg name="mixer_config" default="$(find heron_simulator)/config/twist_to_drive.yaml" />
 
   <group ns="/$(arg namespace)">
 
@@ -78,11 +83,16 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
     <!-- Keep /cmd_vel as the vehicle-facing command interface. -->
     <node pkg="mariner" type="twist_to_drive.py" name="twist_to_drive" output="screen">
-      <rosparam command="load" file="$(find heron_simulator)/config/twist_to_drive.yaml" />
+      <remap from="cmd_vel" to="$(arg cmd_vel_to_mixer)" />
+      <remap from="cmd_drive" to="$(arg drive_topic)" />
+      <rosparam command="load" file="$(arg mixer_config)" />
     </node>
 
     <node pkg="heron_simulator" type="cmd_drive_translate.py" name="cmd_drive_to_thrusters" output="screen">
       <param name="namespace" value="$(arg namespace)" />
+      <param name="drive_topic" value="$(arg drive_topic)" />
+      <param name="left_thruster_topic" value="$(arg left_thruster_topic)" />
+      <param name="right_thruster_topic" value="$(arg right_thruster_topic)" />
       <rosparam command="load" file="$(find heron_simulator)/config/thruster_dynamics.yaml" />
     </node>
 

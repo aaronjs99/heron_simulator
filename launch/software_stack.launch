@@ -6,6 +6,40 @@
   <!-- Arguments -->
   <arg name="llm_model" default="deepseek-v3.1:671b-cloud"/>
   <arg name="anchor_file" default="$(find slam_grande)/data/anchors.yaml"/>
+  <arg name="topic_odom" default="/state/odometry"/>
+  <arg name="topic_cmd_vel_raw" default="/cmd_vel_raw"/>
+  <arg name="topic_cmd_vel" default="/cmd_vel"/>
+  <arg name="topic_nav_goal" default="/mariner/final_pose"/>
+  <arg name="topic_nav_goal_pose" default="/mariner/goal"/>
+  <arg name="topic_nav_goal_anchor" default="/mariner/goal_anchor"/>
+  <arg name="topic_nav_ok" default="/mariner/status/nav_ok"/>
+  <arg name="topic_oracle_input" default="/oracle/input"/>
+  <arg name="topic_oracle_output" default="/oracle/output"/>
+  <arg name="topic_oracle_status" default="/oracle/status"/>
+  <arg name="topic_oracle_anchors" default="/oracle/map/anchors"/>
+
+  <node pkg="slam_grande" type="ensure_topic_contract_symlink.sh"
+        name="topic_contract_updater" output="screen"/>
+
+  <rosparam command="load" file="$(find slam_grande)/config/topic_contract.yaml" ns="/topic_contract"/>
+  <param name="/topic_contract/topics/odom" value="$(arg topic_odom)"/>
+  <param name="/topic_contract/topics/cmd_vel_raw" value="$(arg topic_cmd_vel_raw)"/>
+  <param name="/topic_contract/topics/cmd_vel" value="$(arg topic_cmd_vel)"/>
+  <param name="/topic_contract/topics/nav_goal" value="$(arg topic_nav_goal)"/>
+  <param name="/topic_contract/topics/nav_goal_pose" value="$(arg topic_nav_goal_pose)"/>
+  <param name="/topic_contract/topics/nav_goal_anchor" value="$(arg topic_nav_goal_anchor)"/>
+  <param name="/topic_contract/topics/nav_ok" value="$(arg topic_nav_ok)"/>
+  <param name="/topic_contract/topics/oracle_input" value="$(arg topic_oracle_input)"/>
+  <param name="/topic_contract/topics/oracle_output" value="$(arg topic_oracle_output)"/>
+  <param name="/topic_contract/topics/oracle_status" value="$(arg topic_oracle_status)"/>
+  <param name="/topic_contract/topics/oracle_anchors" value="$(arg topic_oracle_anchors)"/>
+  <param name="/topic_contract/modules/simulation_truth/enabled" value="false"/>
+  <param name="/topic_contract/modules/state/enabled" value="false"/>
+  <param name="/topic_contract/modules/mariner/enabled" value="true"/>
+  <param name="/topic_contract/modules/goal_routing/enabled" value="true"/>
+  <param name="/topic_contract/modules/oracle/enabled" value="true"/>
+  <param name="/topic_contract/modules/ig_handle_sensors/enabled" value="false"/>
+  <param name="/topic_contract/modules/dlio/enabled" value="false"/>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Navigation Stack (move_base) -->
@@ -13,14 +47,18 @@
   <include file="$(find mariner)/launch/move_base.launch">
     <arg name="base_frame" value="base_link"/>
     <arg name="odom_frame" value="odom"/>
-    <arg name="cmd_vel_out" value="/cmd_vel"/>
+    <arg name="odom_topic" value="$(arg topic_odom)"/>
+    <arg name="cmd_vel_out" value="$(arg topic_cmd_vel_raw)"/>
+    <arg name="cmd_vel_safe" value="$(arg topic_cmd_vel)"/>
   </include>
+
+  <node pkg="topic_tools" type="relay" name="cmd_vel_passthrough" args="$(arg topic_cmd_vel_raw) $(arg topic_cmd_vel)" output="screen"/>
 
   <!-- Move base goal manager: consume PoseStamped goals from ORACLE -->
   <node pkg="mariner" type="move_base_goal_manager.py" name="move_base_goal_manager" output="screen">
-    <param name="goal_topic" value="/mariner/final_pose"/>
+    <param name="goal_topic" value="$(arg topic_nav_goal)"/>
     <param name="action_name" value="/move_base"/>
-    <param name="nav_ok_topic" value="mariner/nav_ok"/>
+    <param name="nav_ok_topic" value="$(arg topic_nav_ok)"/>
     <param name="frame_id" value="map"/>
   </node>
 
@@ -30,7 +68,15 @@
   <include file="$(find oracle)/launch/oracle.launch">
     <arg name="anchor_pose_map_file" value="$(arg anchor_file)"/>
     <arg name="llm_model" value="$(arg llm_model)"/>
-    <arg name="nav_goal_topic" value="/mariner/final_pose"/>
+    <arg name="odom_topic" value="$(arg topic_odom)"/>
+    <arg name="topic_input" value="$(arg topic_oracle_input)"/>
+    <arg name="topic_output" value="$(arg topic_oracle_output)"/>
+    <arg name="topic_status" value="$(arg topic_oracle_status)"/>
+    <arg name="topic_anchors" value="$(arg topic_oracle_anchors)"/>
+    <arg name="topic_nav_goal_anchor" value="$(arg topic_nav_goal_anchor)"/>
+    <arg name="topic_nav_goal_pose" value="$(arg topic_nav_goal_pose)"/>
+    <arg name="topic_nav_ok" value="$(arg topic_nav_ok)"/>
+    <arg name="nav_goal_topic" value="$(arg topic_nav_goal)"/>
     <arg name="inspect_service" value="/defector/capture_and_analyze"/>
   </include>
 

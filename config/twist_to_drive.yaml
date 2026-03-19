@@ -1,12 +1,16 @@
-max_linear: 1.0
-max_angular: 0.35
-mix_gain: 1.0
+# Benchmark simulation mixer profile.
+# Keep the normalization aligned with the navigation stack rather than the hull's
+# theoretical top speed so forward commands do not collapse into near-pivot turns.
+max_linear: 0.90
+max_angular: 0.45
+mix_gain: 0.85
+wheelbase: 0.755
 deadband: 0.01
-floor: 0.06
-alpha: 0.35
+floor: 0.05
+alpha: 0.30
 rate: 25.0
 timeout: 0.5
 ramp_down: 0.75
 sign_hysteresis: 0.02
 sign_dwell: 0.05
-no_reverse_v_thresh: 0.25
+no_reverse_v_thresh: 0.20
