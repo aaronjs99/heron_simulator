@@ -117,7 +117,7 @@
   <joint name="lidar_v_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_v_mount"/>
-    <origin xyz="-0.180 0.126 0.11" rpy="0 0 0"/>
+    <origin xyz="0.180 0.126 0.11" rpy="0 0 0"/>
   </joint>
 
   <link name="lidar_v_link">
@@ -133,8 +133,8 @@
   <joint name="lidar_v_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_v_link"/>
-    <!-- X negated, rotated 90deg pitch for vertical scanning -->
-    <origin xyz="-0.180 0.126 0.181" rpy="0 1.5708 0"/>
+    <!-- Rotated 90deg pitch for vertical scanning -->
+    <origin xyz="0.180 0.126 0.181" rpy="0 1.5708 0"/>
   </joint>
 
   <gazebo reference="lidar_v_link">
@@ -251,7 +251,7 @@
   <joint name="camera_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="camera_mount"/>
-    <origin xyz="-0.0164 0.1 0.13" rpy="0 0 0"/>
+    <origin xyz="0.0164 0.1 0.13" rpy="0 0 0"/>
   </joint>
 
   <!-- ====================================================================== -->
@@ -271,7 +271,7 @@
   <joint name="camera_F1_joint" type="fixed">
     <parent link="base_link"/>
     <child link="camera_F1_link"/>
-    <origin xyz="-0.0164 0.0213 0.230" rpy="0 0 0"/>
+    <origin xyz="0.0164 0.0213 0.230" rpy="0 0 0"/>
   </joint>
 
   <link name="camera_F1_optical_link"/>
@@ -287,8 +287,8 @@
       <camera name="front_camera">
         <horizontal_fov>1.60</horizontal_fov>
         <image>
-          <width>640</width>
-          <height>480</height>
+          <width>1280</width>
+          <height>1024</height>
           <format>R8G8B8</format>
         </image>
         <clip>
@@ -335,7 +335,7 @@
   <joint name="camera_F2_joint" type="fixed">
     <parent link="base_link"/>
     <child link="camera_F2_link"/>
-    <origin xyz="-0.0164 0.2033 0.230" rpy="0 0 0"/>
+    <origin xyz="0.0164 0.2033 0.230" rpy="0 0 0"/>
   </joint>
 
   <link name="camera_F2_optical_link"/>
@@ -351,8 +351,8 @@
       <camera name="front_camera_right">
         <horizontal_fov>1.60</horizontal_fov>
         <image>
-          <width>640</width>
-          <height>480</height>
+          <width>1280</width>
+          <height>1024</height>
           <format>R8G8B8</format>
         </image>
         <clip>
@@ -401,7 +401,7 @@
   <joint name="debug_extra_joint" type="fixed">
     <parent link="base_link"/>
     <child link="debug_extra_link"/>
-    <origin xyz="-0.0656 0.091 0.203" rpy="0 0 0"/>
+    <origin xyz="0.0656 0.091 0.203" rpy="0 0 0"/>
   </joint>
 
   <gazebo>

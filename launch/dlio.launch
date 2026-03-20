@@ -1,11 +1,6 @@
 <launch>
-  <!-- DLIO for Heron USV Simulation -->
-  <!-- Uses lidar_h and IMU for LiDAR-inertial odometry -->
-
   <arg name="robot_namespace" default="robot"/>
   <arg name="rviz" default="false"/>
-
-  <!-- Topic remapping for Heron simulation -->
   <arg name="pointcloud_topic" default="/sensors/lidar/hori/points"/>
   <arg name="imu_topic" default="/sensors/imu/data"/>
   <arg name="odom_topic" default="/state/odometry"/>
@@ -13,43 +8,16 @@
   <arg name="path_topic" default="/state/path"/>
   <arg name="map_topic" default="/state/map"/>
 
-  <!-- DLIO Odometry Node -->
-  <node ns="$(arg robot_namespace)" name="dlio_odom" pkg="direct_lidar_inertial_odometry" type="dlio_odom_node" output="log" clear_params="true">
-
-    <!-- Load default DLIO params first, then Heron-specific overrides -->
-    <rosparam file="$(find direct_lidar_inertial_odometry)/cfg/params.yaml" command="load"/>
-    <rosparam file="$(find heron_simulator)/config/dlio_heron.yaml" command="load"/>
-
-    <!-- Subscriptions -->
-    <remap from="~pointcloud" to="$(arg pointcloud_topic)"/>
-    <remap from="~imu" to="$(arg imu_topic)"/>
-
-    <!-- Publications -->
-    <remap from="~odom"     to="$(arg odom_topic)"/>
-    <remap from="~pose"     to="$(arg pose_topic)"/>
-    <remap from="~path"     to="$(arg path_topic)"/>
-    <remap from="~kf_pose"  to="dlio/odom_node/keyframes"/>
-    <remap from="~kf_cloud" to="dlio/odom_node/pointcloud/keyframe"/>
-    <remap from="~deskewed" to="dlio/odom_node/pointcloud/deskewed"/>
-
-  </node>
-
-  <!-- DLIO Mapping Node -->
-  <node ns="$(arg robot_namespace)" name="dlio_map" pkg="direct_lidar_inertial_odometry" type="dlio_map_node" output="log" clear_params="true">
-
-    <!-- Load default DLIO params first, then Heron-specific overrides -->
-    <rosparam file="$(find direct_lidar_inertial_odometry)/cfg/params.yaml" command="load"/>
-    <rosparam file="$(find heron_simulator)/config/dlio_heron.yaml" command="load"/>
-
-    <!-- Subscriptions -->
-    <remap from="~keyframes" to="dlio/odom_node/pointcloud/keyframe"/>
-
-    <!-- Publications -->
-    <remap from="~map" to="$(arg map_topic)"/>
-
-  </node>
-
-  <!-- RViz for DLIO visualization -->
-  <node pkg="rviz" type="rviz" name="dlio_rviz" args="-d $(find direct_lidar_inertial_odometry)/launch/dlio.rviz" if="$(arg rviz)"/>
-
+  <include file="$(find slam_grande)/launch/include/dlio_stack.launch">
+    <arg name="robot_namespace" value="$(arg robot_namespace)"/>
+    <arg name="pointcloud_topic" value="$(arg pointcloud_topic)"/>
+    <arg name="imu_topic" value="$(arg imu_topic)"/>
+    <arg name="odom_topic" value="$(arg odom_topic)"/>
+    <arg name="pose_topic" value="$(arg pose_topic)"/>
+    <arg name="path_topic" value="$(arg path_topic)"/>
+    <arg name="map_topic" value="$(arg map_topic)"/>
+    <arg name="geometry_file" value="$(find slam_grande)/config/dlio_heron_geometry.yaml"/>
+    <arg name="config_file" value="$(find heron_simulator)/config/dlio_heron.yaml"/>
+    <arg name="rviz" value="$(arg rviz)"/>
+  </include>
 </launch>

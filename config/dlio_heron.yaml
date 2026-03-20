@@ -1,6 +1,8 @@
 ###########################################################
 # DLIO Configuration for Heron USV Simulation
-# Matches sensor positions from heron_sim.urdf.xacro
+#
+# Shared frame IDs and rigid extrinsics live in:
+#   slam_grande/config/dlio_heron_geometry.yaml
 ###########################################################
 
 dlio:
@@ -30,14 +32,6 @@ dlio:
       calibration:
         time: 0.01
 
-  # Frame IDs - using defaults (DLIO internal only)
-  frames:
-    map: "map"
-    odom: "odom"
-    baselink: "base_link"
-    lidar: "lidar_h_link"
-    imu: "imu_link"
-
   pointcloud:
     deskew: false
     voxelize: false
@@ -54,23 +48,6 @@ dlio:
       gyro:
         bias: [ 0.0, 0.0, 0.0 ]
         noise: 0.005  # derived from sqrt(2.5e-05)
-
-  # Extrinsics for Heron USV
-  # User frame (x-fwd, y-right, z-down) -> ROS frame (x-fwd, y-left, z-up)
-  # Y and Z are negated
-  # lidar_h: user (0, -91, -268.3)mm -> ROS (0, +0.091, 0.2683)m
-  # IMU: user (65.6, -91, -203)mm -> ROS (0.0656, +0.091, 0.203)m
-  extrinsics:
-    baselink2imu:
-      t: [ 0.0656, 0.091, 0.203 ]
-      R: [ 1.,  0.,  0.,
-           0.,  1.,  0.,
-           0.,  0.,  1. ]
-    baselink2lidar:
-      t: [ 0.,  0.091,  0.2683 ]
-      R: [ 1.,  0.,  0.,
-           0.,  1.,  0.,
-           0.,  0.,  1. ]
 
   map:
     sparse:
