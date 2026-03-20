@@ -1,46 +1,50 @@
 # HERON Simulator
-**Fidelity-Adaptive Digital Twin Architecture** — High-fidelity Gazebo simulation environment for the clear-Heron USV, supporting multi-level fidelity abstraction.
 
-| | |
-|:---:|:---:|
-| **Package** | `heron_simulator` |
-| **System Interface** | MARINER / ORACLE |
-| **Maintainer** | Aaron JS |
+Gazebo simulation environment for the Heron USV and the rest of the SLAM
+GRANDE stack.
 
-## Overview
-This package provides a Gazebo-based digital twin of the Heron USV platform. Architecture facilitates "Adaptive Fidelity Simulation" where computational expensive physics or high-resolution sensor rendering can be modulated based on operational requirements—ranging from rapid mission logic verification to full Hardware-In-The-Loop (HIL) validation.
+This package is where planning, navigation, sensing, and mission behavior can be
+tested together before running on hardware.
 
-## Functional Capabilities
-- **Procedural Environment Generation**: Dynamically instantiates structural inspection targets (e.g., maritime infrastructure, navigational aids) based on the `anchors.yaml` semantic map.
-- **On-Demand Perception Emulation**: Provides high-performance mock interfaces for vision-based defect detection when computational resources are prioritize for control or planning.
-- **Stochastic Disturbance Modeling**: Simulates complex maritime environment dynamics, including fluid currents and aerodynamic wind disturbances.
-- **Multi-Modal Sensor Synthesis**: 
-  - Stereoscopic Vision (Fisheye geometry emulation)
-  - Inertial Navigation (IMU)
-  - Global Positioning and Odometry (GPS/INS)
+## What The Simulator Provides
 
-## Analytical Modules
-| Module | Category | Functional Description |
-|------|----------|-------------|
-| `autonomy/spawn_inspection_models.py` | Autonomy | Translates semantic map definitions into runtime SDF entities within the Gazebo world. |
-| `autonomy/mock_defector_service.py` | Autonomy | Provides synthetic perception feedback derived from ground-truth Gazebo states for resource-constrained evaluation. |
-| `sensors/scan_to_cloud.py` | Sensors | Facilitates the transformation of 1D laser data into 3D point cloud representations for the MARINER stack. |
-| `control/cmd_drive_translate.py` | Control | Maps high-level drive efforts to metric thruster force vectors. |
+- Heron vehicle spawn and world bringup
+- synthetic maritime environments and inspection targets
+- simulated sensors
+- topic bridges needed by MARINER and ORACLE
+- mock inspection/perception support for fast autonomy testing
+- Gazebo plugins for visualization and custom force behavior
 
-## Operational Deployment
+## Common Uses
+
+### Full stack simulation
+
 ```bash
-# Initialize full-fidelity simulation environment
+roslaunch heron_simulator simulation_full.launch
+```
+
+### Simulator-only bringup
+
+```bash
 roslaunch heron_simulator simulation.launch
-
-# Execute manual model instantiation
-rosrun heron_simulator spawn_inspection_models.py
 ```
 
-## Configuration and Parameterization
-Simulation parameters are governed via `config/simulation.yaml`:
+## Important Pieces
 
-```yaml
-water_level: 0.0
-wave_amplitude: 0.1
-prop_density: "medium" # low, medium, high
-```
+| Path | Role |
+|---|---|
+| `launch/` | Main simulation entrypoints |
+| `scripts/autonomy/` | Runtime helpers such as model spawning and mock services |
+| `scripts/control/` | Command translation between stack layers and Gazebo |
+| `scripts/sensors/` | Sensor adaptation utilities |
+| `src/` | Gazebo plugins and compiled simulator support |
+
+## How It Fits The Workspace
+
+- ORACLE sends missions
+- MARINER produces plans and control commands
+- the simulator publishes the world, vehicle state, and sensor streams those
+  packages need
+
+This package is the place to debug integration issues that only show up when the
+full autonomy loop is closed.
