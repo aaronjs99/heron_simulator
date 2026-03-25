@@ -22,6 +22,17 @@
   <arg name="use_interactive_marker" default="false"/>
   <arg name="use_ground_truth_nav" default="true"/>
   <arg name="topic_contract_guard_delay_sec" default="20.0"/>
+  <arg name="use_rviz" default="false"/>
+  <arg name="rviz_config" default="$(find slam_grande)/rviz/nav_debug.rviz"/>
+
+  <!-- Static-map workflow -->
+  <arg name="build_map" default="false"/>
+  <arg name="map_builder" default="sensor"/>
+  <arg name="run_map" default="true"/>
+  <arg name="map_file" default="$(find mariner)/maps/simulation.yaml"/>
+  <arg name="map_output_dir" default="$(find mariner)/maps/generated"/>
+  <arg name="map_name" default="sim_runtime"/>
+  <arg name="map_anchors_file" default="$(find slam_grande)/data/anchors_sim.yaml"/>
 
   <!-- Canonical Topic Contract -->
   <arg name="topic_pose_gt" default="/pose_gt"/>
@@ -129,6 +140,23 @@
   <!-- Anchor Configuration: Auto-select simulation anchors -->
   <node pkg="slam_grande" type="select_anchors.sh" name="anchor_updater" args="sim" output="screen" unless="$(arg use_oracle)" />
 
+  <node if="$(eval str(arg('build_map')).lower() == 'true' and str(arg('map_builder')).lower() == 'anchors')"
+        pkg="mariner"
+        type="generate_map_from_anchors.py"
+        name="build_static_nav_map"
+        output="screen"
+        args="--anchors $(arg map_anchors_file) --output $(arg map_output_dir) --name $(arg map_name)"/>
+
+  <node if="$(eval str(arg('build_map')).lower() == 'true' and str(arg('map_builder')).lower() != 'anchors')"
+        pkg="mariner"
+        type="generate_map_from_pointcloud.py"
+        name="build_sensor_nav_map"
+        output="screen">
+    <param name="map_topic" value="$(arg topic_dlio_map)"/>
+    <param name="output_dir" value="$(arg map_output_dir)"/>
+    <param name="map_name" value="$(arg map_name)"/>
+  </node>
+
   <include file="$(find heron_simulator)/launch/heron_world.launch">
     <arg name="start_gazebo" value="$(arg start_gazebo)"/>
     <arg name="gazebo_master_port" value="$(arg gazebo_master_port)"/>
@@ -202,13 +230,17 @@
       <arg name="cmd_vel_safe" value="$(arg topic_cmd_vel)"/>
       <arg name="odom_topic" value="$(arg topic_odom)"/>
       <arg name="use_cbf_filter" value="$(arg use_cbf_filter)"/>
+      <arg name="use_map_server" value="$(arg run_map)"/>
+      <arg name="map_file" value="$(arg map_file)"/>
       <arg name="local_costmap_overlay_config" value="$(find mariner)/config/local_costmap_sim.yaml"/>
       <arg name="teb_local_planner_overlay_config" value="$(find mariner)/config/teb_local_planner_sim.yaml"/>
       <!-- <arg name="use_map_server" value="false"/> -->
     </include>
 
-    <node pkg="topic_tools" type="relay" name="move_base_status_relay"
-          args="/move_base/status $(arg topic_nav_status)" output="screen"/>
+    <node pkg="mariner" type="goal_status_relay.py" name="move_base_status_relay" output="screen">
+      <param name="input_topic" value="/move_base/status"/>
+      <param name="output_topic" value="$(arg topic_nav_status)"/>
+    </node>
 
     <!-- Move base goal manager: consume PoseStamped goals from ORACLE -->
     <node pkg="mariner" type="move_base_goal_manager.py" name="move_base_goal_manager" output="screen">
@@ -262,7 +294,7 @@
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- DLIO LiDAR-Inertial SLAM -->
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <group if="$(arg use_dlio)">
+  <group if="$(eval str(arg('use_dlio')).lower() == 'true' or str(arg('build_map')).lower() == 'true')">
     <include file="$(find heron_simulator)/launch/dlio.launch">
       <arg name="robot_namespace" value="robot"/>
       <arg name="pointcloud_topic" value="$(arg topic_lidar_h_points)"/>
@@ -287,6 +319,11 @@
         launch-prefix="bash -c 'sleep $(arg topic_contract_guard_delay_sec); $0 $@'">
     <param name="contract_ns" value="/topic_contract"/>
   </node>
+
+  <include file="$(find slam_grande)/launch/include/rviz_nav.launch">
+    <arg name="use_rviz" value="$(arg use_rviz)"/>
+    <arg name="rviz_config" value="$(arg rviz_config)"/>
+  </include>
 
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <!-- Optional external hydrodynamics model.

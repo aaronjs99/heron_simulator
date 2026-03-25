@@ -33,6 +33,68 @@ class SimulationLaunchTests(unittest.TestCase):
             "$(find mariner)/config/local_costmap_sim.yaml",
         )
 
+    def test_simulation_launch_exposes_static_map_and_rviz_args(self):
+        args = {elem.attrib["name"]: elem.attrib for elem in self.root.findall("arg")}
+        for name in (
+            "use_rviz",
+            "rviz_config",
+            "build_map",
+            "map_builder",
+            "run_map",
+            "map_file",
+            "map_output_dir",
+            "map_name",
+            "map_anchors_file",
+        ):
+            self.assertIn(name, args)
+        self.assertEqual(
+            args["map_anchors_file"]["default"],
+            "$(find slam_grande)/data/anchors_sim.yaml",
+        )
+        self.assertEqual(args["run_map"]["default"], "true")
+        self.assertEqual(
+            args["map_file"]["default"],
+            "$(find mariner)/maps/simulation.yaml",
+        )
+
+    def test_simulation_launch_wires_saved_map_and_rviz_include(self):
+        include = None
+        for elem in self.root.findall("group/include"):
+            if elem.attrib.get("file") == "$(find mariner)/launch/move_base.launch":
+                include = elem
+                break
+
+        self.assertIsNotNone(include)
+        args = {elem.attrib["name"]: elem.attrib["value"] for elem in include.findall("arg")}
+        self.assertEqual(args["use_map_server"], "$(arg run_map)")
+        self.assertEqual(args["map_file"], "$(arg map_file)")
+
+        relay = self.root.find("group/node[@name='move_base_status_relay']")
+        self.assertIsNotNone(relay)
+        self.assertEqual(relay.attrib["pkg"], "mariner")
+        self.assertEqual(relay.attrib["type"], "goal_status_relay.py")
+
+        sensor_map_builder = self.root.find("node[@name='build_sensor_nav_map']")
+        self.assertIsNotNone(sensor_map_builder)
+        self.assertEqual(sensor_map_builder.attrib["pkg"], "mariner")
+        self.assertEqual(sensor_map_builder.attrib["type"], "generate_map_from_pointcloud.py")
+
+        rviz_include = self.root.find("include[@file='$(find slam_grande)/launch/include/rviz_nav.launch']")
+        self.assertIsNotNone(rviz_include)
+        rviz_args = {
+            elem.attrib["name"]: elem.attrib["value"] for elem in rviz_include.findall("arg")
+        }
+        self.assertEqual(rviz_args["use_rviz"], "$(arg use_rviz)")
+        self.assertEqual(rviz_args["rviz_config"], "$(arg rviz_config)")
+
+    def test_simulation_launch_enables_dlio_when_building_sensor_map(self):
+        group = None
+        for elem in self.root.findall("group"):
+            if elem.attrib.get("if") == "$(eval str(arg('use_dlio')).lower() == 'true' or str(arg('build_map')).lower() == 'true')":
+                group = elem
+                break
+        self.assertIsNotNone(group)
+
 
 if __name__ == "__main__":
     unittest.main()

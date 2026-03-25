@@ -54,8 +54,10 @@
     <arg name="cmd_vel_safe" value="$(arg topic_cmd_vel)"/>
   </include>
 
-  <node pkg="topic_tools" type="relay" name="move_base_status_relay"
-        args="/move_base/status $(arg topic_nav_status)" output="screen"/>
+  <node pkg="mariner" type="goal_status_relay.py" name="move_base_status_relay" output="screen">
+    <param name="input_topic" value="/move_base/status"/>
+    <param name="output_topic" value="$(arg topic_nav_status)"/>
+  </node>
 
   <node pkg="topic_tools" type="relay" name="cmd_vel_passthrough" args="$(arg topic_cmd_vel_raw) $(arg topic_cmd_vel)" output="screen"/>
 

@@ -36,6 +36,29 @@ class RenderVisibilityTests(unittest.TestCase):
                 self.assertIsNotNone(visibility_mask, path)
                 self.assertEqual(visibility_mask.text.strip(), "4294967294")
 
+    def test_vertical_lidar_mount_matches_shared_sim_sensor_mount(self):
+        roots = []
+        for path in (HERON_SIM_XACRO, IG_HANDLE_XACRO):
+            tree = ET.parse(path)
+            roots.append(tree.getroot())
+
+        origins = []
+        for root in roots:
+            joint = root.find(".//joint[@name='lidar_v_joint']")
+            self.assertIsNotNone(joint)
+            origin = joint.find("origin")
+            self.assertIsNotNone(origin)
+            origins.append(
+                {
+                    "xyz": origin.attrib.get("xyz", "").strip(),
+                    "rpy": origin.attrib.get("rpy", "").strip(),
+                }
+            )
+
+        self.assertEqual(origins[0]["xyz"], origins[1]["xyz"])
+        self.assertEqual(origins[0]["rpy"], origins[1]["rpy"])
+        self.assertEqual(origins[0]["rpy"], "0 1.5708 0")
+
 
 if __name__ == "__main__":
     unittest.main()
