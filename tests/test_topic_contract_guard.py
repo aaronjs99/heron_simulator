@@ -42,6 +42,7 @@ class TopicContractGuardTests(unittest.TestCase):
                     "nav_goal_pose": "/mariner/goal",
                     "nav_goal_anchor": "/mariner/goal_anchor",
                     "nav_ok": "/mariner/status/nav_ok",
+                    "nav_status": "/mariner/status/move_base",
                     "oracle_input": "/oracle/input",
                     "oracle_output": "/oracle/output",
                     "oracle_status": "/oracle/status",
@@ -60,6 +61,7 @@ class TopicContractGuardTests(unittest.TestCase):
                     "wrench": "geometry_msgs/Wrench",
                     "pose_stamped": "geometry_msgs/PoseStamped",
                     "string": "std_msgs/String",
+                    "goal_status_array": "actionlib_msgs/GoalStatusArray",
                     "anchor_pose_array": "oracle/AnchorPoseArray",
                     "human_query_input": "oracle/HumanQueryInput",
                     "mission_status": "oracle/MissionStatus",
@@ -139,6 +141,12 @@ class TopicContractGuardTests(unittest.TestCase):
                                 "type_key": "string",
                                 "publishers": {"min": 1, "max": 1},
                             },
+                            "nav_status": {
+                                "topic_key": "nav_status",
+                                "type_key": "goal_status_array",
+                                "publishers": {"min": 1, "max": 1},
+                                "subscribers": {"min": 1},
+                            },
                         },
                     },
                     "goal_routing": {
@@ -201,7 +209,7 @@ class TopicContractGuardTests(unittest.TestCase):
                             },
                             "sonar_scan": {
                                 "topic_key": "sonar_scan",
-                                "type_key": "range",
+                                "type_key": "pointcloud2",
                                 "publishers": {"min": 1, "max": 1},
                             },
                             "camera_f1_image": {
@@ -242,6 +250,7 @@ class TopicContractGuardTests(unittest.TestCase):
             "/thrusters/0/input": ["cmd_drive_to_thrusters"],
             "/mariner/final_pose": ["nav_bridge"],
             "/mariner/status/nav_ok": ["move_base_goal_manager"],
+            "/mariner/status/move_base": ["move_base_status_relay"],
             "/oracle/output": ["human_query_relay"],
             "/oracle/status": ["mission_manager"],
             "/oracle/map/anchors": ["anchor_manager"],
@@ -259,6 +268,7 @@ class TopicContractGuardTests(unittest.TestCase):
             "/mariner/final_pose": ["move_base_goal_manager"],
             "/mariner/goal": ["nav_bridge"],
             "/mariner/goal_anchor": ["nav_bridge"],
+            "/mariner/status/move_base": ["mission_manager"],
             "/oracle/map/anchors": ["nav_bridge"],
             "/sensors/lidar/hori/points": ["move_base"],
         }
@@ -275,13 +285,14 @@ class TopicContractGuardTests(unittest.TestCase):
             "/mariner/goal": "geometry_msgs/PoseStamped",
             "/mariner/goal_anchor": "std_msgs/String",
             "/mariner/status/nav_ok": "std_msgs/String",
+            "/mariner/status/move_base": "actionlib_msgs/GoalStatusArray",
             "/oracle/input": "oracle/HumanQueryInput",
             "/oracle/output": "std_msgs/String",
             "/oracle/status": "oracle/MissionStatus",
             "/oracle/map/anchors": "oracle/AnchorPoseArray",
             "/sensors/imu/data": "sensor_msgs/Imu",
             "/sensors/lidar/hori/points": "sensor_msgs/PointCloud2",
-            "/sensors/sonar/scan": "sensor_msgs/Range",
+            "/sensors/sonar/scan": "sensor_msgs/PointCloud2",
             "/sensors/camera/f1/image_raw": "sensor_msgs/Image",
         }
         return publishers, subscribers, topic_types

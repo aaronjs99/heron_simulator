@@ -121,6 +121,11 @@ class ThrusterTranslator:
         alpha = 1.0 if tau <= 1e-6 else 1.0 - np.exp(-dt / tau)
         return actual + alpha * (slewed_target - actual)
 
+    def snap_idle_axis(self, actual, target):
+        if target == 0.0 and abs(actual) <= self.command_deadband:
+            return 0.0
+        return actual
+
     def update(self, _event):
         now = rospy.Time.now()
         dt = max((now - self.last_update_time).to_sec(), 1e-3)
@@ -134,6 +139,8 @@ class ThrusterTranslator:
         self.actual_right = self.slew_and_lag(
             self.actual_right, self.target_right, dt
         )
+        self.actual_left = self.snap_idle_axis(self.actual_left, self.target_left)
+        self.actual_right = self.snap_idle_axis(self.actual_right, self.target_right)
 
         left_force = self.get_thrust(self.actual_left)
         right_force = self.get_thrust(self.actual_right)

@@ -37,6 +37,7 @@
   <arg name="topic_nav_goal_pose" default="/mariner/goal"/>
   <arg name="topic_nav_goal_anchor" default="/mariner/goal_anchor"/>
   <arg name="topic_nav_ok" default="/mariner/status/nav_ok"/>
+  <arg name="topic_nav_status" default="/mariner/status/move_base"/>
   <arg name="topic_oracle_input" default="/oracle/input"/>
   <arg name="topic_oracle_output" default="/oracle/output"/>
   <arg name="topic_oracle_status" default="/oracle/status"/>
@@ -90,6 +91,7 @@
   <param name="/topic_contract/topics/nav_goal_pose" value="$(arg topic_nav_goal_pose)"/>
   <param name="/topic_contract/topics/nav_goal_anchor" value="$(arg topic_nav_goal_anchor)"/>
   <param name="/topic_contract/topics/nav_ok" value="$(arg topic_nav_ok)"/>
+  <param name="/topic_contract/topics/nav_status" value="$(arg topic_nav_status)"/>
   <param name="/topic_contract/topics/oracle_input" value="$(arg topic_oracle_input)"/>
   <param name="/topic_contract/topics/oracle_output" value="$(arg topic_oracle_output)"/>
   <param name="/topic_contract/topics/oracle_status" value="$(arg topic_oracle_status)"/>
@@ -200,8 +202,13 @@
       <arg name="cmd_vel_safe" value="$(arg topic_cmd_vel)"/>
       <arg name="odom_topic" value="$(arg topic_odom)"/>
       <arg name="use_cbf_filter" value="$(arg use_cbf_filter)"/>
+      <arg name="local_costmap_overlay_config" value="$(find mariner)/config/local_costmap_sim.yaml"/>
+      <arg name="teb_local_planner_overlay_config" value="$(find mariner)/config/teb_local_planner_sim.yaml"/>
       <!-- <arg name="use_map_server" value="false"/> -->
     </include>
+
+    <node pkg="topic_tools" type="relay" name="move_base_status_relay"
+          args="/move_base/status $(arg topic_nav_status)" output="screen"/>
 
     <!-- Move base goal manager: consume PoseStamped goals from ORACLE -->
     <node pkg="mariner" type="move_base_goal_manager.py" name="move_base_goal_manager" output="screen">
@@ -247,6 +254,7 @@
       <arg name="topic_nav_goal_pose" value="$(arg topic_nav_goal_pose)"/>
       <arg name="topic_nav_ok" value="$(arg topic_nav_ok)"/>
       <arg name="nav_goal_topic" value="$(arg topic_nav_goal)"/>
+      <arg name="sensor_profile" value="simulation"/>
       <arg name="inspect_service" value="/defector/capture_and_analyze"/>
     </include>
   </group>

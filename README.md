@@ -10,10 +10,24 @@ tested together before running on hardware.
 
 - Heron vehicle spawn and world bringup
 - synthetic maritime environments and inspection targets
-- simulated sensors
+- simulated sensors that mirror the operator dashboard sensor catalog
 - topic bridges needed by MARINER and ORACLE
 - mock inspection/perception support for fast autonomy testing
 - Gazebo plugins for visualization and custom force behavior
+
+## Important Runtime Conventions
+
+- The simulation stack applies MARINER planner changes as overlays. The base
+  planner profile still loads first, then sim-only TEB and local-costmap
+  overrides layer on top.
+- The benchmark Heron hull profile is sourced from
+  `../heron/heron_description/urdf/configs/ig_handle_benchmark`, so mass,
+  damping, and added-mass changes are explicit.
+- Dashboard-only overlays such as path bands and inspection ghost markers are
+  rendered as GUI-only visuals so they remain visible in Gazebo without leaking
+  into simulated camera feeds.
+- The simulated sonar publishes `sensor_msgs/PointCloud2` so it can share the
+  same browser viewer path as lidar.
 
 ## Common Uses
 
@@ -38,6 +52,7 @@ roslaunch heron_simulator simulation.launch
 | `scripts/control/` | Command translation between stack layers and Gazebo |
 | `scripts/sensors/` | Sensor adaptation utilities |
 | `src/` | Gazebo plugins and compiled simulator support |
+| `tests/` | Simulation launch, rendering, and control regressions |
 
 ## How It Fits The Workspace
 

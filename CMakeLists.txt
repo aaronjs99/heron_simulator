@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(heron_simulator)
 
 find_package(catkin REQUIRED COMPONENTS
+  actionlib_msgs
   rospy
   roscpp
   std_srvs

@@ -13,6 +13,7 @@
   <arg name="topic_nav_goal_pose" default="/mariner/goal"/>
   <arg name="topic_nav_goal_anchor" default="/mariner/goal_anchor"/>
   <arg name="topic_nav_ok" default="/mariner/status/nav_ok"/>
+  <arg name="topic_nav_status" default="/mariner/status/move_base"/>
   <arg name="topic_oracle_input" default="/oracle/input"/>
   <arg name="topic_oracle_output" default="/oracle/output"/>
   <arg name="topic_oracle_status" default="/oracle/status"/>
@@ -29,6 +30,7 @@
   <param name="/topic_contract/topics/nav_goal_pose" value="$(arg topic_nav_goal_pose)"/>
   <param name="/topic_contract/topics/nav_goal_anchor" value="$(arg topic_nav_goal_anchor)"/>
   <param name="/topic_contract/topics/nav_ok" value="$(arg topic_nav_ok)"/>
+  <param name="/topic_contract/topics/nav_status" value="$(arg topic_nav_status)"/>
   <param name="/topic_contract/topics/oracle_input" value="$(arg topic_oracle_input)"/>
   <param name="/topic_contract/topics/oracle_output" value="$(arg topic_oracle_output)"/>
   <param name="/topic_contract/topics/oracle_status" value="$(arg topic_oracle_status)"/>
@@ -51,6 +53,9 @@
     <arg name="cmd_vel_out" value="$(arg topic_cmd_vel_raw)"/>
     <arg name="cmd_vel_safe" value="$(arg topic_cmd_vel)"/>
   </include>
+
+  <node pkg="topic_tools" type="relay" name="move_base_status_relay"
+        args="/move_base/status $(arg topic_nav_status)" output="screen"/>
 
   <node pkg="topic_tools" type="relay" name="cmd_vel_passthrough" args="$(arg topic_cmd_vel_raw) $(arg topic_cmd_vel)" output="screen"/>
 

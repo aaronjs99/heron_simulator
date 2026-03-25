@@ -23,6 +23,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>roslaunch</build_depend>
+  <depend>actionlib_msgs</depend>
 
   <!-- Core Gazebo -->
   <exec_depend>gazebo_ros</exec_depend>

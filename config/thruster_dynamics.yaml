@@ -1,8 +1,8 @@
 rate: 30.0
-cmd_timeout: 0.75
-time_constant_up: 0.35
-time_constant_down: 0.25
-max_delta_per_sec: 2.5
+cmd_timeout: 0.35
+time_constant_up: 0.22
+time_constant_down: 0.10
+max_delta_per_sec: 4.0
 command_deadband: 0.03
 left_scale: 1.0
 right_scale: 1.0

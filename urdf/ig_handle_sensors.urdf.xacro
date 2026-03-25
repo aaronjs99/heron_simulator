@@ -206,16 +206,16 @@
       <ray>
          <scan>
             <horizontal>
-               <samples>3</samples>
+               <samples>64</samples>
                <resolution>1</resolution>
-               <min_angle>-0.1</min_angle>
-               <max_angle>0.1</max_angle>
+               <min_angle>-0.523599</min_angle>
+               <max_angle>0.523599</max_angle>
             </horizontal>
             <vertical>
-               <samples>3</samples>
+               <samples>12</samples>
                <resolution>1</resolution>
-               <min_angle>-0.1</min_angle>
-               <max_angle>0.1</max_angle>
+               <min_angle>-0.174533</min_angle>
+               <max_angle>0.174533</max_angle>
             </vertical>
          </scan>
          <range>
@@ -224,13 +224,14 @@
             <resolution>0.01</resolution>
          </range>
       </ray>
-      <plugin name="gazebo_ros_range" filename="libgazebo_ros_range.so">
+      <plugin name="sonar_plugin" filename="libgazebo_ros_velodyne_laser.so">
         <topicName>/sensors/sonar/scan</topicName>
         <frameName>sonar_link</frameName>
-        <radiation>ultrasound</radiation>
-        <fov>0.5</fov>
-        <gaussianNoise>0.005</gaussianNoise>
-        <updateRate>10</updateRate>
+        <min_range>0.2</min_range>
+        <max_range>50.0</max_range>
+        <gaussianNoise>0.003</gaussianNoise>
+        <organize_cloud>false</organize_cloud>
+        <min_intensity>0.0</min_intensity>
       </plugin>
     </sensor>
   </gazebo>
@@ -295,6 +296,7 @@
           <near>0.02</near>
           <far>100</far>
         </clip>
+        <visibility_mask>4294967294</visibility_mask>
         <noise>
           <type>gaussian</type>
           <mean>0.0</mean>
@@ -359,6 +361,7 @@
           <near>0.02</near>
           <far>100</far>
         </clip>
+        <visibility_mask>4294967294</visibility_mask>
         <noise>
           <type>gaussian</type>
           <mean>0.0</mean>

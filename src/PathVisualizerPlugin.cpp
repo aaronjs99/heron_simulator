@@ -2,11 +2,13 @@
 #include <OGRE/OgreSceneManager.h>
 #include <OGRE/OgreSceneNode.h>
 #include <OGRE/OgreVector3.h>
+#include <actionlib_msgs/GoalStatusArray.h>
 #include <nav_msgs/Path.h>
 #include <ros/ros.h>
 
 #include <gazebo/common/common.hh>
 #include <gazebo/gazebo.hh>
+#include <gazebo/rendering/RenderTypes.hh>
 #include <gazebo/rendering/Scene.hh>
 #include <gazebo/rendering/Visual.hh>
 #include <ignition/math/Pose3.hh>
@@ -18,6 +20,11 @@
 namespace gazebo {
 class PathVisualizerPlugin : public VisualPlugin {
 public:
+  static constexpr const char* kLocalPlanTopic = "/move_base/TebLocalPlannerROS/local_plan";
+  static constexpr const char* kGlobalPlanTopic = "/move_base/GlobalPlanner/plan";
+  static constexpr const char* kNavfnPlanTopic = "/move_base/NavfnROS/plan";
+  static constexpr const char* kMoveBaseStatusTopic = "/move_base/status";
+
   PathVisualizerPlugin()
       : visual_(nullptr),
         nh_(nullptr),
@@ -26,14 +33,15 @@ public:
         global_path_object_(nullptr),
         scene_node_(nullptr),
         robot_visual_(nullptr),
-        new_path_received_(false),
-        new_global_path_received_(false),
         initialized_(false),
         warned_waiting_for_ros_(false),
         logged_first_local_msg_(false),
         logged_first_global_msg_(false),
         logged_first_local_draw_(false),
         logged_first_global_draw_(false),
+        active_goal_(false),
+        local_plan_since_goal_(false),
+        global_plan_since_goal_(false),
         local_frame_mode_known_(false),
         local_frame_mode_robot_local_(false),
         start_wall_time_(ros::WallTime::now()) {}
@@ -86,48 +94,101 @@ private:
     this->local_path_object_ = scene_manager->createManualObject("LocalPathBand" + suffix);
     this->local_path_object_->setDynamic(true);
     this->local_path_object_->setBoundingBox(Ogre::AxisAlignedBox::BOX_INFINITE);
+    this->local_path_object_->setVisibilityFlags(GZ_VISIBILITY_GUI);
     this->scene_node_->attachObject(this->local_path_object_);
 
     this->global_path_object_ = scene_manager->createManualObject("GlobalPathLine" + suffix);
     this->global_path_object_->setDynamic(true);
     this->global_path_object_->setBoundingBox(Ogre::AxisAlignedBox::BOX_INFINITE);
+    this->global_path_object_->setVisibilityFlags(GZ_VISIBILITY_GUI);
     this->scene_node_->attachObject(this->global_path_object_);
 
-    this->sub_ = this->nh_->subscribe(
-        "/move_base/TebLocalPlannerROS/local_plan", 1, &PathVisualizerPlugin::PathCallback, this);
-    this->global_sub_ = this->nh_->subscribe(
-        "/move_base/GlobalPlanner/plan", 1, &PathVisualizerPlugin::GlobalPathCallback, this);
-    this->global_fallback_sub_ = this->nh_->subscribe(
-        "/move_base/NavfnROS/plan", 1, &PathVisualizerPlugin::GlobalPathCallback, this);
+    this->SubscribePlannerTopics();
 
     this->initialized_ = true;
     this->start_wall_time_ = ros::WallTime::now();
     ROS_INFO(
-        "[PathVisualizerPlugin] LOADED! local=/move_base/TebLocalPlannerROS/local_plan "
-        "global=/move_base/GlobalPlanner/plan|/move_base/NavfnROS/plan");
+        "[PathVisualizerPlugin] LOADED! local=%s global=%s|%s",
+        kLocalPlanTopic,
+        kGlobalPlanTopic,
+        kNavfnPlanTopic);
   }
 
-  void PathCallback(const nav_msgs::Path::ConstPtr& msg) {
+  void SubscribePlannerTopics() {
+    this->sub_ =
+        this->nh_->subscribe(kLocalPlanTopic, 1, &PathVisualizerPlugin::PathCallback, this);
+    this->global_sub_ =
+        this->nh_->subscribe(kGlobalPlanTopic, 1, &PathVisualizerPlugin::GlobalPathCallback, this);
+    this->global_navfn_sub_ =
+        this->nh_->subscribe(kNavfnPlanTopic, 1, &PathVisualizerPlugin::GlobalPathCallback, this);
+    this->status_sub_ =
+        this->nh_->subscribe(kMoveBaseStatusTopic, 1, &PathVisualizerPlugin::StatusCallback, this);
+  }
+
+  void HandlePlanMessage(
+      const nav_msgs::Path::ConstPtr& msg,
+      nav_msgs::Path* target,
+      bool* plan_since_goal,
+      bool* logged_first_message,
+      const char* label) {
     std::lock_guard<std::mutex> lock(this->mutex_);
-    this->latest_path_ = *msg;
-    this->new_path_received_ = true;
-    if (!this->logged_first_local_msg_) {
-      this->logged_first_local_msg_ = true;
-      ROS_INFO_STREAM("[PathVisualizerPlugin] first local path received frame="
+    *target = *msg;
+    if (msg->poses.size() >= 2) {
+      *plan_since_goal = true;
+    }
+    if (!*logged_first_message) {
+      *logged_first_message = true;
+      ROS_INFO_STREAM("[PathVisualizerPlugin] first " << label << " path received frame="
                       << (msg->header.frame_id.empty() ? "<empty>" : msg->header.frame_id)
                       << " poses=" << msg->poses.size());
     }
   }
 
+  void PathCallback(const nav_msgs::Path::ConstPtr& msg) {
+    this->HandlePlanMessage(
+        msg,
+        &this->latest_path_,
+        &this->local_plan_since_goal_,
+        &this->logged_first_local_msg_,
+        "local");
+  }
+
   void GlobalPathCallback(const nav_msgs::Path::ConstPtr& msg) {
+    this->HandlePlanMessage(
+        msg,
+        &this->global_path_,
+        &this->global_plan_since_goal_,
+        &this->logged_first_global_msg_,
+        "global");
+  }
+
+  void StatusCallback(const actionlib_msgs::GoalStatusArray::ConstPtr& msg) {
+    bool has_active_goal = false;
+    for (const auto& status : msg->status_list) {
+      if (status.status == actionlib_msgs::GoalStatus::PENDING ||
+          status.status == actionlib_msgs::GoalStatus::ACTIVE ||
+          status.status == actionlib_msgs::GoalStatus::PREEMPTING ||
+          status.status == actionlib_msgs::GoalStatus::RECALLING) {
+        has_active_goal = true;
+        break;
+      }
+    }
+
     std::lock_guard<std::mutex> lock(this->mutex_);
-    this->global_path_ = *msg;
-    this->new_global_path_received_ = true;
-    if (!this->logged_first_global_msg_) {
-      this->logged_first_global_msg_ = true;
-      ROS_INFO_STREAM("[PathVisualizerPlugin] first global path received frame="
-                      << (msg->header.frame_id.empty() ? "<empty>" : msg->header.frame_id)
-                      << " poses=" << msg->poses.size());
+    if (has_active_goal && !this->active_goal_) {
+      this->active_goal_ = true;
+      this->active_goal_since_ = ros::WallTime::now();
+      this->local_plan_since_goal_ = false;
+      this->global_plan_since_goal_ = false;
+      ROS_INFO("[PathVisualizerPlugin] move_base goal active; waiting for planner output.");
+      return;
+    }
+
+    if (!has_active_goal && this->active_goal_) {
+      this->active_goal_ = false;
+      this->local_plan_since_goal_ = false;
+      this->global_plan_since_goal_ = false;
+      ROS_INFO("[PathVisualizerPlugin] move_base goal cleared; suppressing missing-plan warnings.");
     }
   }
 
@@ -150,8 +211,6 @@ private:
       std::lock_guard<std::mutex> lock(this->mutex_);
       local_path_copy = this->latest_path_;
       global_path_copy = this->global_path_;
-      this->new_path_received_ = false;
-      this->new_global_path_received_ = false;
     }
 
     this->WarnIfMissingPaths();
@@ -184,19 +243,41 @@ private:
   }
 
   void WarnIfMissingPaths() {
-    const double elapsed = (ros::WallTime::now() - this->start_wall_time_).toSec();
-    if (elapsed < 10.0) {
+    const double startup_elapsed = (ros::WallTime::now() - this->start_wall_time_).toSec();
+    if (startup_elapsed < 10.0) {
       return;
     }
-    if (!this->logged_first_local_msg_) {
-      ROS_WARN_THROTTLE(10.0,
-                        "[PathVisualizerPlugin] still waiting for usable local plan on "
-                        "/move_base/TebLocalPlannerROS/local_plan");
+
+    bool active_goal = false;
+    bool local_plan_since_goal = false;
+    bool global_plan_since_goal = false;
+    double goal_elapsed = 0.0;
+    {
+      std::lock_guard<std::mutex> lock(this->mutex_);
+      active_goal = this->active_goal_;
+      local_plan_since_goal = this->local_plan_since_goal_;
+      global_plan_since_goal = this->global_plan_since_goal_;
+      if (active_goal) {
+        goal_elapsed = (ros::WallTime::now() - this->active_goal_since_).toSec();
+      }
     }
-    if (!this->logged_first_global_msg_) {
-      ROS_WARN_THROTTLE(10.0,
-                        "[PathVisualizerPlugin] still waiting for usable global path on "
-                        "/move_base/GlobalPlanner/plan or /move_base/NavfnROS/plan");
+
+    if (!active_goal || goal_elapsed < 2.0) {
+      return;
+    }
+
+    if (!local_plan_since_goal) {
+      ROS_WARN_THROTTLE(
+          10.0,
+          "[PathVisualizerPlugin] still waiting for usable local plan on %s after goal activation",
+          kLocalPlanTopic);
+    }
+    if (!global_plan_since_goal) {
+      ROS_WARN_THROTTLE(
+          10.0,
+          "[PathVisualizerPlugin] still waiting for usable global path on %s or %s after goal activation",
+          kGlobalPlanTopic,
+          kNavfnPlanTopic);
     }
   }
 
@@ -420,7 +501,8 @@ private:
   ros::NodeHandle* nh_;
   ros::Subscriber sub_;
   ros::Subscriber global_sub_;
-  ros::Subscriber global_fallback_sub_;
+  ros::Subscriber global_navfn_sub_;
+  ros::Subscriber status_sub_;
   rendering::ScenePtr scene_;
   Ogre::ManualObject* local_path_object_;
   Ogre::ManualObject* global_path_object_;
@@ -431,17 +513,19 @@ private:
   std::mutex mutex_;
   nav_msgs::Path latest_path_;
   nav_msgs::Path global_path_;
-  bool new_path_received_;
-  bool new_global_path_received_;
   bool initialized_;
   bool warned_waiting_for_ros_;
   bool logged_first_local_msg_;
   bool logged_first_global_msg_;
   bool logged_first_local_draw_;
   bool logged_first_global_draw_;
+  bool active_goal_;
+  bool local_plan_since_goal_;
+  bool global_plan_since_goal_;
   bool local_frame_mode_known_;
   bool local_frame_mode_robot_local_;
   ros::WallTime start_wall_time_;
+  ros::WallTime active_goal_since_;
 };
 
 GZ_REGISTER_VISUAL_PLUGIN(PathVisualizerPlugin)
