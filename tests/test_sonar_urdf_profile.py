@@ -13,10 +13,13 @@ class SonarUrdfProfileTests(unittest.TestCase):
         with open(SENSOR_XACRO, "r", encoding="utf-8") as handle:
             content = handle.read()
 
-        self.assertIn('<plugin name="sonar_plugin" filename="libgazebo_ros_velodyne_laser.so">', content)
-        self.assertIn('<topicName>/sensors/sonar/scan</topicName>', content)
-        self.assertIn('<samples>64</samples>', content)
-        self.assertIn('<samples>12</samples>', content)
+        self.assertIn(
+            '<plugin name="sonar_plugin" filename="libgazebo_ros_velodyne_laser.so">',
+            content,
+        )
+        self.assertIn("<topicName>/sensors/sonar/scan</topicName>", content)
+        self.assertIn("<samples>64</samples>", content)
+        self.assertIn("<samples>12</samples>", content)
 
 
 if __name__ == "__main__":

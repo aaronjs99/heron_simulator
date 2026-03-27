@@ -231,7 +231,7 @@ class TopicContractGuardTests(unittest.TestCase):
                                 "topic_key": "dlio_path",
                                 "type_key": "path",
                                 "publishers": {"min": 1, "max": 1},
-                            }
+                            },
                         },
                     },
                 },

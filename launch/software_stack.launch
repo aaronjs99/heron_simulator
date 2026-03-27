@@ -69,13 +69,17 @@
     <param name="frame_id" value="map"/>
   </node>
 
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <!-- ORACLE Stack -->
-  <!-- ═══════════════════════════════════════════════════════════════════════ -->
-  <include file="$(find oracle)/launch/oracle.launch">
+  <include file="$(find slam_grande)/launch/include/operator_surface.launch">
+    <arg name="use_oracle" value="true"/>
+    <arg name="use_web_viz" value="true"/>
+    <arg name="use_rviz" value="false"/>
+    <arg name="record_bags" value="false"/>
+    <arg name="enforce_topic_contract" value="false"/>
+    <arg name="anchor_mode" value="sim"/>
     <arg name="anchor_pose_map_file" value="$(arg anchor_file)"/>
     <arg name="llm_model" value="$(arg llm_model)"/>
     <arg name="odom_topic" value="$(arg topic_odom)"/>
+    <arg name="sensor_profile" value="simulation"/>
     <arg name="topic_input" value="$(arg topic_oracle_input)"/>
     <arg name="topic_output" value="$(arg topic_oracle_output)"/>
     <arg name="topic_status" value="$(arg topic_oracle_status)"/>
@@ -83,6 +87,7 @@
     <arg name="topic_nav_goal_anchor" value="$(arg topic_nav_goal_anchor)"/>
     <arg name="topic_nav_goal_pose" value="$(arg topic_nav_goal_pose)"/>
     <arg name="topic_nav_ok" value="$(arg topic_nav_ok)"/>
+    <arg name="topic_nav_status" value="$(arg topic_nav_status)"/>
     <arg name="nav_goal_topic" value="$(arg topic_nav_goal)"/>
     <arg name="inspect_service" value="/defector/capture_and_analyze"/>
   </include>

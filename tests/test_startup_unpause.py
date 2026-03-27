@@ -6,9 +6,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 
-_ORIG_MODULES = {
-    name: sys.modules.get(name) for name in ("rospy", "std_srvs.srv")
-}
+_ORIG_MODULES = {name: sys.modules.get(name) for name in ("rospy", "std_srvs.srv")}
 
 mock_rospy = MagicMock()
 mock_std_srvs = MagicMock()
@@ -50,7 +48,9 @@ class StartupUnpauseTests(unittest.TestCase):
             "~delay_sec": 2.5,
             "~service": "/gazebo/unpause_physics",
         }
-        mock_rospy.get_param.side_effect = lambda name, default=None: params.get(name, default)
+        mock_rospy.get_param.side_effect = lambda name, default=None: params.get(
+            name, default
+        )
         mock_rospy.is_shutdown.return_value = False
         service = MagicMock()
         mock_rospy.ServiceProxy.return_value = service
@@ -59,7 +59,9 @@ class StartupUnpauseTests(unittest.TestCase):
             startup_unpause.main()
 
         sleep_mock.assert_called_once_with(2.5)
-        mock_rospy.wait_for_service.assert_called_once_with("/gazebo/unpause_physics", timeout=15.0)
+        mock_rospy.wait_for_service.assert_called_once_with(
+            "/gazebo/unpause_physics", timeout=15.0
+        )
         service.assert_called_once_with()
 
     def test_main_returns_early_when_ros_is_shutting_down(self):
@@ -67,7 +69,9 @@ class StartupUnpauseTests(unittest.TestCase):
             "~delay_sec": 1.0,
             "~service": "/gazebo/unpause_physics",
         }
-        mock_rospy.get_param.side_effect = lambda name, default=None: params.get(name, default)
+        mock_rospy.get_param.side_effect = lambda name, default=None: params.get(
+            name, default
+        )
         mock_rospy.is_shutdown.return_value = True
 
         with patch.object(startup_unpause.time, "sleep"):

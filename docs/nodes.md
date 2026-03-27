@@ -276,7 +276,7 @@ M·dv/dt + C(v)·v + D(v)·v + g(η) = τ
 
 ## Launch Files
 
-### simulation_full.launch
+### run.launch
 
 **Full Stack Simulation**
 
@@ -288,6 +288,11 @@ Launches complete simulation with all SLAM GRANDE components.
 - Mariner navigation
 - Oracle mission planning
 - Mock defector service
+- Shared web, RViz, and rosbag operator surface
+
+### simulation_full.launch
+
+Compatibility wrapper that forwards to `run.launch`.
 
 ### spawn_heron.launch
 

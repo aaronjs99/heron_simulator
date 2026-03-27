@@ -7,9 +7,7 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 
-_ORIG_MODULES = {
-    name: sys.modules.get(name) for name in ("rospy", "gazebo_msgs.srv")
-}
+_ORIG_MODULES = {name: sys.modules.get(name) for name in ("rospy", "gazebo_msgs.srv")}
 
 mock_rospy = MagicMock()
 mock_gazebo_srvs = MagicMock()
@@ -62,11 +60,21 @@ class SimPreflightTests(unittest.TestCase):
             "~allow_existing_gazebo": False,
             "~required_free_ports": [8080],
         }
-        mock_rospy.get_param.side_effect = lambda name, default=None: params.get(name, default)
-        mock_rospy.ServiceProxy.return_value = lambda: SimpleNamespace(model_names=["heron"])
+        mock_rospy.get_param.side_effect = lambda name, default=None: params.get(
+            name, default
+        )
+        mock_rospy.ServiceProxy.return_value = lambda: SimpleNamespace(
+            model_names=["heron"]
+        )
 
-        with patch.object(sim_preflight, "port_in_use", side_effect=lambda port: int(port) in {11345, 8080}):
-            with patch.object(sim_preflight.sys, "exit", side_effect=SystemExit(1)) as exit_mock:
+        with patch.object(
+            sim_preflight,
+            "port_in_use",
+            side_effect=lambda port: int(port) in {11345, 8080},
+        ):
+            with patch.object(
+                sim_preflight.sys, "exit", side_effect=SystemExit(1)
+            ) as exit_mock:
                 with self.assertRaises(SystemExit):
                     sim_preflight.main()
 
@@ -79,7 +87,9 @@ class SimPreflightTests(unittest.TestCase):
             "~allow_existing_gazebo": False,
             "~required_free_ports": [8070, 8080],
         }
-        mock_rospy.get_param.side_effect = lambda name, default=None: params.get(name, default)
+        mock_rospy.get_param.side_effect = lambda name, default=None: params.get(
+            name, default
+        )
 
         with patch.object(sim_preflight, "port_in_use", return_value=False):
             sim_preflight.main()

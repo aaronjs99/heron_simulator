@@ -27,9 +27,7 @@ def main():
     errors = []
 
     if not allow_existing_gazebo and port_in_use(gazebo_master_port):
-        errors.append(
-            f"Gazebo master port {gazebo_master_port} is already in use."
-        )
+        errors.append(f"Gazebo master port {gazebo_master_port} is already in use.")
         try:
             rospy.wait_for_service("/gazebo/get_world_properties", timeout=0.5)
             get_world_properties = rospy.ServiceProxy(

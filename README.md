@@ -14,6 +14,7 @@ tested together before running on hardware.
 - topic bridges needed by MARINER and ORACLE
 - mock inspection/perception support for fast autonomy testing
 - Gazebo plugins for visualization and custom force behavior
+- the same shared ORACLE, web, RViz, and rosbag surface used by hardware bringup
 
 ## Important Runtime Conventions
 
@@ -34,8 +35,11 @@ tested together before running on hardware.
 ### Full stack simulation
 
 ```bash
-roslaunch heron_simulator simulation_full.launch
+roslaunch heron_simulator run.launch
 ```
+
+`simulation_full.launch` remains available as a compatibility shim, but
+`run.launch` is the canonical simulator entrypoint.
 
 ### Simulator-only bringup
 
@@ -63,3 +67,19 @@ roslaunch heron_simulator simulation.launch
 
 This package is the place to debug integration issues that only show up when the
 full autonomy loop is closed.
+
+## Shared Runtime Pattern
+
+The simulator now mirrors `slam_grande/run.launch` closely:
+
+1. Source vehicle state and sensor topics
+2. Build or load the navigation map
+3. Run MARINER navigation
+4. Run ORACLE and keep `/oracle/map/anchors` live
+5. Expose the web dashboard and RViz
+6. Record a rosbag of sensors, state, MARINER, and ORACLE topics
+
+The main difference is the source of data:
+
+- `heron_simulator/run.launch` uses Gazebo and simulated sensors
+- `slam_grande/run.launch` uses real sensors through `ig_handle`

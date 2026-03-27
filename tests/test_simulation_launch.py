@@ -6,7 +6,8 @@ import xml.etree.ElementTree as ET
 
 TEST_DIR = os.path.dirname(__file__)
 REPO_ROOT = os.path.abspath(os.path.join(TEST_DIR, ".."))
-SIM_LAUNCH = os.path.join(REPO_ROOT, "launch", "simulation_full.launch")
+SIM_LAUNCH = os.path.join(REPO_ROOT, "launch", "run.launch")
+SIM_SHIM = os.path.join(REPO_ROOT, "launch", "simulation_full.launch")
 
 
 class SimulationLaunchTests(unittest.TestCase):
@@ -22,7 +23,9 @@ class SimulationLaunchTests(unittest.TestCase):
                 break
 
         self.assertIsNotNone(include)
-        args = {elem.attrib["name"]: elem.attrib["value"] for elem in include.findall("arg")}
+        args = {
+            elem.attrib["name"]: elem.attrib["value"] for elem in include.findall("arg")
+        }
         self.assertEqual(
             args["teb_local_planner_overlay_config"],
             "$(find mariner)/config/teb_local_planner_sim.yaml",
@@ -38,6 +41,10 @@ class SimulationLaunchTests(unittest.TestCase):
         for name in (
             "use_rviz",
             "rviz_config",
+            "use_web_viz",
+            "record_bags",
+            "bag_output_dir",
+            "bag_prefix",
             "build_map",
             "map_builder",
             "run_map",
@@ -56,6 +63,7 @@ class SimulationLaunchTests(unittest.TestCase):
             args["map_file"]["default"],
             "$(find mariner)/maps/simulation.yaml",
         )
+        self.assertEqual(args["record_bags"]["default"], "true")
 
     def test_simulation_launch_wires_saved_map_and_rviz_include(self):
         include = None
@@ -65,7 +73,9 @@ class SimulationLaunchTests(unittest.TestCase):
                 break
 
         self.assertIsNotNone(include)
-        args = {elem.attrib["name"]: elem.attrib["value"] for elem in include.findall("arg")}
+        args = {
+            elem.attrib["name"]: elem.attrib["value"] for elem in include.findall("arg")
+        }
         self.assertEqual(args["use_map_server"], "$(arg run_map)")
         self.assertEqual(args["map_file"], "$(arg map_file)")
 
@@ -77,20 +87,38 @@ class SimulationLaunchTests(unittest.TestCase):
         sensor_map_builder = self.root.find("node[@name='build_sensor_nav_map']")
         self.assertIsNotNone(sensor_map_builder)
         self.assertEqual(sensor_map_builder.attrib["pkg"], "mariner")
-        self.assertEqual(sensor_map_builder.attrib["type"], "generate_map_from_pointcloud.py")
+        self.assertEqual(
+            sensor_map_builder.attrib["type"], "generate_map_from_pointcloud.py"
+        )
 
-        rviz_include = self.root.find("include[@file='$(find slam_grande)/launch/include/rviz_nav.launch']")
-        self.assertIsNotNone(rviz_include)
-        rviz_args = {
-            elem.attrib["name"]: elem.attrib["value"] for elem in rviz_include.findall("arg")
+        surface_include = self.root.find(
+            "include[@file='$(find slam_grande)/launch/include/operator_surface.launch']"
+        )
+        self.assertIsNotNone(surface_include)
+        surface_args = {
+            elem.attrib["name"]: elem.attrib["value"]
+            for elem in surface_include.findall("arg")
         }
-        self.assertEqual(rviz_args["use_rviz"], "$(arg use_rviz)")
-        self.assertEqual(rviz_args["rviz_config"], "$(arg rviz_config)")
+        self.assertEqual(surface_args["use_rviz"], "$(arg use_rviz)")
+        self.assertEqual(surface_args["rviz_config"], "$(arg rviz_config)")
+        self.assertEqual(surface_args["record_bags"], "$(arg record_bags)")
+        self.assertEqual(surface_args["bag_output_dir"], "$(arg bag_output_dir)")
+        self.assertEqual(surface_args["bag_prefix"], "$(arg bag_prefix)")
+
+    def test_simulation_full_launch_is_a_compatibility_shim(self):
+        root = ET.parse(SIM_SHIM).getroot()
+        include = root.find("include")
+        self.assertIsNotNone(include)
+        self.assertEqual(include.attrib["file"], "$(find heron_simulator)/launch/run.launch")
+        self.assertEqual(include.attrib["pass_all_args"], "true")
 
     def test_simulation_launch_enables_dlio_when_building_sensor_map(self):
         group = None
         for elem in self.root.findall("group"):
-            if elem.attrib.get("if") == "$(eval str(arg('use_dlio')).lower() == 'true' or str(arg('build_map')).lower() == 'true')":
+            if (
+                elem.attrib.get("if")
+                == "$(eval str(arg('use_dlio')).lower() == 'true' or str(arg('build_map')).lower() == 'true')"
+            ):
                 group = elem
                 break
         self.assertIsNotNone(group)

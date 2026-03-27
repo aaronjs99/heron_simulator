@@ -143,7 +143,9 @@ class VesselDynamics:
         p = msg.pose.pose.position
         q_obj = msg.pose.pose.orientation
         q = [q_obj.x, q_obj.y, q_obj.z, q_obj.w]
-        stamp = msg.header.stamp if msg.header.stamp != rospy.Time() else rospy.Time.now()
+        stamp = (
+            msg.header.stamp if msg.header.stamp != rospy.Time() else rospy.Time.now()
+        )
         if self.last_stamp is None:
             dt = 0.02
         else:
@@ -179,7 +181,11 @@ class VesselDynamics:
         f_b_body = np.dot(rot_mat.T, f_b_world)
 
         self.current_state = self.update_ou_state(
-            self.current_state, self.current_mean, self.current_std, self.current_tau, dt
+            self.current_state,
+            self.current_mean,
+            self.current_std,
+            self.current_tau,
+            dt,
         )
         self.wind_state = self.update_ou_state(
             self.wind_state, self.wind_mean, self.wind_std, self.wind_tau, dt
@@ -250,22 +256,44 @@ class VesselDynamics:
         wrench = Wrench()
         # Linear Forces
         wrench.force.x = (
-            f_damping[0] + f_coriolis[0] + f_b_body[0] + wind_force[0] + self.wave_force_state[0]
+            f_damping[0]
+            + f_coriolis[0]
+            + f_b_body[0]
+            + wind_force[0]
+            + self.wave_force_state[0]
         )
         wrench.force.y = (
-            f_damping[1] + f_coriolis[1] + f_b_body[1] + wind_force[1] + self.wave_force_state[1]
+            f_damping[1]
+            + f_coriolis[1]
+            + f_b_body[1]
+            + wind_force[1]
+            + self.wave_force_state[1]
         )
-        wrench.force.z = f_damping[2] + f_coriolis[2] + f_b_body[2] + self.wave_force_state[2]
+        wrench.force.z = (
+            f_damping[2] + f_coriolis[2] + f_b_body[2] + self.wave_force_state[2]
+        )
 
         # Torques
         wrench.torque.x = (
-            f_damping[3] + f_coriolis[3] + tau_restoring[0] + wind_torque[0] + self.wave_torque_state[0]
+            f_damping[3]
+            + f_coriolis[3]
+            + tau_restoring[0]
+            + wind_torque[0]
+            + self.wave_torque_state[0]
         )
         wrench.torque.y = (
-            f_damping[4] + f_coriolis[4] + tau_restoring[1] + wind_torque[1] + self.wave_torque_state[1]
+            f_damping[4]
+            + f_coriolis[4]
+            + tau_restoring[1]
+            + wind_torque[1]
+            + self.wave_torque_state[1]
         )
         wrench.torque.z = (
-            f_damping[5] + f_coriolis[5] + tau_restoring[2] + wind_torque[2] + self.wave_torque_state[2]
+            f_damping[5]
+            + f_coriolis[5]
+            + tau_restoring[2]
+            + wind_torque[2]
+            + self.wave_torque_state[2]
         )
 
         self.pub.publish(wrench)

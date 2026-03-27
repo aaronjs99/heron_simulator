@@ -52,6 +52,6 @@ Scaling pattern:
 
 Enforcement:
 - `slam_grande/config/topic_contract.yaml` is the canonical source of truth.
-- `simulation_full.launch` loads that shared contract and enables modules per stack.
+- `run.launch` loads that shared contract and enables modules per stack.
 - `topic_contract_guard.py` reads `/topic_contract` and validates the live ROS graph generically.
 - The guard fails launch on duplicate publishers, missing chain links, bad types, or forbidden legacy aliases such as `/mariner/nav_ok`.

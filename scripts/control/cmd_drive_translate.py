@@ -69,8 +69,12 @@ class ThrusterTranslator:
             int(rospy.get_param("~random_seed", rospy.Time.now().to_nsec() % 2**32))
         )
 
-        default_left_topic = f"{prefix}/thrusters/1/input" if prefix else "/thrusters/1/input"
-        default_right_topic = f"{prefix}/thrusters/0/input" if prefix else "/thrusters/0/input"
+        default_left_topic = (
+            f"{prefix}/thrusters/1/input" if prefix else "/thrusters/1/input"
+        )
+        default_right_topic = (
+            f"{prefix}/thrusters/0/input" if prefix else "/thrusters/0/input"
+        )
         default_drive_topic = "cmd_drive"
 
         left_topic = rospy.get_param("~left_thruster_topic", default_left_topic)
@@ -117,7 +121,11 @@ class ThrusterTranslator:
     def slew_and_lag(self, actual, target, dt):
         max_step = self.max_delta_per_sec * dt
         slewed_target = actual + np.clip(target - actual, -max_step, max_step)
-        tau = self.time_constant_up if abs(slewed_target) > abs(actual) else self.time_constant_down
+        tau = (
+            self.time_constant_up
+            if abs(slewed_target) > abs(actual)
+            else self.time_constant_down
+        )
         alpha = 1.0 if tau <= 1e-6 else 1.0 - np.exp(-dt / tau)
         return actual + alpha * (slewed_target - actual)
 
@@ -136,9 +144,7 @@ class ThrusterTranslator:
             self.target_right = 0.0
 
         self.actual_left = self.slew_and_lag(self.actual_left, self.target_left, dt)
-        self.actual_right = self.slew_and_lag(
-            self.actual_right, self.target_right, dt
-        )
+        self.actual_right = self.slew_and_lag(self.actual_right, self.target_right, dt)
         self.actual_left = self.snap_idle_axis(self.actual_left, self.target_left)
         self.actual_right = self.snap_idle_axis(self.actual_right, self.target_right)
 

@@ -21,7 +21,9 @@ def normalize_topic(topic: str) -> str:
     return topic if topic.startswith("/") else f"/{topic}"
 
 
-def normalize_topic_map(entries: Iterable[Tuple[str, List[str]]]) -> Dict[str, List[str]]:
+def normalize_topic_map(
+    entries: Iterable[Tuple[str, List[str]]]
+) -> Dict[str, List[str]]:
     return {normalize_topic(topic): list(nodes) for topic, nodes in entries}
 
 
@@ -83,7 +85,10 @@ def _parse_count_rule(config: Optional[Dict[str, Any]]) -> Optional[CountRule]:
 
 
 def _resolve_topic(
-    topics: Dict[str, str], endpoint_config: Dict[str, Any], module_name: str, endpoint_name: str
+    topics: Dict[str, str],
+    endpoint_config: Dict[str, Any],
+    module_name: str,
+    endpoint_name: str,
 ) -> str:
     topic = endpoint_config.get("topic")
     topic_key = endpoint_config.get("topic_key")
@@ -94,7 +99,9 @@ def _resolve_topic(
             )
         topic = topics[topic_key]
     if not topic:
-        raise ValueError(f"module {module_name}.{endpoint_name} is missing topic/topic_key")
+        raise ValueError(
+            f"module {module_name}.{endpoint_name} is missing topic/topic_key"
+        )
     return normalize_topic(topic)
 
 
@@ -126,9 +133,13 @@ def load_topic_contract(config: Dict[str, Any]) -> TopicContract:
     modules: List[ModuleRule] = []
     for module_name, module_config in dict(config.get("modules", {})).items():
         endpoints: List[EndpointRule] = []
-        for endpoint_name, endpoint_config in dict(module_config.get("endpoints", {})).items():
+        for endpoint_name, endpoint_config in dict(
+            module_config.get("endpoints", {})
+        ).items():
             topic = _resolve_topic(topics, endpoint_config, module_name, endpoint_name)
-            expected_type = _resolve_type(type_aliases, endpoint_config, module_name, endpoint_name)
+            expected_type = _resolve_type(
+                type_aliases, endpoint_config, module_name, endpoint_name
+            )
             endpoints.append(
                 EndpointRule(
                     module=module_name,
@@ -154,10 +165,14 @@ def load_topic_contract(config: Dict[str, Any]) -> TopicContract:
             reason = "topic is forbidden by the contract"
         else:
             topic = normalize_topic(rule_config.get("topic", ""))
-            reason = str(rule_config.get("reason", "topic is forbidden by the contract"))
+            reason = str(
+                rule_config.get("reason", "topic is forbidden by the contract")
+            )
         if not topic:
             raise ValueError(f"forbidden topic rule {name} is missing topic")
-        forbidden_topics.append(ForbiddenTopicRule(name=name, topic=topic, reason=reason))
+        forbidden_topics.append(
+            ForbiddenTopicRule(name=name, topic=topic, reason=reason)
+        )
 
     chains = {
         chain_name: list(chain_steps)
@@ -188,19 +203,31 @@ def validate_topic_contract(
 
     def validate_count(topic: str, actual: int, rule: CountRule, noun: str) -> None:
         if actual < rule.minimum:
-            errors.append(f"{topic} has {actual} {noun}, expected at least {rule.minimum}")
+            errors.append(
+                f"{topic} has {actual} {noun}, expected at least {rule.minimum}"
+            )
         if rule.maximum is not None and actual > rule.maximum:
-            errors.append(f"{topic} has {actual} {noun}, expected at most {rule.maximum}")
+            errors.append(
+                f"{topic} has {actual} {noun}, expected at most {rule.maximum}"
+            )
 
     for module in contract.modules:
         if not module.enabled:
             continue
         for endpoint in module.endpoints:
             if endpoint.publishers is not None:
-                validate_count(endpoint.topic, pub_count(endpoint.topic), endpoint.publishers, "publishers")
+                validate_count(
+                    endpoint.topic,
+                    pub_count(endpoint.topic),
+                    endpoint.publishers,
+                    "publishers",
+                )
             if endpoint.subscribers is not None:
                 validate_count(
-                    endpoint.topic, sub_count(endpoint.topic), endpoint.subscribers, "subscribers"
+                    endpoint.topic,
+                    sub_count(endpoint.topic),
+                    endpoint.subscribers,
+                    "subscribers",
                 )
             if endpoint.expected_type:
                 actual_type = topic_types.get(endpoint.topic)
@@ -228,7 +255,9 @@ class TopicContractGuard:
         self._last_error_signature = None
         self._timer = rospy.Timer(rospy.Duration(self.poll_period), self._tick)
 
-        enabled_modules = [module.name for module in self.contract.modules if module.enabled]
+        enabled_modules = [
+            module.name for module in self.contract.modules if module.enabled
+        ]
         rospy.loginfo(
             "topic_contract_guard: monitoring modules=%s",
             ", ".join(enabled_modules) if enabled_modules else "(none)",
@@ -240,7 +269,11 @@ class TopicContractGuard:
             normalize_topic(topic): topic_type
             for topic, topic_type in self.master.getTopicTypes()
         }
-        return normalize_topic_map(publishers), normalize_topic_map(subscribers), topic_types
+        return (
+            normalize_topic_map(publishers),
+            normalize_topic_map(subscribers),
+            topic_types,
+        )
 
     def _tick(self, _event) -> None:
         try:
