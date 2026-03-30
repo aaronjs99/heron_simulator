@@ -1,5 +1,0 @@
-<!-- heron_simulator/launch/run.launch -->
-<!-- Backward-compatible alias for bringup_sim.launch. -->
-<launch>
-  <include file="$(find heron_simulator)/launch/bringup_sim.launch" pass_all_args="true"/>
-</launch>

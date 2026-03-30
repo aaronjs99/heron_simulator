@@ -6,8 +6,6 @@ import xml.etree.ElementTree as ET
 
 TEST_DIR = os.path.dirname(__file__)
 REPO_ROOT = os.path.abspath(os.path.join(TEST_DIR, ".."))
-SIM_LAUNCH = os.path.join(REPO_ROOT, "launch", "run.launch")
-SIM_BRINGUP_LAUNCH = os.path.join(REPO_ROOT, "launch", "bringup_sim.launch")
 BRINGUP_LAUNCH = os.path.abspath(
     os.path.join(REPO_ROOT, "..", "slam_grande", "launch", "bringup.launch")
 )
@@ -15,26 +13,7 @@ BRINGUP_LAUNCH = os.path.abspath(
 
 class SimulationLaunchTests(unittest.TestCase):
     def setUp(self):
-        self.wrapper_root = ET.parse(SIM_LAUNCH).getroot()
-        self.sim_bringup_root = ET.parse(SIM_BRINGUP_LAUNCH).getroot()
         self.root = ET.parse(BRINGUP_LAUNCH).getroot()
-
-    def test_simulation_launch_is_compatibility_wrapper(self):
-        include = self.wrapper_root.find(
-            "include[@file='$(find heron_simulator)/launch/bringup_sim.launch']"
-        )
-        self.assertIsNotNone(include)
-        self.assertEqual(include.attrib["pass_all_args"], "true")
-
-    def test_bringup_sim_launch_is_sim_mode_wrapper(self):
-        include = self.sim_bringup_root.find(
-            "include[@file='$(find slam_grande)/launch/bringup.launch']"
-        )
-        self.assertIsNotNone(include)
-        self.assertEqual(include.attrib["pass_all_args"], "true")
-        mode_arg = include.find("arg[@name='mode']")
-        self.assertIsNotNone(mode_arg)
-        self.assertEqual(mode_arg.attrib["value"], "sim")
 
     def test_simulation_launch_uses_teb_overlay_arg(self):
         mariner_group = self.root.find(

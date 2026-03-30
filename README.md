@@ -32,7 +32,7 @@ tested together before running on hardware.
 ### Full stack simulation
 
 ```bash
-roslaunch heron_simulator bringup_sim.launch
+roslaunch slam_grande bringup.launch mode:=sim
 ```
 
 By default, the boat spawns at the tip of the short launch dock defined in
@@ -69,7 +69,8 @@ full autonomy loop is closed.
 
 ## Shared Runtime Pattern
 
-The simulator now mirrors `slam_grande/launch/bringup_real.launch` closely:
+The simulator now mirrors hardware bringup closely through the shared
+`slam_grande/launch/bringup.launch` selector:
 
 1. Source vehicle state and sensor topics
 2. Build or load the navigation map
@@ -80,8 +81,8 @@ The simulator now mirrors `slam_grande/launch/bringup_real.launch` closely:
 
 The main difference is the source of data:
 
-- `heron_simulator/bringup_sim.launch` uses Gazebo and simulated sensors
-- `slam_grande/bringup_real.launch` uses real sensors through `ig_handle`
+- `mode:=sim` uses Gazebo and simulated sensors
+- `mode:=real` uses real sensors through `ig_handle`
 
 Useful simulator-only knobs:
 
@@ -91,5 +92,5 @@ Useful simulator-only knobs:
 To open the shared navigation RViz layout in sim:
 
 ```bash
-roslaunch heron_simulator bringup_sim.launch use_rviz:=true
+roslaunch slam_grande bringup.launch mode:=sim use_rviz:=true
 ```

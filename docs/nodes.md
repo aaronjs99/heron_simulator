@@ -277,11 +277,12 @@ M·dv/dt + C(v)·v + D(v)·v + g(η) = τ
 
 ## Launch Files
 
-### run.launch
+### slam_grande/bringup.launch (mode:=sim)
 
 **Full Stack Simulation**
 
-Launches complete simulation with all SLAM GRANDE components.
+Launches complete simulation with all SLAM GRANDE components when invoked with
+`mode:=sim`.
 
 **Includes:**
 - Gazebo world

@@ -1,7 +1,0 @@
-<!-- heron_simulator/launch/bringup_sim.launch -->
-<!-- Standardized simulation wrapper for the canonical workspace bringup. -->
-<launch>
-  <include file="$(find slam_grande)/launch/bringup.launch" pass_all_args="true">
-    <arg name="mode" value="sim"/>
-  </include>
-</launch>
