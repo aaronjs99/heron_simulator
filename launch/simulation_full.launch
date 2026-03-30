@@ -1,5 +1,0 @@
-<!-- heron_simulator/launch/simulation_full.launch -->
-<!-- Compatibility shim for the canonical run.launch entrypoint. -->
-<launch>
-  <include file="$(find heron_simulator)/launch/run.launch" pass_all_args="true"/>
-</launch>

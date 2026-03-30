@@ -9,11 +9,11 @@ tested together before running on hardware.
 ## What The Simulator Provides
 
 - Heron vehicle spawn and world bringup
-- synthetic maritime environments and inspection targets
+- a synthetic harbor with a short launch dock, longer inspection piers, and moored workboats driven from `slam_grande/data/anchors_sim.yaml`
 - simulated sensors that mirror the operator dashboard sensor catalog
 - topic bridges needed by MARINER and ORACLE
 - mock inspection/perception support for fast autonomy testing
-- Gazebo plugins for visualization and custom force behavior
+- Gazebo plugins for custom force behavior
 - the same shared ORACLE, web, RViz, and rosbag surface used by hardware bringup
 
 ## Important Runtime Conventions
@@ -24,9 +24,6 @@ tested together before running on hardware.
 - The benchmark Heron hull profile is sourced from
   `../heron/heron_description/urdf/configs/ig_handle_benchmark`, so mass,
   damping, and added-mass changes are explicit.
-- Dashboard-only overlays such as path bands and inspection ghost markers are
-  rendered as GUI-only visuals so they remain visible in Gazebo without leaking
-  into simulated camera feeds.
 - The simulated sonar publishes `sensor_msgs/PointCloud2` so it can share the
   same browser viewer path as lidar.
 
@@ -35,11 +32,13 @@ tested together before running on hardware.
 ### Full stack simulation
 
 ```bash
-roslaunch heron_simulator run.launch
+roslaunch heron_simulator bringup_sim.launch
 ```
 
-`simulation_full.launch` remains available as a compatibility shim, but
-`run.launch` is the canonical simulator entrypoint.
+By default, the boat spawns at the tip of the short launch dock defined in
+`slam_grande/data/anchors_sim.yaml`. Inspection props still spawn in the
+background after startup so the autonomy stack can begin moving without waiting
+on Gazebo model churn.
 
 ### Simulator-only bringup
 
@@ -70,7 +69,7 @@ full autonomy loop is closed.
 
 ## Shared Runtime Pattern
 
-The simulator now mirrors `slam_grande/run.launch` closely:
+The simulator now mirrors `slam_grande/launch/bringup_real.launch` closely:
 
 1. Source vehicle state and sensor topics
 2. Build or load the navigation map
@@ -81,5 +80,16 @@ The simulator now mirrors `slam_grande/run.launch` closely:
 
 The main difference is the source of data:
 
-- `heron_simulator/run.launch` uses Gazebo and simulated sensors
-- `slam_grande/run.launch` uses real sensors through `ig_handle`
+- `heron_simulator/bringup_sim.launch` uses Gazebo and simulated sensors
+- `slam_grande/bringup_real.launch` uses real sensors through `ig_handle`
+
+Useful simulator-only knobs:
+
+- `spawn_inspection_models:=false` to skip prop spawning entirely
+- `inspection_spawn_delay_sec:=<seconds>` to delay prop spawning further
+
+To open the shared navigation RViz layout in sim:
+
+```bash
+roslaunch heron_simulator bringup_sim.launch use_rviz:=true
+```

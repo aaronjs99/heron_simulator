@@ -7,21 +7,43 @@ import xml.etree.ElementTree as ET
 TEST_DIR = os.path.dirname(__file__)
 REPO_ROOT = os.path.abspath(os.path.join(TEST_DIR, ".."))
 SIM_LAUNCH = os.path.join(REPO_ROOT, "launch", "run.launch")
-SIM_SHIM = os.path.join(REPO_ROOT, "launch", "simulation_full.launch")
+SIM_BRINGUP_LAUNCH = os.path.join(REPO_ROOT, "launch", "bringup_sim.launch")
+BRINGUP_LAUNCH = os.path.abspath(
+    os.path.join(REPO_ROOT, "..", "slam_grande", "launch", "bringup.launch")
+)
 
 
 class SimulationLaunchTests(unittest.TestCase):
     def setUp(self):
-        self.tree = ET.parse(SIM_LAUNCH)
-        self.root = self.tree.getroot()
+        self.wrapper_root = ET.parse(SIM_LAUNCH).getroot()
+        self.sim_bringup_root = ET.parse(SIM_BRINGUP_LAUNCH).getroot()
+        self.root = ET.parse(BRINGUP_LAUNCH).getroot()
+
+    def test_simulation_launch_is_compatibility_wrapper(self):
+        include = self.wrapper_root.find(
+            "include[@file='$(find heron_simulator)/launch/bringup_sim.launch']"
+        )
+        self.assertIsNotNone(include)
+        self.assertEqual(include.attrib["pass_all_args"], "true")
+
+    def test_bringup_sim_launch_is_sim_mode_wrapper(self):
+        include = self.sim_bringup_root.find(
+            "include[@file='$(find slam_grande)/launch/bringup.launch']"
+        )
+        self.assertIsNotNone(include)
+        self.assertEqual(include.attrib["pass_all_args"], "true")
+        mode_arg = include.find("arg[@name='mode']")
+        self.assertIsNotNone(mode_arg)
+        self.assertEqual(mode_arg.attrib["value"], "sim")
 
     def test_simulation_launch_uses_teb_overlay_arg(self):
-        include = None
-        for elem in self.root.findall("group/include"):
-            if elem.attrib.get("file") == "$(find mariner)/launch/move_base.launch":
-                include = elem
-                break
-
+        mariner_group = self.root.find(
+            "group[@if='$(arg use_mariner)']/group[@if=\"$(eval arg('mode') == 'sim')\"]"
+        )
+        self.assertIsNotNone(mariner_group)
+        include = mariner_group.find(
+            "include[@file='$(find mariner)/launch/move_base.launch']"
+        )
         self.assertIsNotNone(include)
         args = {
             elem.attrib["name"]: elem.attrib["value"] for elem in include.findall("arg")
@@ -36,7 +58,7 @@ class SimulationLaunchTests(unittest.TestCase):
             "$(find mariner)/config/local_costmap_sim.yaml",
         )
 
-    def test_simulation_launch_exposes_static_map_and_rviz_args(self):
+    def test_bringup_exposes_simulation_runtime_args(self):
         args = {elem.attrib["name"]: elem.attrib for elem in self.root.findall("arg")}
         for name in (
             "use_rviz",
@@ -45,6 +67,9 @@ class SimulationLaunchTests(unittest.TestCase):
             "record_bags",
             "bag_output_dir",
             "bag_prefix",
+            "spawn_inspection_models",
+            "inspection_spawn_delay_sec",
+            "inspection_spawn_hold_open",
             "build_map",
             "map_builder",
             "run_map",
@@ -54,24 +79,24 @@ class SimulationLaunchTests(unittest.TestCase):
             "map_anchors_file",
         ):
             self.assertIn(name, args)
+        self.assertIn("anchors_sim.yaml", args["map_anchors_file"]["default"])
         self.assertEqual(
-            args["map_anchors_file"]["default"],
-            "$(find slam_grande)/data/anchors_sim.yaml",
+            args["run_map"]["default"],
+            "$(eval 'true' if arg('mode') == 'sim' else 'false')",
         )
-        self.assertEqual(args["run_map"]["default"], "true")
-        self.assertEqual(
-            args["map_file"]["default"],
-            "$(find mariner)/maps/simulation.yaml",
-        )
+        self.assertIn("maps/simulation.yaml", args["map_file"]["default"])
         self.assertEqual(args["record_bags"]["default"], "true")
+        self.assertEqual(args["inspection_spawn_delay_sec"]["default"], "15.0")
 
-    def test_simulation_launch_wires_saved_map_and_rviz_include(self):
-        include = None
-        for elem in self.root.findall("group/include"):
-            if elem.attrib.get("file") == "$(find mariner)/launch/move_base.launch":
-                include = elem
-                break
+    def test_simulation_launch_wires_saved_map_and_runtime_surface(self):
+        mariner_group = self.root.find(
+            "group[@if='$(arg use_mariner)']/group[@if=\"$(eval arg('mode') == 'sim')\"]"
+        )
+        self.assertIsNotNone(mariner_group)
 
+        include = mariner_group.find(
+            "include[@file='$(find mariner)/launch/move_base.launch']"
+        )
         self.assertIsNotNone(include)
         args = {
             elem.attrib["name"]: elem.attrib["value"] for elem in include.findall("arg")
@@ -79,21 +104,28 @@ class SimulationLaunchTests(unittest.TestCase):
         self.assertEqual(args["use_map_server"], "$(arg run_map)")
         self.assertEqual(args["map_file"], "$(arg map_file)")
 
-        relay = self.root.find("group/node[@name='move_base_status_relay']")
+        relay = mariner_group.find("node[@name='move_base_status_relay']")
         self.assertIsNotNone(relay)
         self.assertEqual(relay.attrib["pkg"], "mariner")
         self.assertEqual(relay.attrib["type"], "goal_status_relay.py")
 
-        sensor_map_builder = self.root.find("node[@name='build_sensor_nav_map']")
+        sensor_map_builder = self.root.find("node[@name='build_sensor_nav_map_sim']")
         self.assertIsNotNone(sensor_map_builder)
         self.assertEqual(sensor_map_builder.attrib["pkg"], "mariner")
         self.assertEqual(
             sensor_map_builder.attrib["type"], "generate_map_from_pointcloud.py"
         )
 
-        surface_include = self.root.find(
-            "include[@file='$(find slam_grande)/launch/include/operator_surface.launch']"
-        )
+        sim_group = self.root.find("group[@if=\"$(eval arg('mode') == 'sim')\"]")
+        self.assertIsNotNone(sim_group)
+
+        surface_include = None
+        for group in self.root.findall("group[@if=\"$(eval arg('mode') == 'sim')\"]"):
+            surface_include = group.find(
+                "include[@file='$(find slam_grande)/launch/include/operator_surface.launch']"
+            )
+            if surface_include is not None:
+                break
         self.assertIsNotNone(surface_include)
         surface_args = {
             elem.attrib["name"]: elem.attrib["value"]
@@ -105,23 +137,22 @@ class SimulationLaunchTests(unittest.TestCase):
         self.assertEqual(surface_args["bag_output_dir"], "$(arg bag_output_dir)")
         self.assertEqual(surface_args["bag_prefix"], "$(arg bag_prefix)")
 
-    def test_simulation_full_launch_is_a_compatibility_shim(self):
-        root = ET.parse(SIM_SHIM).getroot()
-        include = root.find("include")
-        self.assertIsNotNone(include)
-        self.assertEqual(include.attrib["file"], "$(find heron_simulator)/launch/run.launch")
-        self.assertEqual(include.attrib["pass_all_args"], "true")
+        world_include = sim_group.find(
+            "include[@file='$(find heron_simulator)/launch/heron_world.launch']"
+        )
+        self.assertIsNotNone(world_include)
+        spawner = sim_group.find("node[@name='spawn_inspection_models']")
+        self.assertIsNotNone(spawner)
+        self.assertEqual(spawner.attrib["if"], "$(arg spawn_inspection_models)")
+        self.assertNotIn("required", spawner.attrib)
 
     def test_simulation_launch_enables_dlio_when_building_sensor_map(self):
-        group = None
-        for elem in self.root.findall("group"):
-            if (
-                elem.attrib.get("if")
-                == "$(eval str(arg('use_dlio')).lower() == 'true' or str(arg('build_map')).lower() == 'true')"
-            ):
-                group = elem
-                break
-        self.assertIsNotNone(group)
+        sim_group = self.root.find("group[@if=\"$(eval arg('mode') == 'sim')\"]")
+        self.assertIsNotNone(sim_group)
+        dlio_group = sim_group.find(
+            "group[@if=\"$(eval str(arg('use_dlio')).lower() == 'true' or str(arg('build_map')).lower() == 'true')\"]"
+        )
+        self.assertIsNotNone(dlio_group)
 
 
 if __name__ == "__main__":

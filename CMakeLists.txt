@@ -26,9 +26,6 @@ include_directories(
 
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
-add_library(PathVisualizerPlugin src/PathVisualizerPlugin.cpp)
-target_link_libraries(PathVisualizerPlugin ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
-
 add_library(RelativeForcePlugin src/RelativeForcePlugin.cpp)
 target_link_libraries(RelativeForcePlugin ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 
@@ -37,7 +34,6 @@ install(DIRECTORY config launch worlds urdf models docs
 )
 
 install(TARGETS
-  PathVisualizerPlugin
   RelativeForcePlugin
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )

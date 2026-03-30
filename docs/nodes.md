@@ -43,15 +43,16 @@ Spawns inspection target models (pillars, pipes) into the Gazebo world.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `~anchor_file` | string | `slam_grande/data/anchors.yaml` | Anchor definitions |
+| `~anchor_file` | string | `slam_grande/data/anchors_sim.yaml` | Simulator anchor definitions |
 | `~spawn_delay` | float | `0.5` | Delay between spawns |
 
 #### Models Spawned
 
-Based on anchor types in `anchors.yaml`:
-- `pillar` → Cylindrical models
-- `pipe` → Pipe/tube models
-- `home` → Dock marker
+Based on anchor types in `anchors_sim.yaml`:
+- decks and land masses → box geometry
+- pilings → cylindrical geometry
+- boats → simple box hulls
+- home → launch-dock reference pose
 
 ---
 
@@ -289,10 +290,6 @@ Launches complete simulation with all SLAM GRANDE components.
 - Oracle mission planning
 - Mock defector service
 - Shared web, RViz, and rosbag operator surface
-
-### simulation_full.launch
-
-Compatibility wrapper that forwards to `run.launch`.
 
 ### spawn_heron.launch
 

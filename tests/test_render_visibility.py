@@ -6,25 +6,11 @@ import xml.etree.ElementTree as ET
 
 TEST_DIR = os.path.dirname(__file__)
 REPO_ROOT = os.path.abspath(os.path.join(TEST_DIR, ".."))
-PLUGIN_CPP = os.path.join(REPO_ROOT, "src", "PathVisualizerPlugin.cpp")
 HERON_SIM_XACRO = os.path.join(REPO_ROOT, "urdf", "heron_sim.urdf.xacro")
 IG_HANDLE_XACRO = os.path.join(REPO_ROOT, "urdf", "ig_handle_sensors.urdf.xacro")
 
 
 class RenderVisibilityTests(unittest.TestCase):
-    def test_path_visualizer_is_gui_only(self):
-        with open(PLUGIN_CPP, "r", encoding="utf-8") as handle:
-            source = handle.read()
-
-        self.assertIn(
-            "this->local_path_object_->setVisibilityFlags(GZ_VISIBILITY_GUI);",
-            source,
-        )
-        self.assertIn(
-            "this->global_path_object_->setVisibilityFlags(GZ_VISIBILITY_GUI);",
-            source,
-        )
-
     def test_camera_visibility_masks_exclude_gui_flag(self):
         for path in (HERON_SIM_XACRO, IG_HANDLE_XACRO):
             tree = ET.parse(path)
