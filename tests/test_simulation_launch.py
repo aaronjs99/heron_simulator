@@ -60,6 +60,10 @@ class SimulationLaunchTests(unittest.TestCase):
             "semantic_sim_fallback_file",
             "semantic_sim_fallback_timeout_sec",
             "semantic_sim_fallback_min_entities",
+            "x",
+            "y",
+            "z",
+            "yaw",
         ):
             self.assertIn(name, args)
         self.assertEqual(
@@ -135,6 +139,11 @@ class SimulationLaunchTests(unittest.TestCase):
             surface_args["semantic_sim_fallback_file"],
             "$(arg semantic_sim_fallback_file)",
         )
+        self.assertEqual(surface_args["sim_mode"], "true")
+        self.assertEqual(surface_args["sim_home_x"], "$(arg x)")
+        self.assertEqual(surface_args["sim_home_y"], "$(arg y)")
+        self.assertEqual(surface_args["sim_home_z"], "$(arg z)")
+        self.assertEqual(surface_args["sim_home_yaw"], "$(arg yaw)")
 
         world_include = sim_group.find(
             "include[@file='$(find heron_simulator)/launch/heron_world.launch']"
