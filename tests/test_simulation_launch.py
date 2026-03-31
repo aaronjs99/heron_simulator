@@ -56,8 +56,20 @@ class SimulationLaunchTests(unittest.TestCase):
             "map_output_dir",
             "map_name",
             "map_anchors_file",
+            "semantic_sim_fallback_enabled",
+            "semantic_sim_fallback_file",
+            "semantic_sim_fallback_timeout_sec",
+            "semantic_sim_fallback_min_entities",
         ):
             self.assertIn(name, args)
+        self.assertEqual(
+            args["semantic_sim_fallback_enabled"]["default"],
+            "$(eval 'true' if arg('mode') == 'sim' else 'false')",
+        )
+        self.assertEqual(
+            args["semantic_sim_fallback_file"]["default"],
+            "$(arg map_anchors_file)",
+        )
         self.assertIn("anchors_sim.yaml", args["map_anchors_file"]["default"])
         self.assertEqual(
             args["run_map"]["default"],
@@ -115,6 +127,14 @@ class SimulationLaunchTests(unittest.TestCase):
         self.assertEqual(surface_args["record_bags"], "$(arg record_bags)")
         self.assertEqual(surface_args["bag_output_dir"], "$(arg bag_output_dir)")
         self.assertEqual(surface_args["bag_prefix"], "$(arg bag_prefix)")
+        self.assertEqual(
+            surface_args["semantic_sim_fallback_enabled"],
+            "$(arg semantic_sim_fallback_enabled)",
+        )
+        self.assertEqual(
+            surface_args["semantic_sim_fallback_file"],
+            "$(arg semantic_sim_fallback_file)",
+        )
 
         world_include = sim_group.find(
             "include[@file='$(find heron_simulator)/launch/heron_world.launch']"
