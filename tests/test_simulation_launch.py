@@ -31,6 +31,10 @@ class SimulationLaunchTests(unittest.TestCase):
             args["teb_local_planner_overlay_config"],
             "$(find mariner)/config/teb_local_planner_sim.yaml",
         )
+        self.assertEqual(
+            args["global_costmap_config"],
+            "$(arg global_costmap_config)",
+        )
         self.assertNotIn("teb_local_planner_config", args)
         self.assertEqual(
             args["local_costmap_overlay_config"],
