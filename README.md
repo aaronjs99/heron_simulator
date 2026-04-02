@@ -75,7 +75,7 @@ The simulator now mirrors hardware bringup closely through the shared
 1. Source vehicle state and sensor topics
 2. Build or load the navigation map
 3. Run MARINER navigation
-4. Run ORACLE and keep `/oracle/map/anchors` live
+4. Run ORACLE with `/oracle/world/entities` as the live semantic world
 5. Expose the web dashboard and RViz
 6. Record a rosbag of sensors, state, MARINER, and ORACLE topics
 
