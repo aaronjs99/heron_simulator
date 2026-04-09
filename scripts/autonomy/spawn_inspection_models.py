@@ -24,8 +24,10 @@ def _make_service_proxy(service_name, service_type, persistent=True):
 
 def _call_spawn_model(proxy, anchor_id, sdf, pose, retries=3):
     last_error = None
+    shutdown_requested = False
     for attempt in range(1, retries + 1):
         if rospy.is_shutdown():
+            shutdown_requested = True
             break
         try:
             return proxy(anchor_id, sdf, "", pose, "world"), proxy
@@ -46,7 +48,11 @@ def _call_spawn_model(proxy, anchor_id, sdf, pose, retries=3):
                 rospy.sleep(0.25)
                 rospy.wait_for_service("/gazebo/spawn_sdf_model", timeout=5.0)
                 proxy = _make_service_proxy("/gazebo/spawn_sdf_model", SpawnModel)
-    raise last_error
+    if last_error is not None:
+        raise last_error
+    if shutdown_requested:
+        raise rospy.ROSInterruptException("ROS shutdown requested before spawn call")
+    raise rospy.ROSException(f"Failed to spawn {anchor_id}: unknown spawn_model failure")
 
 
 def make_sdf(name, sim_data):
@@ -115,23 +121,56 @@ def make_sdf(name, sim_data):
 """
 
 
-def load_anchors():
-    """Load anchors from slam_grande package."""
-    rospack = rospkg.RosPack()
-    path = os.path.join(rospack.get_path("slam_grande"), "data", "anchors.yaml")
+def load_anchors(anchor_file=""):
+    """Load anchors from an explicit file or the slam_grande default."""
+    path = str(anchor_file or "").strip()
+    if not path:
+        rospack = rospkg.RosPack()
+        path = os.path.join(rospack.get_path("slam_grande"), "data", "anchors.yaml")
     with open(path, "r") as f:
         return yaml.safe_load(f)
+
+
+def apply_world_offset(data, dx=0.0, dy=0.0):
+    """Apply a rigid XY translation to all anchor poses in the loaded YAML."""
+    if not isinstance(data, dict) or (
+        abs(float(dx)) < 1e-9 and abs(float(dy)) < 1e-9
+    ):
+        return data
+    anchors = list(data.get("anchors", []) or [])
+    if not anchors:
+        return data
+    shifted = dict(data)
+    shifted_anchors = []
+    for item in anchors:
+        if not isinstance(item, dict):
+            shifted_anchors.append(item)
+            continue
+        entry = dict(item)
+        pose = dict(entry.get("pose", {}) or {})
+        position = dict(pose.get("position", {}) or {})
+        position["x"] = float(position.get("x", entry.get("x", 0.0))) + float(dx)
+        position["y"] = float(position.get("y", entry.get("y", 0.0))) + float(dy)
+        pose["position"] = position
+        entry["pose"] = pose
+        shifted_anchors.append(entry)
+    shifted["anchors"] = shifted_anchors
+    return shifted
 
 
 def main():
     rospy.init_node("spawn_inspection_models", anonymous=True)
     hold_open = rospy.get_param("~hold_open", True)
+    anchor_file = str(rospy.get_param("~anchor_file", "") or "").strip()
+    world_offset_x = float(rospy.get_param("~world_offset_x", 0.0))
+    world_offset_y = float(rospy.get_param("~world_offset_y", 0.0))
 
     rospy.loginfo("Loading anchors from YAML...")
     try:
-        data = load_anchors()
+        data = load_anchors(anchor_file)
+        data = apply_world_offset(data, dx=world_offset_x, dy=world_offset_y)
     except Exception as e:
-        rospy.logerr(f"Failed to load anchors.yaml: {e}")
+        rospy.logerr(f"Failed to load anchors YAML ({anchor_file or 'default'}): {e}")
         return
 
     rospy.loginfo("Waiting for gazebo/spawn_sdf_model service...")

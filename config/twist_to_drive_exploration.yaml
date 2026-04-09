@@ -1,0 +1,16 @@
+# Conservative simulation mixer profile for exploration and close-quarters work.
+max_linear: 0.75
+max_angular: 0.20
+mix_gain: 0.92
+wheelbase: 0.755
+deadband: 0.01
+floor: 0.05
+alpha: 0.22
+rate: 30.0
+timeout: 0.35
+ramp_down: 0.35
+sign_hysteresis: 0.02
+sign_dwell: 0.05
+no_reverse_v_thresh: 0.16
+low_speed_turn_mix: 0.30
+low_speed_turn_v_thresh: 0.20

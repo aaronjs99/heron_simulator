@@ -29,12 +29,14 @@ class SimulationLaunchTests(unittest.TestCase):
         }
         self.assertEqual(
             args["teb_local_planner_overlay_config"],
-            "$(find mariner)/config/teb_local_planner_sim.yaml",
+            "$(arg teb_local_planner_sim_overlay_config)",
         )
         self.assertEqual(
             args["global_costmap_config"],
             "$(arg global_costmap_config)",
         )
+        self.assertEqual(args["use_map_server"], "$(arg move_base_use_map_server)")
+        self.assertEqual(args["planner_allow_unknown"], "$(arg planner_allow_unknown)")
         self.assertNotIn("teb_local_planner_config", args)
         self.assertEqual(
             args["local_costmap_overlay_config"],
@@ -55,6 +57,11 @@ class SimulationLaunchTests(unittest.TestCase):
             "inspection_spawn_hold_open",
             "build_map",
             "map_builder",
+            "world_model_mode",
+            "move_base_use_map_server",
+            "planner_allow_unknown",
+            "sim_nav_profile",
+            "teb_local_planner_sim_overlay_config",
             "run_map",
             "map_file",
             "map_output_dir",
@@ -75,6 +82,10 @@ class SimulationLaunchTests(unittest.TestCase):
             "$(eval 'true' if arg('mode') == 'sim' else 'false')",
         )
         self.assertEqual(
+            args["world_model_mode"]["default"],
+            "$(eval 'hybrid' if arg('mode') == 'sim' else 'mapped')",
+        )
+        self.assertEqual(
             args["semantic_sim_fallback_file"]["default"],
             "$(arg map_anchors_file)",
         )
@@ -86,6 +97,7 @@ class SimulationLaunchTests(unittest.TestCase):
         self.assertIn("maps/simulation.yaml", args["map_file"]["default"])
         self.assertEqual(args["record_bags"]["default"], "true")
         self.assertEqual(args["inspection_spawn_delay_sec"]["default"], "15.0")
+        self.assertEqual(args["semantic_sim_fallback_timeout_sec"]["default"], "18.0")
 
     def test_simulation_launch_wires_saved_map_and_runtime_surface(self):
         mariner_group = self.root.find(
@@ -100,7 +112,7 @@ class SimulationLaunchTests(unittest.TestCase):
         args = {
             elem.attrib["name"]: elem.attrib["value"] for elem in include.findall("arg")
         }
-        self.assertEqual(args["use_map_server"], "$(arg run_map)")
+        self.assertEqual(args["use_map_server"], "$(arg move_base_use_map_server)")
         self.assertEqual(args["map_file"], "$(arg map_file)")
 
         relay = mariner_group.find("node[@name='move_base_status_relay']")
@@ -143,6 +155,14 @@ class SimulationLaunchTests(unittest.TestCase):
             surface_args["semantic_sim_fallback_file"],
             "$(arg semantic_sim_fallback_file)",
         )
+        self.assertEqual(
+            surface_args["world_model_mode"],
+            "$(arg world_model_mode)",
+        )
+        self.assertEqual(
+            surface_args["startup_truth_wait_sec"],
+            "$(arg startup_truth_wait_sec)",
+        )
         self.assertEqual(surface_args["sim_mode"], "true")
         self.assertEqual(surface_args["sim_home_x"], "$(arg x)")
         self.assertEqual(surface_args["sim_home_y"], "$(arg y)")
@@ -157,6 +177,8 @@ class SimulationLaunchTests(unittest.TestCase):
         self.assertIsNotNone(spawner)
         self.assertEqual(spawner.attrib["if"], "$(arg spawn_inspection_models)")
         self.assertNotIn("required", spawner.attrib)
+        params = {elem.attrib["name"]: elem.attrib["value"] for elem in spawner.findall("param")}
+        self.assertEqual(params["anchor_file"], "$(arg map_anchors_file)")
 
     def test_simulation_launch_enables_dlio_when_building_sensor_map(self):
         sim_group = self.root.find("group[@if=\"$(eval arg('mode') == 'sim')\"]")
