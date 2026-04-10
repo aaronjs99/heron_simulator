@@ -1,307 +1,100 @@
-# Heron Simulation — Nodes
+# Heron simulator nodes
 
-Detailed documentation for scripts and nodes in the `heron_simulator` package.
+This is the practical ownership map for `heron_simulator` nodes. Use it when
+you need to locate a runtime issue quickly.
 
----
+## Autonomy helpers
 
-## Autonomy
+### `autonomy/mock_defector_service.py`
 
-### autonomy/mock_defector_service.py
+Provides mock inspection service behavior in sim.
 
-**Simulated Inspection Service**
+- service: `/defector/capture_and_analyze` (`std_srvs/Trigger`)
+- key params:
+  - `~delay` (default `2.0`)
+  - `~success_rate` (default `1.0`)
 
-Provides a mock `/defector/capture_and_analyze` service for testing the full autonomy stack without real cameras.
+### `autonomy/spawn_inspection_models.py`
 
-#### Overview
+Spawns sim inspection geometry from anchor definitions.
 
-- Simulates inspection delay (configurable)
-- Returns mock detection results
-- Logs "inspection" events
+- key params:
+  - `~anchor_file` (default `slam_grande/data/anchors_sim.yaml`)
+  - `~spawn_delay` (default `0.5`)
 
-#### Parameters
+## Sensor adaptation nodes
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `~delay` | float | `2.0` | Simulated capture delay (seconds) |
-| `~success_rate` | float | `1.0` | Probability of successful capture |
+### `sensors/scan_to_cloud.py`
 
-#### Services Provided
+Converts LaserScan to PointCloud2 for costmap compatibility.
 
-| Service | Type | Description |
-|---------|------|-------------|
-| `/defector/capture_and_analyze` | `std_srvs/Trigger` | Trigger mock inspection |
+- subscribes: `~scan_topic` (default `/lidar_h/scan`)
+- publishes: `~cloud_topic` (default `/lidar_h/velodyne_points`)
 
----
+### `sensors/vel_cov_fixed.py`
 
-### autonomy/spawn_inspection_models.py
+Adds covariance to velocity stream for downstream localization consumers.
 
-**Dynamic Model Spawner**
+- subscribes: `/navsat/vel`
+- publishes: `/navsat/vel_cov`
 
-Spawns inspection target models (pillars, pipes) into the Gazebo world.
+### `sensors/navsat_vel_translate.py`
 
-#### Parameters
+Converts GPS velocity convention to the format expected by the stack.
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `~anchor_file` | string | `slam_grande/data/anchors_sim.yaml` | Simulator anchor definitions |
-| `~spawn_delay` | float | `0.5` | Delay between spawns |
+- subscribes: `/navsat/velocity`
+- publishes: `/navsat/vel`
 
-#### Models Spawned
+### `sensors/rpy_translator.py`
 
-Based on anchor types in `anchors_sim.yaml`:
-- decks and land masses → box geometry
-- pilings → cylindrical geometry
-- boats → simple box hulls
-- home → launch-dock reference pose
+Publishes RPY orientation derived from IMU quaternion.
 
----
+- subscribes: `/imu/data`
+- publishes: `/imu/rpy`
 
-## Sensors
+### `sensors/vector3_to_magnetic_field.py`
 
-### sensors/scan_to_cloud.py
+Normalizes magnetometer message shape for consumers.
 
-**LaserScan to PointCloud2 Converter**
+- subscribes: `/imu/mag_sim`
+- publishes: `/imu/mag_raw`, `/imu/mag`
 
-Converts Gazebo LaserScan topics to PointCloud2 for compatibility with Mariner's costmap configuration.
+## Control and dynamics
 
-#### Parameters
+### `control/cmd_drive_translate.py`
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `~scan_topic` | string | `/lidar_h/scan` | Input LaserScan topic |
-| `~cloud_topic` | string | `/lidar_h/velodyne_points` | Output PointCloud2 topic |
+Maps normalized `cmd_drive` into physical thruster wrenches.
 
-#### Subscribed Topics
+- subscribes: `/cmd_drive`
+- publishes: `/thrusters/0/input`, `/thrusters/1/input`
 
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/lidar_h/scan` | `sensor_msgs/LaserScan` | Simulated horizontal lidar |
+### `control/twist_translate.py`
 
-#### Published Topics
+Scales interactive-marker velocity commands to vehicle limits.
 
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/lidar_h/velodyne_points` | `sensor_msgs/PointCloud2` | Converted point cloud |
+- subscribes: `/twist_marker_server/cmd_vel`
+- publishes: `/cmd_vel`
 
----
+### `control/activate_control_service.py`
 
-### sensors/vel_cov_fixed.py
+Control enable/disable service surface.
 
-**Velocity Covariance Publisher**
+- service: `/heron/activate_control` (`std_srvs/SetBool`)
 
-Adds covariance information to velocity messages for robot_localization.
+### `control/vessel_dynamics.py`
 
-#### Subscribed Topics
+Applies hydrodynamic hull-force model in sim runtime.
 
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/navsat/vel` | `geometry_msgs/TwistStamped` | GPS velocity |
+- subscribes: `/ground_truth/odom`
+- publishes: `/{namespace}/hydro_forces`
+- key param: `~namespace` (default `heron`)
 
-#### Published Topics
+## Where to debug first
 
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/navsat/vel_cov` | `geometry_msgs/TwistWithCovarianceStamped` | Velocity with covariance |
+- no inspection response: `mock_defector_service.py`
+- missing sim props: `spawn_inspection_models.py`
+- bad lidar/costmap feed: `scan_to_cloud.py`
+- command issued but no vessel motion: `cmd_drive_translate.py` then `vessel_dynamics.py`
 
----
-
-### sensors/navsat_vel_translate.py
-
-**GPS Velocity Translator**
-
-Converts GPS velocity from NWU (North-West-Up) to ENU (East-North-Up) convention.
-
-#### Subscribed Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/navsat/velocity` | `geometry_msgs/Vector3Stamped` | Velocity in NWU |
-
-#### Published Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/navsat/vel` | `geometry_msgs/TwistStamped` | Velocity in ENU |
-
----
-
-### sensors/rpy_translator.py
-
-**Quaternion to RPY Translator**
-
-Converts quaternion orientation to Roll-Pitch-Yaw for magnetometer calibration.
-
-#### Subscribed Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/imu/data` | `sensor_msgs/Imu` | IMU with quaternion |
-
-#### Published Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/imu/rpy` | `geometry_msgs/Vector3Stamped` | Roll, Pitch, Yaw |
-
----
-
-### sensors/vector3_to_magnetic_field.py
-
-**Magnetometer Message Converter**
-
-Converts Vector3Stamped magnetometer data to MagneticField message.
-
-#### Subscribed Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/imu/mag_sim` | `sensor_msgs/MagneticField` | Simulated magnetometer |
-
-#### Published Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/imu/mag_raw` | `geometry_msgs/Vector3Stamped` | Raw magnetic field |
-| `/imu/mag` | `sensor_msgs/MagneticField` | Calibrated field |
-
----
-
-## Control
-
-### control/cmd_drive_translate.py
-
-**Propulsion Force Translator**
-
-Translates normalized `cmd_drive` efforts from the `heron_controller` into physical Newtonian forces (Wrenches) applied to the Gazebo thruster links. This module implements the empirical thrust interpolation model.
-
-#### Subscribed Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/cmd_drive` | `heron_msgs/Drive` | Normalized drive efforts [-1.0, 1.0] |
-
-#### Published Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/thrusters/0/input` | `geometry_msgs/Wrench` | Calculated force for the Right thruster |
-| `/thrusters/1/input` | `geometry_msgs/Wrench` | Calculated force for the Left thruster |
-
----
-
-### control/twist_translate.py
-
-**Interactive Marker Velocity Scaler**
-
-Scales interactive marker velocities to match robot capabilities.
-
-#### Parameters
-
-Configured via `config/heron_controller.yaml`:
-- Linear velocity: Scaled to max robot speed
-- Angular velocity: Scaled to ±1.1 rad/s
-
-#### Subscribed Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/twist_marker_server/cmd_vel` | `geometry_msgs/Twist` | Raw marker velocity |
-
-#### Published Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/cmd_vel` | `geometry_msgs/Twist` | Scaled velocity |
-
----
-
-### control/activate_control_service.py
-
-**Control Activation Service**
-
-Enables/disables the control interface for the Heron.
-
-#### Services Provided
-
-| Service | Type | Description |
-|---------|------|-------------|
-| `/heron/activate_control` | `std_srvs/SetBool` | Enable/disable control |
-
----
-
-### control/vessel_dynamics.py
-
-**Fossen Hydrodynamic Model**
-
-High-fidelity vessel dynamics engine implementing Fossen's equations of motion for realistic USV behavior.
-
-#### Overview
-
-Computes hydrodynamic forces applied to the Heron hull:
-- **Damping**: Linear + quadratic drag (stiffened sway/yaw for rail-like handling)
-- **Buoyancy**: Hydrostatic lift based on displaced volume
-- **Coriolis**: Rigid-body coupling during turns
-- **Restoring moments**: Metacentric roll/pitch stability
-
-#### Parameters
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `~namespace` | string | `heron` | Robot namespace for topics |
-
-#### Physical Model
-
-```
-M·dv/dt + C(v)·v + D(v)·v + g(η) = τ
-```
-
-| Coefficient | Surge | Sway | Heave | Roll | Pitch | Yaw |
-|-------------|-------|------|-------|------|-------|-----|
-| Linear Damping | 30 | 80 | 100 | 20 | 50 | 50 |
-| Quadratic Damping | 15 | 50 | 100 | 15 | 50 | 50 |
-| Added Mass | 20 | 40 | 40 | 0 | 20 | 20 |
-
-#### Subscribed Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/ground_truth/odom` | `nav_msgs/Odometry` | Current vessel state |
-
-#### Published Topics
-
-| Topic | Type | Description |
-|-------|------|-------------|
-| `/{namespace}/hydro_forces` | `geometry_msgs/Wrench` | Computed hydrodynamic forces |
-
----
-
-## Launch Files
-
-### slam_grande/bringup.launch (mode:=sim)
-
-**Full Stack Simulation**
-
-Launches complete simulation with all SLAM GRANDE components when invoked with
-`mode:=sim`.
-
-**Includes:**
-- Gazebo world
-- Heron spawn
-- Mariner navigation
-- Oracle mission planning
-- Mock defector service
-- Shared web, RViz, and rosbag operator surface
-
-### spawn_heron.launch
-
-**Robot Spawner**
-
-Spawns the Heron model with sensors.
-
-**Arguments:**
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `x` | `0.0` | Initial X position |
-| `y` | `0.0` | Initial Y position |
-| `yaw` | `0.0` | Initial heading |
-| `namespace` | `` | Robot namespace |
+For end-to-end topic rules, use `topic_contract.md`. For physics tuning, use
+`hydrodynamics.md`.
