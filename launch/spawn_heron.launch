@@ -46,6 +46,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="left_thruster_topic" default="/thrusters/1/input" />
   <arg name="right_thruster_topic" default="/thrusters/0/input" />
   <arg name="mixer_config" default="$(find heron_simulator)/config/twist_to_drive.yaml" />
+  <arg name="thruster_dynamics_config" default="$(find heron_simulator)/config/thruster_dynamics.yaml" />
 
   <group ns="/$(arg namespace)">
 
@@ -101,7 +102,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <param name="drive_topic" value="$(arg drive_topic)" />
       <param name="left_thruster_topic" value="$(arg left_thruster_topic)" />
       <param name="right_thruster_topic" value="$(arg right_thruster_topic)" />
-      <rosparam command="load" file="$(find heron_simulator)/config/thruster_dynamics.yaml" />
+      <rosparam command="load" file="$(arg thruster_dynamics_config)" />
     </node>
 
     <!-- Translate navsat/velocity for compatibility (optional) -->
