@@ -7,7 +7,9 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 
-_ORIG_MODULES = {name: sys.modules.get(name) for name in ("rospy", "gazebo_msgs.srv")}
+_ORIG_MODULES = {
+    name: sys.modules.get(name) for name in ("rospy", "gazebo_msgs.srv", "rosnode")
+}
 
 mock_rospy = MagicMock()
 mock_gazebo_srvs = MagicMock()
@@ -15,6 +17,8 @@ mock_gazebo_srvs.GetWorldProperties = object
 
 sys.modules["rospy"] = mock_rospy
 sys.modules["gazebo_msgs.srv"] = mock_gazebo_srvs
+mock_rosnode = MagicMock()
+sys.modules["rosnode"] = mock_rosnode
 
 TEST_DIR = os.path.dirname(__file__)
 SCRIPT_DIR = os.path.abspath(os.path.join(TEST_DIR, "..", "scripts", "tools"))
@@ -34,8 +38,10 @@ class SimPreflightTests(unittest.TestCase):
     def setUp(self):
         sys.modules["rospy"] = mock_rospy
         sys.modules["gazebo_msgs.srv"] = mock_gazebo_srvs
+        sys.modules["rosnode"] = mock_rosnode
         importlib.reload(sim_preflight)
         mock_rospy.reset_mock()
+        mock_rosnode.reset_mock()
 
     def tearDown(self):
         for _name, _module in _ORIG_MODULES.items():
@@ -59,6 +65,8 @@ class SimPreflightTests(unittest.TestCase):
             "~gazebo_master_port": 11345,
             "~allow_existing_gazebo": False,
             "~required_free_ports": [8080],
+            "~auto_cleanup": False,
+            "~stale_node_names": [],
         }
         mock_rospy.get_param.side_effect = lambda name, default=None: params.get(
             name, default
@@ -86,6 +94,8 @@ class SimPreflightTests(unittest.TestCase):
             "~gazebo_master_port": 11345,
             "~allow_existing_gazebo": False,
             "~required_free_ports": [8070, 8080],
+            "~auto_cleanup": False,
+            "~stale_node_names": [],
         }
         mock_rospy.get_param.side_effect = lambda name, default=None: params.get(
             name, default
@@ -96,6 +106,36 @@ class SimPreflightTests(unittest.TestCase):
 
         mock_rospy.spin.assert_called_once()
         mock_rospy.loginfo.assert_any_call("[sim_preflight] Environment looks clean.")
+
+    def test_main_attempts_cleanup_before_failing(self):
+        params = {
+            "~gazebo_master_port": 11345,
+            "~allow_existing_gazebo": False,
+            "~required_free_ports": [8080, 9095],
+            "~auto_cleanup": True,
+            "~stale_node_names": ["/move_base"],
+        }
+        mock_rospy.get_param.side_effect = lambda name, default=None: params.get(
+            name, default
+        )
+
+        with patch.object(
+            sim_preflight, "port_in_use", return_value=True
+        ), patch.object(
+            sim_preflight, "pids_listening_on_port", return_value={101, 102}
+        ) as pid_lookup, patch.object(
+            sim_preflight, "terminate_pids"
+        ) as terminate_pids, patch.object(
+            sim_preflight, "cleanup_ros_nodes", return_value=["/move_base"]
+        ) as cleanup_nodes, patch.object(
+            sim_preflight.sys, "exit", side_effect=SystemExit(1)
+        ):
+            with self.assertRaises(SystemExit):
+                sim_preflight.main()
+
+        self.assertTrue(pid_lookup.called)
+        terminate_pids.assert_called_once_with({101, 102})
+        cleanup_nodes.assert_called_once_with(["/move_base"])
 
 
 if __name__ == "__main__":
