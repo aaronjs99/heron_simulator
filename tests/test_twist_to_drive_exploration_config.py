@@ -13,15 +13,15 @@ EXPLORATION_MIXER_CONFIG = os.path.join(
 
 
 class TwistToDriveExplorationConfigTests(unittest.TestCase):
-    def test_exploration_mixer_profile_caps_close_quarters_aggression(self):
+    def test_exploration_mixer_profile_is_transparent_for_planner_tuning(self):
         with open(EXPLORATION_MIXER_CONFIG, "r", encoding="utf-8") as handle:
             data = yaml.safe_load(handle) or {}
 
-        self.assertEqual(data["max_linear"], 0.75)
-        self.assertEqual(data["max_angular"], 0.20)
-        self.assertEqual(data["alpha"], 0.22)
-        self.assertEqual(data["ramp_down"], 0.35)
-        self.assertEqual(data["low_speed_turn_mix"], 0.30)
+        self.assertEqual(data["max_linear"], 1.00)
+        self.assertEqual(data["max_angular"], 0.24)
+        self.assertEqual(data["alpha"], 1.00)
+        self.assertEqual(data["ramp_down"], 0.20)
+        self.assertEqual(data["low_speed_turn_mix"], 0.08)
         self.assertEqual(data["low_speed_turn_v_thresh"], 0.20)
 
 
