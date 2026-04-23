@@ -3,6 +3,7 @@ import importlib
 import os
 import sys
 import unittest
+import inspect
 from unittest.mock import MagicMock
 
 
@@ -78,11 +79,44 @@ class ThrusterTranslatorTests(unittest.TestCase):
             else:
                 sys.modules[_name] = _module
 
-    def test_idle_axis_snaps_to_zero_inside_deadband(self):
-        self.node.command_deadband = 0.03
-        self.assertEqual(self.node.snap_idle_axis(0.02, 0.0), 0.0)
-        self.assertAlmostEqual(self.node.snap_idle_axis(0.05, 0.0), 0.05)
-        self.assertAlmostEqual(self.node.snap_idle_axis(0.02, 0.1), 0.02)
+    def test_shape_drive_zero_stays_zero(self):
+        self.assertEqual(self.node.shape_drive(0.0, 1.0), 0.0)
+
+    def test_shape_drive_scale_and_saturation(self):
+        self.assertAlmostEqual(self.node.shape_drive(0.4, 1.25), 0.5, places=6)
+        self.assertAlmostEqual(self.node.shape_drive(-0.5, 1.0), -0.5, places=6)
+        self.assertAlmostEqual(self.node.shape_drive(0.9, 2.0), 1.0, places=6)
+        self.assertAlmostEqual(self.node.shape_drive(-0.9, 2.0), -1.0, places=6)
+
+    def test_piecewise_linear_thrust_mapping(self):
+        self.node.max_fwd_thrust = 45.0
+        self.node.max_bck_thrust = 25.0
+        self.assertAlmostEqual(self.node.drive_to_thrust(1.0), 45.0, places=6)
+        self.assertAlmostEqual(self.node.drive_to_thrust(0.2), 9.0, places=6)
+        self.assertAlmostEqual(self.node.drive_to_thrust(-1.0), -25.0, places=6)
+        self.assertAlmostEqual(self.node.drive_to_thrust(-0.2), -5.0, places=6)
+
+    def test_stale_timeout_zeroes_targets_and_outputs(self):
+        self.node.target_left = 0.4
+        self.node.target_right = -0.4
+        self.node.last_cmd_time = FakeTime(0.0)
+
+        mock_rospy.Time.now.return_value = FakeTime(1.0)
+        self.node.update(None)
+
+        self.assertEqual(self.node.target_left, 0.0)
+        self.assertEqual(self.node.target_right, 0.0)
+        left_force = self.node.p_left.publish.call_args[0][0].force.x
+        right_force = self.node.p_right.publish.call_args[0][0].force.x
+        self.assertAlmostEqual(left_force, 0.0, places=6)
+        self.assertAlmostEqual(right_force, 0.0, places=6)
+
+    def test_translator_excludes_legacy_synthetic_actuator_shaping(self):
+        source = inspect.getsource(cmd_drive_translate.ThrusterTranslator)
+        self.assertNotIn("input_points", source)
+        self.assertNotIn("output_thrust", source)
+        self.assertNotIn("thrust_noise_stddev", source)
+        self.assertNotIn("min_effective_drive", source)
 
 
 if __name__ == "__main__":

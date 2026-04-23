@@ -1,11 +1,9 @@
+# Keep actuator behavior repo-truth faithful: /cmd_drive -> thrust mirrors the
+# heron_controller linear piecewise model (45N forward / 25N reverse). Motion
+# novelty belongs upstream in planning/nav or /cmd_vel -> /cmd_drive.
 rate: 40.0
-cmd_timeout: 0.50
-time_constant_up: 0.03
-time_constant_down: 0.03
-max_delta_per_sec: 30.0
-command_deadband: 0.01
-left_scale: 1.25
-right_scale: 1.25
-left_bias: 0.0
-right_bias: 0.0
-thrust_noise_stddev: 0.0
+cmd_timeout: 0.80
+max_fwd_thrust: 45.0
+max_bck_thrust: 25.0
+left_scale: 1.0
+right_scale: 1.0

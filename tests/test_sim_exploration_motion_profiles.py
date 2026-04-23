@@ -11,25 +11,34 @@ class TestSimExplorationMotionProfiles(unittest.TestCase):
         with cfg_path.open("r", encoding="utf-8") as fh:
             return yaml.safe_load(fh)
 
-    def test_exploration_mixer_is_more_direct_than_base_profile(self):
-        base_cfg = self._load_yaml("twist_to_drive.yaml")
+    def test_exploration_mixer_uses_minimal_linear_profile(self):
         exp_cfg = self._load_yaml("twist_to_drive_exploration.yaml")
 
-        self.assertGreaterEqual(float(exp_cfg["max_linear"]), 1.00)
-        self.assertGreater(float(exp_cfg["mix_gain"]), float(base_cfg["mix_gain"]))
-        self.assertGreater(float(exp_cfg["alpha"]), float(base_cfg["alpha"]))
-        self.assertLessEqual(float(exp_cfg["no_reverse_v_thresh"]), 0.01)
-        self.assertLess(float(exp_cfg["low_speed_turn_mix"]), float(base_cfg["low_speed_turn_mix"]))
+        self.assertEqual(float(exp_cfg["max_linear"]), 1.00)
+        self.assertEqual(float(exp_cfg["max_angular"]), 0.24)
+        self.assertEqual(float(exp_cfg["yaw_mix"]), 1.00)
+        self.assertTrue(bool(exp_cfg["shared_drive_normalization"]))
+        self.assertEqual(float(exp_cfg["timeout"]), 0.80)
 
-    def test_exploration_thruster_dynamics_reduces_filter_lag(self):
-        base_cfg = self._load_yaml("thruster_dynamics.yaml")
+    def test_exploration_thruster_dynamics_matches_controller_thrust_model(self):
         exp_cfg = self._load_yaml("thruster_dynamics_exploration.yaml")
 
-        self.assertGreater(float(exp_cfg["max_delta_per_sec"]), float(base_cfg["max_delta_per_sec"]))
-        self.assertLess(float(exp_cfg["time_constant_up"]), float(base_cfg["time_constant_up"]))
-        self.assertLess(float(exp_cfg["time_constant_down"]), float(base_cfg["time_constant_down"]))
-        self.assertGreater(float(exp_cfg["left_scale"]), float(base_cfg["left_scale"]))
-        self.assertGreater(float(exp_cfg["right_scale"]), float(base_cfg["right_scale"]))
+        self.assertEqual(
+            set(exp_cfg.keys()),
+            {
+                "rate",
+                "cmd_timeout",
+                "max_fwd_thrust",
+                "max_bck_thrust",
+                "left_scale",
+                "right_scale",
+            },
+        )
+        self.assertEqual(float(exp_cfg["cmd_timeout"]), 0.80)
+        self.assertEqual(float(exp_cfg["max_fwd_thrust"]), 45.0)
+        self.assertEqual(float(exp_cfg["max_bck_thrust"]), 25.0)
+        self.assertEqual(float(exp_cfg["left_scale"]), 1.0)
+        self.assertEqual(float(exp_cfg["right_scale"]), 1.0)
 
 
 if __name__ == "__main__":
