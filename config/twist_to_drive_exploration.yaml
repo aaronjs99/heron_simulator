@@ -1,17 +1,7 @@
-# Simulation exploration mixer profile.
-# Keep the mixer nearly transparent so TEB owns speed policy in sim.
+# Minimal simulation exploration mixer profile.
 max_linear: 1.00
 max_angular: 0.24
-mix_gain: 1.00
-wheelbase: 0.755
-deadband: 0.01
-floor: 0.05
-alpha: 1.00
+yaw_mix: 1.00
+shared_drive_normalization: true
 rate: 30.0
-timeout: 0.35
-ramp_down: 0.20
-sign_hysteresis: 0.02
-sign_dwell: 0.05
-no_reverse_v_thresh: 0.0
-low_speed_turn_mix: 0.08
-low_speed_turn_v_thresh: 0.20
+timeout: 0.80
