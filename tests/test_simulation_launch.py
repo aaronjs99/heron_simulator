@@ -40,7 +40,7 @@ class SimulationLaunchTests(unittest.TestCase):
         self.assertNotIn("teb_local_planner_config", args)
         self.assertEqual(
             args["local_costmap_overlay_config"],
-            "$(find mariner)/config/local_costmap_sim.yaml",
+            "$(arg local_costmap_sim_overlay_config)",
         )
 
     def test_bringup_exposes_simulation_runtime_args(self):
