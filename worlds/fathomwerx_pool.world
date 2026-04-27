@@ -1,0 +1,258 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="fathomwerx_pool">
+    <physics type="ode">
+      <max_step_size>0.002</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>500</real_time_update_rate>
+    </physics>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <scene>
+      <ambient>0.2 0.2 0.2 1.0</ambient>
+      <background>0.75 0.86 0.95 1.0</background>
+      <grid>false</grid>
+      <shadows>true</shadows>
+    </scene>
+
+    <!-- Tank dimensions: 25ft x 50ft x 12ft => 7.62m x 15.24m x 3.66m -->
+    <model name="pool_floor">
+      <static>true</static>
+      <pose>0 0 -0.05 0 0 0</pose>
+      <link name="floor_link">
+        <collision name="floor_collision">
+          <geometry>
+            <box>
+              <size>7.62 15.24 0.1</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="floor_visual">
+          <geometry>
+            <box>
+              <size>7.62 15.24 0.1</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.20 0.26 0.34 1</ambient>
+            <diffuse>0.24 0.31 0.42 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pool_water_surface">
+      <static>true</static>
+      <pose>0 0 0.0 0 0 0</pose>
+      <link name="water_link">
+        <visual name="water_visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>7.62 15.24</size>
+            </plane>
+          </geometry>
+          <transparency>0.2</transparency>
+          <material>
+            <ambient>0.06 0.26 0.42 0.8</ambient>
+            <diffuse>0.10 0.34 0.55 0.8</diffuse>
+            <specular>0.15 0.15 0.15 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pool_wall_north">
+      <static>true</static>
+      <pose>0 7.67 1.83 0 0 0</pose>
+      <link name="wall_link">
+        <collision name="wall_collision">
+          <geometry>
+            <box>
+              <size>7.82 0.20 3.66</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_visual">
+          <geometry>
+            <box>
+              <size>7.82 0.20 3.66</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.56 0.60 0.65 1</ambient>
+            <diffuse>0.62 0.66 0.71 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pool_wall_south">
+      <static>true</static>
+      <pose>0 -7.67 1.83 0 0 0</pose>
+      <link name="wall_link">
+        <collision name="wall_collision">
+          <geometry>
+            <box>
+              <size>7.82 0.20 3.66</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_visual">
+          <geometry>
+            <box>
+              <size>7.82 0.20 3.66</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.56 0.60 0.65 1</ambient>
+            <diffuse>0.62 0.66 0.71 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pool_wall_east">
+      <static>true</static>
+      <pose>3.91 0 1.83 0 0 0</pose>
+      <link name="wall_link">
+        <collision name="wall_collision">
+          <geometry>
+            <box>
+              <size>0.20 15.64 3.66</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_visual">
+          <geometry>
+            <box>
+              <size>0.20 15.64 3.66</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.56 0.60 0.65 1</ambient>
+            <diffuse>0.62 0.66 0.71 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pool_wall_west">
+      <static>true</static>
+      <pose>-3.91 0 1.83 0 0 0</pose>
+      <link name="wall_link">
+        <collision name="wall_collision">
+          <geometry>
+            <box>
+              <size>0.20 15.64 3.66</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_visual">
+          <geometry>
+            <box>
+              <size>0.20 15.64 3.66</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.56 0.60 0.65 1</ambient>
+            <diffuse>0.62 0.66 0.71 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Side porthole markers -->
+    <model name="porthole_marker_east_1">
+      <static>true</static>
+      <pose>3.82 -4.5 1.2 0 0 1.5708</pose>
+      <link name="marker_link">
+        <visual name="marker_visual">
+          <geometry>
+            <cylinder>
+              <radius>0.20</radius>
+              <length>0.05</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.10 0.10 0.10 1</ambient>
+            <diffuse>0.16 0.16 0.16 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="porthole_marker_east_2">
+      <static>true</static>
+      <pose>3.82 4.5 1.2 0 0 1.5708</pose>
+      <link name="marker_link">
+        <visual name="marker_visual">
+          <geometry>
+            <cylinder>
+              <radius>0.20</radius>
+              <length>0.05</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.10 0.10 0.10 1</ambient>
+            <diffuse>0.16 0.16 0.16 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Simple inspection targets -->
+    <model name="inspection_target_north">
+      <static>true</static>
+      <pose>0 6.4 0.4 0 0 0</pose>
+      <link name="target_link">
+        <collision name="target_collision">
+          <geometry>
+            <box>
+              <size>0.4 0.2 0.8</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="target_visual">
+          <geometry>
+            <box>
+              <size>0.4 0.2 0.8</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.80 0.35 0.18 1</ambient>
+            <diffuse>0.90 0.43 0.22 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="inspection_target_south">
+      <static>true</static>
+      <pose>0 -6.4 0.4 0 0 0</pose>
+      <link name="target_link">
+        <collision name="target_collision">
+          <geometry>
+            <box>
+              <size>0.4 0.2 0.8</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="target_visual">
+          <geometry>
+            <box>
+              <size>0.4 0.2 0.8</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.14 0.40 0.14 1</ambient>
+            <diffuse>0.18 0.50 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

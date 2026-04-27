@@ -55,6 +55,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="start_gazebo" default="true"/>
   <arg name="gazebo_master_port" default="11345"/>
   <arg name="gazebo_extra_args" default="--lockstep"/>
+  <arg name="world_name" default="$(find heron_simulator)/worlds/ocean_surface.world"/>
   <env name="GAZEBO_MASTER_URI" value="http://127.0.0.1:$(arg gazebo_master_port)"/>
 
   <node pkg="slam_grande" type="ensure_topic_contract_symlink.sh"
@@ -66,7 +67,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <env name="MESA_LOG_LEVEL" value="error"/>
     <env name="MESA_LOG_FILE" value="/dev/null"/>
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-      <arg name="world_name" value="$(find heron_simulator)/worlds/ocean_surface.world"/>
+      <arg name="world_name" value="$(arg world_name)"/>
       <arg name="paused" value="$(eval 'true' if str(arg('paused')).lower() == 'true' or str(arg('bootstrap_pause')).lower() == 'true' else 'false')"/>
       <arg name="use_sim_time" value="true"/>
       <arg name="gui" value="false"/>

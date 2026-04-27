@@ -61,6 +61,8 @@ class SimulationLaunchTests(unittest.TestCase):
             "move_base_use_map_server",
             "planner_allow_unknown",
             "sim_nav_profile",
+            "scenario",
+            "sim_world_file",
             "teb_local_planner_sim_overlay_config",
             "run_map",
             "map_file",
@@ -84,6 +86,11 @@ class SimulationLaunchTests(unittest.TestCase):
         self.assertEqual(
             args["world_model_mode"]["default"],
             "$(eval 'hybrid' if arg('mode') == 'sim' else 'mapped')",
+        )
+        self.assertEqual(args["scenario"]["default"], "harbor_default")
+        self.assertEqual(
+            args["sim_world_file"]["default"],
+            "$(eval find('heron_simulator') + '/worlds/fathomwerx_pool.world' if str(arg('scenario')).lower() == 'fathomwerx_pool' else find('heron_simulator') + '/worlds/ocean_surface.world')",
         )
         self.assertEqual(
             args["semantic_sim_fallback_file"]["default"],
@@ -173,6 +180,11 @@ class SimulationLaunchTests(unittest.TestCase):
             "include[@file='$(find heron_simulator)/launch/heron_world.launch']"
         )
         self.assertIsNotNone(world_include)
+        world_args = {
+            elem.attrib["name"]: elem.attrib["value"]
+            for elem in world_include.findall("arg")
+        }
+        self.assertEqual(world_args["world_name"], "$(arg sim_world_file)")
         spawner = sim_group.find("node[@name='spawn_inspection_models']")
         self.assertIsNotNone(spawner)
         self.assertEqual(spawner.attrib["if"], "$(arg spawn_inspection_models)")
