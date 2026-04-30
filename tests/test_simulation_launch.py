@@ -96,15 +96,25 @@ class SimulationLaunchTests(unittest.TestCase):
             args["semantic_sim_fallback_file"]["default"],
             "$(arg map_anchors_file)",
         )
-        self.assertIn("anchors_sim.yaml", args["map_anchors_file"]["default"])
+        self.assertEqual(
+            args["map_anchors_file"]["default"],
+            "$(eval find('slam_grande') + '/data/anchors_fathomwerx_pool.yaml' if arg('mode') == 'sim' and str(arg('scenario')).lower() == 'fathomwerx_pool' else (find('slam_grande') + '/data/anchors_sim.yaml' if arg('mode') == 'sim' else find('slam_grande') + '/data/anchors_real.yaml'))",
+        )
         self.assertEqual(
             args["run_map"]["default"],
-            "$(eval 'true' if arg('mode') == 'sim' else 'false')",
+            "$(eval 'false' if arg('mode') == 'sim' and str(arg('scenario')).lower() == 'fathomwerx_pool' else ('true' if arg('mode') == 'sim' else 'false'))",
         )
-        self.assertIn("maps/simulation.yaml", args["map_file"]["default"])
+        self.assertEqual(
+            args["map_file"]["default"],
+            "$(eval '' if arg('mode') == 'sim' and str(arg('scenario')).lower() == 'fathomwerx_pool' else (find('mariner') + '/maps/simulation.yaml' if arg('mode') == 'sim' else find('mariner') + '/maps/generated/runtime.yaml'))",
+        )
         self.assertEqual(args["record_bags"]["default"], "true")
         self.assertEqual(args["inspection_spawn_delay_sec"]["default"], "15.0")
         self.assertEqual(args["semantic_sim_fallback_timeout_sec"]["default"], "18.0")
+        self.assertEqual(
+            args["spawn_inspection_models"]["default"],
+            "$(eval 'false' if str(arg('scenario')).lower() == 'fathomwerx_pool' else 'true')",
+        )
 
     def test_simulation_launch_wires_saved_map_and_runtime_surface(self):
         mariner_group = self.root.find(
