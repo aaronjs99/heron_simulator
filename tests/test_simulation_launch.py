@@ -102,11 +102,11 @@ class SimulationLaunchTests(unittest.TestCase):
         )
         self.assertEqual(
             args["run_map"]["default"],
-            "$(eval 'false' if arg('mode') == 'sim' and str(arg('scenario')).lower() == 'fathomwerx_pool' else ('true' if arg('mode') == 'sim' else 'false'))",
+            "$(eval 'true' if arg('mode') == 'sim' else 'false')",
         )
         self.assertEqual(
             args["map_file"]["default"],
-            "$(eval '' if arg('mode') == 'sim' and str(arg('scenario')).lower() == 'fathomwerx_pool' else (find('mariner') + '/maps/simulation.yaml' if arg('mode') == 'sim' else find('mariner') + '/maps/generated/runtime.yaml'))",
+            "$(eval (find('mariner') + '/maps/fathomwerx_pool.yaml') if arg('mode') == 'sim' and str(arg('scenario')).lower() == 'fathomwerx_pool' else ((find('mariner') + '/maps/simulation.yaml') if arg('mode') == 'sim' else (find('mariner') + '/maps/generated/runtime.yaml')))",
         )
         self.assertEqual(args["record_bags"]["default"], "true")
         self.assertEqual(args["inspection_spawn_delay_sec"]["default"], "15.0")
