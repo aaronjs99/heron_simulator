@@ -51,23 +51,27 @@
     </light>
 
     <!-- Tank dimensions: 25ft x 50ft x 12ft => 7.62m x 15.24m x 3.66m -->
-    <!-- TODO: add an optional scenario/launch arg for near-short-edge deployment.
-         Keep default Heron spawn at origin for now. -->
+    <!-- Coordinate convention:
+         - Heron spawn stays at/near the world origin with yaw=0 facing +X.
+         - Pool length runs along +X so the boat faces into the long axis.
+         - The near start edge is the short west wall at x=-1.20m.
+         - Pool width runs across Y and is centered around y=0.0m.
+         - Target coordinates below are given in this same map/world frame. -->
     <model name="pool_floor">
       <static>true</static>
-      <pose>0 6.42 -3.76 0 0 0</pose>
+      <pose>6.42 0.0 -3.76 0 0 0</pose>
       <link name="floor_link">
         <collision name="floor_collision">
           <geometry>
             <box>
-              <size>7.62 15.24 0.2</size>
+              <size>15.24 7.62 0.2</size>
             </box>
           </geometry>
         </collision>
         <visual name="floor_visual">
           <geometry>
             <box>
-              <size>7.62 15.24 0.2</size>
+              <size>15.24 7.62 0.2</size>
             </box>
           </geometry>
           <material>
@@ -80,7 +84,7 @@
 
     <model name="pool_water_surface">
       <static>true</static>
-      <pose>0 6.42 0.0 0 0 0</pose>
+      <pose>6.42 0.0 0.0 0 0 0</pose>
       <link name="water_link">
         <visual name="water_visual">
           <geometry>
@@ -116,19 +120,19 @@
 
     <model name="pool_wall_north">
       <static>true</static>
-      <pose>0 14.14 -1.755 0 0 0</pose>
+      <pose>6.42 3.91 -1.755 0 0 0</pose>
       <link name="wall_link">
         <collision name="wall_collision">
           <geometry>
             <box>
-              <size>8.02 0.20 3.81</size>
+              <size>15.44 0.20 3.81</size>
             </box>
           </geometry>
         </collision>
         <visual name="wall_visual">
           <geometry>
             <box>
-              <size>8.02 0.20 3.81</size>
+              <size>15.44 0.20 3.81</size>
             </box>
           </geometry>
           <material>
@@ -141,19 +145,19 @@
 
     <model name="pool_wall_south">
       <static>true</static>
-      <pose>0 -1.30 -1.755 0 0 0</pose>
+      <pose>6.42 -3.91 -1.755 0 0 0</pose>
       <link name="wall_link">
         <collision name="wall_collision">
           <geometry>
             <box>
-              <size>8.02 0.20 3.81</size>
+              <size>15.44 0.20 3.81</size>
             </box>
           </geometry>
         </collision>
         <visual name="wall_visual">
           <geometry>
             <box>
-              <size>8.02 0.20 3.81</size>
+              <size>15.44 0.20 3.81</size>
             </box>
           </geometry>
           <material>
@@ -166,19 +170,19 @@
 
     <model name="pool_wall_east">
       <static>true</static>
-      <pose>3.91 6.42 -1.755 0 0 0</pose>
+      <pose>14.14 0.0 -1.755 0 0 0</pose>
       <link name="wall_link">
         <collision name="wall_collision">
           <geometry>
             <box>
-              <size>0.20 15.24 3.81</size>
+              <size>0.20 7.62 3.81</size>
             </box>
           </geometry>
         </collision>
         <visual name="wall_visual">
           <geometry>
             <box>
-              <size>0.20 15.24 3.81</size>
+              <size>0.20 7.62 3.81</size>
             </box>
           </geometry>
           <material>
@@ -191,24 +195,134 @@
 
     <model name="pool_wall_west">
       <static>true</static>
-      <pose>-3.91 6.42 -1.755 0 0 0</pose>
+      <pose>-1.30 0.0 -1.755 0 0 0</pose>
       <link name="wall_link">
         <collision name="wall_collision">
           <geometry>
             <box>
-              <size>0.20 15.24 3.81</size>
+              <size>0.20 7.62 3.81</size>
             </box>
           </geometry>
         </collision>
         <visual name="wall_visual">
           <geometry>
             <box>
-              <size>0.20 15.24 3.81</size>
+              <size>0.20 7.62 3.81</size>
             </box>
           </geometry>
           <material>
             <ambient>0.62 0.67 0.74 1</ambient>
             <diffuse>0.72 0.77 0.84 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Static targets for recording and controlled semantic validation.
+         floor_circle_mid_pool: circular floor target at (6.00, 1.40, -3.645)
+         floor_rect_far_pool: rectangular floor target at (10.80, -1.50, -3.645)
+         wall_rect_far_east: rectangular wall panel at (13.99, -1.80, -1.40)
+         wall_circle_north: circular wall marker at (8.50, 3.00, -1.50) -->
+    <model name="floor_circle_mid_pool">
+      <static>true</static>
+      <pose>6.00 1.40 -3.645 0 0 0</pose>
+      <link name="target_link">
+        <collision name="target_collision">
+          <geometry>
+            <cylinder>
+              <radius>0.45</radius>
+              <length>0.03</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="target_visual">
+          <geometry>
+            <cylinder>
+              <radius>0.45</radius>
+              <length>0.03</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.88 0.12 0.12 1</ambient>
+            <diffuse>0.98 0.18 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="floor_rect_far_pool">
+      <static>true</static>
+      <pose>10.80 -1.50 -3.645 0 0 0</pose>
+      <link name="target_link">
+        <collision name="target_collision">
+          <geometry>
+            <box>
+              <size>1.20 0.80 0.03</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="target_visual">
+          <geometry>
+            <box>
+              <size>1.20 0.80 0.03</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.96 0.86 0.12 1</ambient>
+            <diffuse>0.98 0.90 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_rect_far_east">
+      <static>true</static>
+      <pose>13.99 -1.80 -1.40 0 0 0</pose>
+      <link name="target_link">
+        <collision name="target_collision">
+          <geometry>
+            <box>
+              <size>0.04 1.50 1.00</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="target_visual">
+          <geometry>
+            <box>
+              <size>0.04 1.50 1.00</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.12 0.12 0.12 1</ambient>
+            <diffuse>0.08 0.08 0.08 1</diffuse>
+            <specular>0.02 0.02 0.02 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_circle_north">
+      <static>true</static>
+      <pose>8.50 3.00 -1.50 1.570796 0 0</pose>
+      <link name="target_link">
+        <collision name="target_collision">
+          <geometry>
+            <cylinder>
+              <radius>0.50</radius>
+              <length>0.04</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="target_visual">
+          <geometry>
+            <cylinder>
+              <radius>0.50</radius>
+              <length>0.04</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.95 0.45 0.10 1</ambient>
+            <diffuse>0.98 0.52 0.14 1</diffuse>
           </material>
         </visual>
       </link>
