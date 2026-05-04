@@ -50,6 +50,14 @@
       <cast_shadows>false</cast_shadows>
     </light>
 
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose frame=''>6.4 -15.0 9.5 0.0 0.45 1.57</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+
     <!-- Tank dimensions: 25ft x 50ft x 12ft => 7.62m x 15.24m x 3.66m -->
     <!-- Coordinate convention:
          - Heron spawn stays at/near the world origin with yaw=0 facing +X.

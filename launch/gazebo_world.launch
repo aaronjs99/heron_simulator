@@ -5,6 +5,8 @@
   <arg name="paused" default="false"/>
   <arg name="gui" default="true"/>
   <arg name="verbose" default="false"/>
+  <arg name="arrange_gui_windows" default="true"/>
+  <arg name="demo_window_layout" default="largest_landscape"/>
 
   <!-- Start Gazebo with empty world, then load our world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -13,5 +15,13 @@
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="$(arg gui)"/>
     <arg name="verbose" value="$(arg verbose)"/>
+  </include>
+
+  <include file="$(find slam_grande)/launch/include/gui_window_layout.launch">
+    <arg name="arrange_gui_windows" value="$(arg arrange_gui_windows)"/>
+    <arg name="demo_window_layout" value="$(arg demo_window_layout)"/>
+    <arg name="expect_gazebo" value="$(arg gui)"/>
+    <arg name="expect_rviz" value="false"/>
+    <arg name="layout_node_name" value="gazebo_world_window_layout"/>
   </include>
 </launch>

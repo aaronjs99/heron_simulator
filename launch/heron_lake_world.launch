@@ -36,6 +36,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="paused" default="false"/>
   <arg name="set_timeout" default="false"/>
   <arg name="timeout" default="0.0"/>
+  <arg name="arrange_gui_windows" default="true"/>
+  <arg name="demo_window_layout" default="largest_landscape"/>
 
   <node pkg="slam_grande" type="ensure_topic_contract_symlink.sh"
         name="topic_contract_updater" output="screen"/>
@@ -49,6 +51,14 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="headless" value="$(arg headless)"/>
     <arg name="debug" value="false"/>
     <arg name="verbose" value="true"/>
+  </include>
+
+  <include file="$(find slam_grande)/launch/include/gui_window_layout.launch">
+    <arg name="arrange_gui_windows" value="$(arg arrange_gui_windows)"/>
+    <arg name="demo_window_layout" value="$(arg demo_window_layout)"/>
+    <arg name="expect_gazebo" value="$(arg gui)"/>
+    <arg name="expect_rviz" value="false"/>
+    <arg name="layout_node_name" value="heron_lake_world_window_layout"/>
   </include>
 
 

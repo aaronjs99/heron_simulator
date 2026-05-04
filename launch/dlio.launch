@@ -7,6 +7,8 @@
   <arg name="pose_topic" default="/state/pose"/>
   <arg name="path_topic" default="/state/path"/>
   <arg name="map_topic" default="/state/map"/>
+  <arg name="arrange_gui_windows" default="false"/>
+  <arg name="demo_window_layout" default="largest_landscape"/>
 
   <include file="$(find slam_grande)/launch/include/dlio_stack.launch">
     <arg name="robot_namespace" value="$(arg robot_namespace)"/>
@@ -19,5 +21,7 @@
     <arg name="geometry_file" value="$(find slam_grande)/config/dlio_heron_geometry.yaml"/>
     <arg name="config_file" value="$(find heron_simulator)/config/dlio_heron.yaml"/>
     <arg name="rviz" value="$(arg rviz)"/>
+    <arg name="arrange_gui_windows" value="$(arg arrange_gui_windows)"/>
+    <arg name="demo_window_layout" value="$(arg demo_window_layout)"/>
   </include>
 </launch>

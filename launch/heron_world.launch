@@ -49,6 +49,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="thruster_dynamics_config" default="$(find heron_simulator)/config/thruster_dynamics.yaml"/>
   <arg name="gui_startup_delay_sec" default="20.0"/>
   <arg name="force_software_rendering" default="false"/>
+  <arg name="arrange_gui_windows" default="true"/>
+  <arg name="demo_window_layout" default="largest_landscape"/>
   <arg name="bootstrap_pause" default="true"/>
   <arg name="autounpause_delay_sec" default="10.0"/>
 
@@ -97,6 +99,14 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <env name="MESA_LOG_LEVEL" value="error"/>
       <env name="MESA_LOG_FILE" value="/dev/null"/>
     </node>
+
+    <include file="$(find slam_grande)/launch/include/gui_window_layout.launch">
+      <arg name="arrange_gui_windows" value="$(arg arrange_gui_windows)"/>
+      <arg name="demo_window_layout" value="$(arg demo_window_layout)"/>
+      <arg name="expect_gazebo" value="$(arg gui)"/>
+      <arg name="expect_rviz" value="false"/>
+      <arg name="layout_node_name" value="gazebo_gui_window_layout"/>
+    </include>
   </group>
 
   <include file="$(find heron_simulator)/launch/spawn_heron.launch">
