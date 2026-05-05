@@ -141,7 +141,9 @@ def main():
             errors.append(f"Required TCP port {port} is already in use.")
 
     if errors and auto_cleanup:
-        cleanup_ports = [gazebo_master_port] + [int(port) for port in required_free_ports]
+        cleanup_ports = [gazebo_master_port] + [
+            int(port) for port in required_free_ports
+        ]
         cleanup_pids: Set[int] = set()
         for port in cleanup_ports:
             cleanup_pids.update(pids_listening_on_port(port))
@@ -164,7 +166,9 @@ def main():
 
     if errors:
         if cleanup_actions:
-            rospy.logwarn("[sim_preflight] Cleanup attempted: %s", "; ".join(cleanup_actions))
+            rospy.logwarn(
+                "[sim_preflight] Cleanup attempted: %s", "; ".join(cleanup_actions)
+            )
         for err in errors:
             rospy.logerr("[sim_preflight] %s", err)
         rospy.logerr(
@@ -174,7 +178,10 @@ def main():
         sys.exit(1)
 
     if cleanup_actions:
-        rospy.logwarn("[sim_preflight] Cleaned stale runtime state: %s", "; ".join(cleanup_actions))
+        rospy.logwarn(
+            "[sim_preflight] Cleaned stale runtime state: %s",
+            "; ".join(cleanup_actions),
+        )
     rospy.loginfo("[sim_preflight] Environment looks clean.")
     rospy.loginfo("[sim_preflight] Standing by.")
     rospy.spin()

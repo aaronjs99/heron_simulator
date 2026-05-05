@@ -52,7 +52,9 @@ def _call_spawn_model(proxy, anchor_id, sdf, pose, retries=3):
         raise last_error
     if shutdown_requested:
         raise rospy.ROSInterruptException("ROS shutdown requested before spawn call")
-    raise rospy.ROSException(f"Failed to spawn {anchor_id}: unknown spawn_model failure")
+    raise rospy.ROSException(
+        f"Failed to spawn {anchor_id}: unknown spawn_model failure"
+    )
 
 
 def make_sdf(name, sim_data):
@@ -133,9 +135,7 @@ def load_anchors(anchor_file=""):
 
 def apply_world_offset(data, dx=0.0, dy=0.0):
     """Apply a rigid XY translation to all anchor poses in the loaded YAML."""
-    if not isinstance(data, dict) or (
-        abs(float(dx)) < 1e-9 and abs(float(dy)) < 1e-9
-    ):
+    if not isinstance(data, dict) or (abs(float(dx)) < 1e-9 and abs(float(dy)) < 1e-9):
         return data
     anchors = list(data.get("anchors", []) or [])
     if not anchors:
