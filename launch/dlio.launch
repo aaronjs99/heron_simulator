@@ -1,5 +1,4 @@
 <launch>
-  <arg name="robot_namespace" default="robot"/>
   <arg name="rviz" default="false"/>
   <arg name="pointcloud_topic" default="/sensors/lidar/hori/points"/>
   <arg name="imu_topic" default="/sensors/imu/data"/>
@@ -11,7 +10,6 @@
   <arg name="demo_window_layout" default="largest_landscape"/>
 
   <include file="$(find slam_grande)/launch/include/dlio_stack.launch">
-    <arg name="robot_namespace" value="$(arg robot_namespace)"/>
     <arg name="pointcloud_topic" value="$(arg pointcloud_topic)"/>
     <arg name="imu_topic" value="$(arg imu_topic)"/>
     <arg name="odom_topic" value="$(arg odom_topic)"/>

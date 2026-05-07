@@ -95,10 +95,9 @@ Current shared-bringup defaults:
 | `use_web_viz` | `true` | starts dashboard/rosbridge/video bridge |
 | `record_bags` | `true` | records runtime evidence unless disabled |
 | `use_rviz` | `true` | opens the shared navigation RViz layout in sim |
-| `use_ground_truth_nav` | `true` | relays simulator truth into canonical state topics |
-| `use_dlio` | `false` | SLAM is not the default sim state source |
+| `state_source` | `truth` | selects the canonical `/state/odometry` source: `truth`, `ekf`, or `dlio` |
 
-Because `use_ground_truth_nav` defaults to true, a successful sim mission is not
+Because `state_source:=truth` is the default sim source, a successful sim mission is not
 evidence that DLiO or another SLAM backend is working.
 
 Useful simulator-only knobs:
