@@ -28,8 +28,8 @@ Spawns sim inspection geometry from anchor definitions.
 
 Converts LaserScan to PointCloud2 for costmap compatibility.
 
-- subscribes: `~scan_topic` (default `/lidar_h/scan`)
-- publishes: `~cloud_topic` (default `/lidar_h/velodyne_points`)
+- subscribes: `~scan_topic` (default `/sensors/lidar/hori/scan`)
+- publishes: `~cloud_topic` (default `/sensors/lidar/hori/points`)
 
 ### `sensors/vel_cov_fixed.py`
 
@@ -85,7 +85,7 @@ Control enable/disable service surface.
 
 Applies hydrodynamic hull-force model in sim runtime.
 
-- subscribes: `/ground_truth/odom`
+- subscribes: `~odom_topic` (top-level sim bringup passes `/pose_gt`)
 - publishes: `/{namespace}/hydro_forces`
 - key param: `~namespace` (default `heron`)
 

@@ -43,8 +43,12 @@ on Gazebo model churn.
 ### Simulator-only bringup
 
 ```bash
-roslaunch heron_simulator simulation.launch
+roslaunch heron_simulator heron_world.launch
 ```
+
+Most development should still use the canonical full-stack command above. The
+package-level launch files are lower-level helpers for world/spawn/control
+debugging.
 
 ## Important Pieces
 
@@ -83,6 +87,19 @@ The main difference is the source of data:
 
 - `mode:=sim` uses Gazebo and simulated sensors
 - `mode:=real` uses real sensors through `ig_handle`
+
+Current shared-bringup defaults:
+
+| Setting | Sim Default | Meaning |
+| --- | --- | --- |
+| `use_web_viz` | `true` | starts dashboard/rosbridge/video bridge |
+| `record_bags` | `true` | records runtime evidence unless disabled |
+| `use_rviz` | `true` | opens the shared navigation RViz layout in sim |
+| `use_ground_truth_nav` | `true` | relays simulator truth into canonical state topics |
+| `use_dlio` | `false` | SLAM is not the default sim state source |
+
+Because `use_ground_truth_nav` defaults to true, a successful sim mission is not
+evidence that DLiO or another SLAM backend is working.
 
 Useful simulator-only knobs:
 
