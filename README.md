@@ -95,10 +95,12 @@ Current shared-bringup defaults:
 | `use_web_viz` | `true` | starts dashboard/rosbridge/video bridge |
 | `record_bags` | `true` | records runtime evidence unless disabled |
 | `use_rviz` | `true` | opens the shared navigation RViz layout in sim |
-| `state_source` | `truth` | selects the canonical `/state/odometry` source: `truth`, `ekf`, or `dlio` |
+| `state_source` | `dlio` | selects the canonical `/state/odometry` source: `truth`, `ekf`, or `dlio` |
+| `map_builder` | `octomap` | starts the standard persistent mapping branch when OctoMap is installed |
 
-Because `state_source:=truth` is the default sim source, a successful sim mission is not
-evidence that DLiO or another SLAM backend is working.
+Simulator truth is still available with `state_source:=truth` for diagnostics,
+but the shared default is DLiO-backed so a successful sim mission exercises the
+same state-source contract expected on the boat.
 
 Useful simulator-only knobs:
 
