@@ -410,7 +410,7 @@
   <gazebo>
     <plugin name="imu_controller_ighandle" filename="libhector_gazebo_ros_imu.so">
       <updateRate>50.0</updateRate>
-      <bodyName>base_link</bodyName>
+      <bodyName>imu_link</bodyName>
       <frameId>imu_link</frameId>
       <topicName>/sensors/imu/data</topicName>
       <accelDrift>0.005 0.005 0.005</accelDrift>

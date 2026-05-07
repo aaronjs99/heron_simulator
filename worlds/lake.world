@@ -45,12 +45,6 @@
       <cast_shadows>true</cast_shadows>
     </light>
 
-    <!-- Virtual NED frame -->
-    <include>
-      <uri>model://ned_frame</uri>
-      <pose>0 0 0 0 0 0</pose>
-    </include>
-
     <!-- Bounding box with sea surface -->
     <include>
       <uri>model://lake</uri>

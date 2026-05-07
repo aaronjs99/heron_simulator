@@ -68,7 +68,6 @@
   <!-- SLAM GRANDE packages -->
   <exec_depend>mariner</exec_depend>
   <exec_depend>oracle</exec_depend>
-  <exec_depend>defector</exec_depend>
 
   <export>
     <gazebo_ros gazebo_model_path="${prefix}/models"/>

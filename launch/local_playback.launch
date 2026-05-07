@@ -5,10 +5,10 @@
   <arg name="demo_window_layout" default="largest_landscape"/>
 
   <!-- Load Robot Description (Needed for Rviz) -->
-  <param name="robot_description" command="$(find xacro)/xacro '$(find heron_description)/urdf/heron.urdf.xacro' simulation:=false" />
+  <param name="robot_description" command="xacro '$(find heron_description)/urdf/heron.urdf.xacro' simulation:=false" />
 
   <!-- Start Rviz with config -->
-  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find heron_simulator)/config/playback.rviz"/>
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find slam_grande)/rviz/nav_debug.rviz"/>
 
   <include file="$(find slam_grande)/launch/include/gui_window_layout.launch">
     <arg name="arrange_gui_windows" value="$(arg arrange_gui_windows)"/>

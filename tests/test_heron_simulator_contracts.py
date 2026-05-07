@@ -37,6 +37,42 @@ def test_gui_launch_sites_use_shared_window_layout_helper():
         assert "demo_window_layout" in text
 
 
+def test_legacy_playback_and_lake_world_do_not_reference_missing_assets():
+    playback = (REPO_ROOT / "heron_simulator/launch/local_playback.launch").read_text(
+        encoding="utf-8"
+    )
+    lake = (REPO_ROOT / "heron_simulator/worlds/lake.world").read_text(
+        encoding="utf-8"
+    )
+    package_xml = (REPO_ROOT / "heron_simulator/package.xml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "$(find slam_grande)/rviz/nav_debug.rviz" in playback
+    assert "config/playback.rviz" not in playback
+    assert "model://ned_frame" not in lake
+    assert "<exec_depend>defector</exec_depend>" not in package_xml
+
+
+def test_sim_imu_body_and_frame_match_dlio_geometry():
+    extras = (
+        REPO_ROOT / "heron_simulator/urdf/ig_handle_sensors.urdf.xacro"
+    ).read_text(encoding="utf-8")
+
+    assert "<bodyName>imu_link</bodyName>" in extras
+    assert "<frameId>imu_link</frameId>" in extras
+
+
+def test_sim_launches_use_portable_xacro_executable():
+    for relpath in (
+        "heron_simulator/launch/spawn_heron.launch",
+        "heron_simulator/launch/local_playback.launch",
+    ):
+        text = (REPO_ROOT / relpath).read_text(encoding="utf-8")
+        assert "$(find xacro)/xacro" not in text
+        assert "xacro '$(find heron_description)/urdf/heron.urdf.xacro'" in text
+
+
 def test_cmd_drive_translate_maps_negative_drive_to_reverse_thrust():
     translator_mod = load_module(
         "cmd_drive_translate_contract",
