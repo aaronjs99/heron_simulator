@@ -73,6 +73,17 @@ def test_sim_launches_use_portable_xacro_executable():
         assert "xacro '$(find heron_description)/urdf/heron.urdf.xacro'" in text
 
 
+def test_heron_spawn_is_one_shot_without_shutdown_delete_bond():
+    text = (REPO_ROOT / "heron_simulator/launch/spawn_heron.launch").read_text(
+        encoding="utf-8"
+    )
+
+    assert 'type="spawn_model"' in text
+    assert "-param robot_description" in text
+    assert " -b" not in text
+    assert "required=\"true\"" not in text
+
+
 def test_cmd_drive_translate_maps_negative_drive_to_reverse_thrust():
     translator_mod = load_module(
         "cmd_drive_translate_contract",
