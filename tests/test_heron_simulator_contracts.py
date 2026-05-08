@@ -3,6 +3,8 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
+import yaml
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -41,9 +43,7 @@ def test_legacy_playback_and_lake_world_do_not_reference_missing_assets():
     playback = (REPO_ROOT / "heron_simulator/launch/local_playback.launch").read_text(
         encoding="utf-8"
     )
-    lake = (REPO_ROOT / "heron_simulator/worlds/lake.world").read_text(
-        encoding="utf-8"
-    )
+    lake = (REPO_ROOT / "heron_simulator/worlds/lake.world").read_text(encoding="utf-8")
     package_xml = (REPO_ROOT / "heron_simulator/package.xml").read_text(
         encoding="utf-8"
     )
@@ -81,7 +81,7 @@ def test_heron_spawn_is_one_shot_without_shutdown_delete_bond():
     assert 'type="spawn_model"' in text
     assert "-param robot_description" in text
     assert " -b" not in text
-    assert "required=\"true\"" not in text
+    assert 'required="true"' not in text
 
 
 def test_cmd_drive_translate_maps_negative_drive_to_reverse_thrust():
@@ -97,3 +97,36 @@ def test_cmd_drive_translate_maps_negative_drive_to_reverse_thrust():
 
     assert translator.drive_to_thrust(-0.40) == -10.0
     assert translator.drive_to_thrust(0.40) == 18.0
+
+
+def test_sim_control_profiles_only_expose_active_node_parameters():
+    twist_keys = {
+        "max_linear",
+        "max_angular",
+        "yaw_mix",
+        "shared_drive_normalization",
+        "rate",
+        "timeout",
+    }
+    thrust_keys = {
+        "rate",
+        "cmd_timeout",
+        "max_fwd_thrust",
+        "max_bck_thrust",
+        "left_scale",
+        "right_scale",
+    }
+
+    for relpath in (
+        "heron_simulator/config/twist_to_drive.yaml",
+        "heron_simulator/config/twist_to_drive_exploration.yaml",
+    ):
+        cfg = yaml.safe_load((REPO_ROOT / relpath).read_text(encoding="utf-8"))
+        assert set(cfg) == twist_keys
+
+    for relpath in (
+        "heron_simulator/config/thruster_dynamics.yaml",
+        "heron_simulator/config/thruster_dynamics_exploration.yaml",
+    ):
+        cfg = yaml.safe_load((REPO_ROOT / relpath).read_text(encoding="utf-8"))
+        assert set(cfg) == thrust_keys
