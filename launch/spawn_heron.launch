@@ -105,8 +105,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <rosparam command="load" file="$(arg thruster_dynamics_config)" />
     </node>
 
-    <!-- Translate navsat/velocity for compatibility (optional) -->
-    <node pkg="heron_simulator" type="navsat_vel_translate.py" name="navvel_translate" />
+    <!-- Translate navsat/velocity only when the NavSat path is enabled. -->
+    <node if="$(arg enable_navsat)"
+          pkg="heron_simulator" type="navsat_vel_translate.py" name="navvel_translate" />
 
   </group>
 

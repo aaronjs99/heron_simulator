@@ -96,7 +96,7 @@ Current shared-bringup defaults:
 | `record_bags` | `true` | records runtime evidence unless disabled |
 | `use_rviz` | `true` | opens the shared navigation RViz layout in sim |
 | `state_source` | `dlio` | selects the canonical `/state/odometry` source: `truth`, `ekf`, or `dlio` |
-| `map_builder` | `octomap` | starts the standard persistent mapping branch when OctoMap is installed |
+| `map_builder` | `rtabmap` | starts RTAB-Map loop closure/global correction when RTAB-Map is installed |
 
 Simulator truth is still available with `state_source:=truth` for diagnostics,
 but the shared default is DLiO-backed so a successful sim mission exercises the
