@@ -111,9 +111,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
   </group>
 
-  <!-- Localization Stack (EKF/NavSat) -->
-  <arg name="enable_ekf" default="true"/>
-  <arg name="enable_navsat" default="true"/>
+  <!-- Optional GPS/EKF stack. Disabled by default; ORACLE uses DLiO state. -->
+  <arg name="enable_ekf" default="false"/>
+  <arg name="enable_navsat" default="false"/>
   
   <group ns="/$(arg namespace)">
     <rosparam param="ekf_localization_node/tf_prefix" subst_value="True">$(arg namespace)</rosparam>

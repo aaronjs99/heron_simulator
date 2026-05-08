@@ -95,12 +95,11 @@ Current shared-bringup defaults:
 | `use_web_viz` | `true` | starts dashboard/rosbridge/video bridge |
 | `record_bags` | `true` | records runtime evidence unless disabled |
 | `use_rviz` | `true` | opens the shared navigation RViz layout in sim |
-| `state_source` | `dlio` | selects the canonical `/state/odometry` source: `truth`, `ekf`, or `dlio` |
 | `map_builder` | `rtabmap` | starts RTAB-Map loop closure/global correction when RTAB-Map is installed |
 
-Simulator truth is still available with `state_source:=truth` for diagnostics,
-but the shared default is DLiO-backed so a successful sim mission exercises the
-same state-source contract expected on the boat.
+DLiO is the canonical state path in simulation and real bringup. Gazebo still
+publishes simulator truth topics for diagnostics, but `slam_grande` no longer
+uses simulator truth, GPS, or EKF as navigation state sources.
 
 Useful simulator-only knobs:
 

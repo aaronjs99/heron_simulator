@@ -40,7 +40,8 @@ Adds covariance to velocity stream for downstream localization consumers.
 
 ### `sensors/navsat_vel_translate.py`
 
-Converts GPS velocity convention to the format expected by the stack.
+Optional legacy helper for GPS/NavSat experiments. It is not launched by the
+default `slam_grande` sim or real bringup.
 
 - subscribes: `/navsat/velocity`
 - publishes: `/navsat/vel`
