@@ -12,7 +12,7 @@ tested together before running on hardware.
 - a synthetic harbor with a short launch dock, longer inspection piers, and moored workboats driven from `slam_grande/data/anchors_sim.yaml`
 - simulated sensors that mirror the operator dashboard sensor catalog
 - topic bridges needed by MARINER and ORACLE
-- mock inspection/perception support for fast autonomy testing
+- inspection-scene geometry for real DEFECTOR testing
 - Gazebo plugins for custom force behavior
 - the same shared ORACLE, web, RViz, and rosbag surface used by hardware bringup
 

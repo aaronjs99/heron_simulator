@@ -5,15 +5,6 @@ you need to locate a runtime issue quickly.
 
 ## Autonomy helpers
 
-### `autonomy/mock_defector_service.py`
-
-Provides mock inspection service behavior in sim.
-
-- service: `/defector/capture_and_analyze` (`std_srvs/Trigger`)
-- key params:
-  - `~delay` (default `2.0`)
-  - `~success_rate` (default `1.0`)
-
 ### `autonomy/spawn_inspection_models.py`
 
 Spawns sim inspection geometry from anchor definitions.
@@ -92,7 +83,7 @@ Applies hydrodynamic hull-force model in sim runtime.
 
 ## Where to debug first
 
-- no inspection response: `mock_defector_service.py`
+- no inspection response: real `defector/detect.launch` and `/defector/capture_and_analyze`
 - missing sim props: `spawn_inspection_models.py`
 - bad lidar/costmap feed: `scan_to_cloud.py`
 - command issued but no vessel motion: `cmd_drive_translate.py` then `vessel_dynamics.py`

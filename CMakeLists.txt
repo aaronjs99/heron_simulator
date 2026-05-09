@@ -45,7 +45,6 @@ install(TARGETS
 
 catkin_install_python(PROGRAMS
   # SLAM GRANDE scripts
-  scripts/autonomy/mock_defector_service.py
   scripts/sensors/scan_to_cloud.py
   scripts/autonomy/spawn_inspection_models.py
   scripts/sensors/vel_cov_fixed.py
