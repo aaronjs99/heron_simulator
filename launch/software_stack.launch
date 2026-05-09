@@ -47,8 +47,6 @@
   <!-- Navigation Stack (move_base) -->
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <include file="$(find mariner)/launch/move_base.launch">
-    <arg name="base_frame" value="base_link"/>
-    <arg name="odom_frame" value="odom"/>
     <arg name="odom_topic" value="$(arg topic_odom)"/>
     <arg name="cmd_vel_out" value="$(arg topic_cmd_vel_raw)"/>
     <arg name="cmd_vel_safe" value="$(arg topic_cmd_vel)"/>

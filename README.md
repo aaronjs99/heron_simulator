@@ -55,7 +55,7 @@ debugging.
 | Path | Role |
 |---|---|
 | `launch/` | Main simulation entrypoints |
-| `scripts/autonomy/` | Runtime helpers such as model spawning and mock services |
+| `scripts/autonomy/` | Runtime helpers such as model spawning |
 | `scripts/control/` | Command translation between stack layers and Gazebo |
 | `scripts/sensors/` | Sensor adaptation utilities |
 | `src/` | Gazebo plugins and compiled simulator support |

@@ -122,6 +122,20 @@ def _resolve_type(
     return expected_type
 
 
+def _resolve_forbidden_topic(name: str, rule_config: Dict[str, Any]) -> str:
+    if "topic" in rule_config:
+        return normalize_topic(rule_config.get("topic", ""))
+
+    topic_parts = rule_config.get("topic_parts")
+    if topic_parts is None:
+        return ""
+    if not isinstance(topic_parts, (list, tuple)):
+        raise ValueError(f"forbidden topic rule {name} topic_parts must be a list")
+    return normalize_topic(
+        "/".join(str(part).strip("/") for part in topic_parts if part)
+    )
+
+
 def load_topic_contract(config: Dict[str, Any]) -> TopicContract:
     topics = {
         name: normalize_topic(topic)
@@ -164,7 +178,7 @@ def load_topic_contract(config: Dict[str, Any]) -> TopicContract:
             topic = normalize_topic(rule_config)
             reason = "topic is forbidden by the contract"
         else:
-            topic = normalize_topic(rule_config.get("topic", ""))
+            topic = _resolve_forbidden_topic(name, rule_config)
             reason = str(
                 rule_config.get("reason", "topic is forbidden by the contract")
             )

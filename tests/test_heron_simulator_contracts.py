@@ -17,14 +17,14 @@ def load_module(name: str, relpath: str):
     return module
 
 
-def test_sim_worlds_exist_and_mock_inspection_backend_is_not_runtime_asset():
+def test_sim_worlds_and_autonomy_runtime_assets_exist():
     assert (REPO_ROOT / "heron_simulator/worlds/ocean_surface.world").exists()
     assert (REPO_ROOT / "heron_simulator/worlds/fathomwerx_pool.world").exists()
-    assert not (
-        REPO_ROOT / "heron_simulator/scripts/autonomy/mock_defector_service.py"
+    assert (
+        REPO_ROOT / "heron_simulator/scripts/autonomy/spawn_inspection_models.py"
     ).exists()
     cmake = (REPO_ROOT / "heron_simulator/CMakeLists.txt").read_text(encoding="utf-8")
-    assert "mock_defector_service.py" not in cmake
+    assert "spawn_inspection_models.py" in cmake
 
 
 def test_gui_launch_sites_use_shared_window_layout_helper():
