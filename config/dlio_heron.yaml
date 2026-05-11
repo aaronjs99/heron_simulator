@@ -13,7 +13,6 @@ dlio:
 
   odom:
     odom_frame: "odom"
-    child_frame: "base_link"
     gravity: 9.80665
     preprocessing:
       cropBoxFilter:

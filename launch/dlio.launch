@@ -7,7 +7,7 @@
   <arg name="path_topic" default="/state/path"/>
   <arg name="map_topic" default="/state/map"/>
   <arg name="frame_odom" default="odom"/>
-  <arg name="frame_base" default="base_link"/>
+  <arg name="frame_base" default="base_footprint"/>
   <arg name="frame_lidar" default="lidar_v_link"/>
   <arg name="frame_imu" default="imu_link"/>
   <arg name="arrange_gui_windows" default="false"/>
