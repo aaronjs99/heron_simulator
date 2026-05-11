@@ -6,6 +6,10 @@
   <arg name="pose_topic" default="/state/pose"/>
   <arg name="path_topic" default="/state/path"/>
   <arg name="map_topic" default="/state/map"/>
+  <arg name="frame_odom" default="odom"/>
+  <arg name="frame_base" default="base_link"/>
+  <arg name="frame_lidar" default="lidar_h_link"/>
+  <arg name="frame_imu" default="imu_link"/>
   <arg name="arrange_gui_windows" default="false"/>
   <arg name="demo_window_layout" default="largest_landscape"/>
 
@@ -16,6 +20,10 @@
     <arg name="pose_topic" value="$(arg pose_topic)"/>
     <arg name="path_topic" value="$(arg path_topic)"/>
     <arg name="map_topic" value="$(arg map_topic)"/>
+    <arg name="frame_odom" value="$(arg frame_odom)"/>
+    <arg name="frame_base" value="$(arg frame_base)"/>
+    <arg name="frame_lidar" value="$(arg frame_lidar)"/>
+    <arg name="frame_imu" value="$(arg frame_imu)"/>
     <arg name="geometry_file" value="$(find slam_grande)/config/dlio_heron_geometry.yaml"/>
     <arg name="config_file" value="$(find heron_simulator)/config/dlio_heron.yaml"/>
     <arg name="rviz" value="$(arg rviz)"/>
