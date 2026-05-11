@@ -95,7 +95,7 @@ Current shared-bringup defaults:
 | `use_web_viz` | `true` | starts dashboard/rosbridge/video bridge |
 | `record_bags` | `true` | records runtime evidence unless disabled |
 | `use_rviz` | `true` | opens the shared navigation RViz layout in sim |
-| `map_builder` | `rtabmap` | starts RTAB-Map loop closure/global correction when RTAB-Map is installed |
+| `build_map` | `true` | starts RTAB-Map loop closure/global correction when RTAB-Map is installed |
 
 DLiO is the canonical state path in simulation and real bringup. Gazebo still
 publishes simulator truth topics for diagnostics, but `slam_grande` no longer

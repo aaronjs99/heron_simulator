@@ -1,6 +1,6 @@
 <launch>
   <arg name="rviz" default="false"/>
-  <arg name="pointcloud_topic" default="/sensors/lidar/hori/points"/>
+  <arg name="pointcloud_topic" default="/sensors/lidar/vert/points"/>
   <arg name="imu_topic" default="/sensors/imu/data"/>
   <arg name="odom_topic" default="/state/odometry"/>
   <arg name="pose_topic" default="/state/pose"/>
@@ -8,7 +8,7 @@
   <arg name="map_topic" default="/state/map"/>
   <arg name="frame_odom" default="odom"/>
   <arg name="frame_base" default="base_link"/>
-  <arg name="frame_lidar" default="lidar_h_link"/>
+  <arg name="frame_lidar" default="lidar_v_link"/>
   <arg name="frame_imu" default="imu_link"/>
   <arg name="arrange_gui_windows" default="false"/>
   <arg name="demo_window_layout" default="largest_landscape"/>
