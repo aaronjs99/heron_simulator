@@ -26,17 +26,19 @@ dlio:
       kCorrespondences: 4
       maxCorrespondenceDistance: 2.0
 
-    # Override IMU calibration to skip startup delay
+    # Keep a short gravity/bias alignment even in sim. Starting DLiO with no
+    # IMU calibration lets small hector IMU bias/noise integrate directly into
+    # the surface-vehicle state before LiDAR registration can correct it.
     imu:
       calibration:
-        time: 0.01
+        time: 1.0
 
   pointcloud:
     deskew: false
     voxelize: false
 
   imu:
-    calibration: false # Disable for sim
+    calibration: true
     intrinsics:
       accel:
         bias: [ 0.0, 0.0, 0.0 ]

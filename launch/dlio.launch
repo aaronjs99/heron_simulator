@@ -2,14 +2,15 @@
   <arg name="rviz" default="false"/>
   <arg name="pointcloud_topic" default="/sensors/lidar/hori/points"/>
   <arg name="imu_topic" default="/sensors/imu/data"/>
-  <arg name="odom_topic" default="/state/odometry"/>
+  <arg name="odom_topic" default="/state/dlio/odometry"/>
   <arg name="pose_topic" default="/state/pose"/>
   <arg name="path_topic" default="/state/path"/>
-  <arg name="map_topic" default="/state/map"/>
+  <arg name="map_topic" default="/state/dlio/map"/>
   <arg name="frame_odom" default="odom"/>
   <arg name="frame_base" default="base_footprint"/>
   <arg name="frame_lidar" default="lidar_h_link"/>
   <arg name="frame_imu" default="imu_link"/>
+  <arg name="publish_dlio_odom_tf" default="true"/>
   <arg name="arrange_gui_windows" default="false"/>
   <arg name="demo_window_layout" default="largest_landscape"/>
 
@@ -24,6 +25,7 @@
     <arg name="frame_base" value="$(arg frame_base)"/>
     <arg name="frame_lidar" value="$(arg frame_lidar)"/>
     <arg name="frame_imu" value="$(arg frame_imu)"/>
+    <arg name="publish_dlio_odom_tf" value="$(arg publish_dlio_odom_tf)"/>
     <arg name="geometry_file" value="$(find slam_grande)/config/dlio_heron_geometry.yaml"/>
     <arg name="config_file" value="$(find heron_simulator)/config/dlio_heron.yaml"/>
     <arg name="rviz" value="$(arg rviz)"/>
