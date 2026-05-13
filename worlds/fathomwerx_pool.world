@@ -226,6 +226,254 @@
       </link>
     </model>
 
+    <!-- LiDAR-visible asymmetric wall references.
+         The Heron horizontal LiDAR sits just above the plain pool walls, so a
+         perfectly smooth tank leaves DLiO with weak translational structure.
+         These fixed fixtures stay on the wall line so they are visible to
+         LiDAR without adding dense obstacle bands in the usable water lane. -->
+
+    <model name="pool_lidar_reference_post_a">
+      <static>true</static>
+      <pose>2.00 3.68 0.45 0 0 0</pose>
+      <link name="post_link">
+        <collision name="post_collision">
+          <geometry>
+            <box>
+              <size>0.24 0.24 0.70</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="post_visual">
+          <geometry>
+            <box>
+              <size>0.24 0.24 0.70</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.20 0.20 0.22 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pool_lidar_reference_post_b">
+      <static>true</static>
+      <pose>5.60 -3.68 0.45 0 0 0</pose>
+      <link name="post_link">
+        <collision name="post_collision">
+          <geometry>
+            <box>
+              <size>0.24 0.24 0.70</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="post_visual">
+          <geometry>
+            <box>
+              <size>0.24 0.24 0.70</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.20 0.20 0.22 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pool_lidar_reference_post_c">
+      <static>true</static>
+      <pose>10.90 3.68 0.45 0 0 0</pose>
+      <link name="post_link">
+        <collision name="post_collision">
+          <geometry>
+            <box>
+              <size>0.24 0.24 0.70</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="post_visual">
+          <geometry>
+            <box>
+              <size>0.24 0.24 0.70</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.20 0.20 0.22 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pool_lidar_reference_post_d">
+      <static>true</static>
+      <pose>13.78 1.70 0.45 0 0 0</pose>
+      <link name="post_link">
+        <collision name="post_collision">
+          <geometry>
+            <box>
+              <size>0.24 0.24 0.70</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="post_visual">
+          <geometry>
+            <box>
+              <size>0.24 0.24 0.70</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.20 0.20 0.22 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pool_lidar_reference_post_e">
+      <static>true</static>
+      <pose>-1.08 -2.20 0.45 0 0 0</pose>
+      <link name="post_link">
+        <collision name="post_collision">
+          <geometry>
+            <box>
+              <size>0.24 0.24 0.70</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="post_visual">
+          <geometry>
+            <box>
+              <size>0.24 0.24 0.70</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.20 0.20 0.22 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Asymmetric registration pylons.
+         Cylindrical wall-side landmarks give DLiO nonparallel LiDAR normals in
+         the otherwise corridor-like pool while preserving the open center lane. -->
+    <model name="pool_lidar_registration_landmarks">
+      <static>true</static>
+      <link name="landmarks_link">
+        <collision name="north_pylon_1_collision">
+          <pose>1.20 3.45 0.56 0 0 0</pose>
+          <geometry><cylinder><radius>0.16</radius><length>0.92</length></cylinder></geometry>
+        </collision>
+        <visual name="north_pylon_1_visual">
+          <pose>1.20 3.45 0.56 0 0 0</pose>
+          <geometry><cylinder><radius>0.16</radius><length>0.92</length></cylinder></geometry>
+          <material><ambient>0.12 0.14 0.16 1</ambient><diffuse>0.16 0.18 0.20 1</diffuse></material>
+        </visual>
+        <collision name="north_pylon_2_collision">
+          <pose>4.35 3.47 0.62 0 0 0</pose>
+          <geometry><cylinder><radius>0.20</radius><length>1.04</length></cylinder></geometry>
+        </collision>
+        <visual name="north_pylon_2_visual">
+          <pose>4.35 3.47 0.62 0 0 0</pose>
+          <geometry><cylinder><radius>0.20</radius><length>1.04</length></cylinder></geometry>
+          <material><ambient>0.12 0.14 0.16 1</ambient><diffuse>0.16 0.18 0.20 1</diffuse></material>
+        </visual>
+        <collision name="north_pylon_3_collision">
+          <pose>7.75 3.43 0.52 0 0 0</pose>
+          <geometry><cylinder><radius>0.18</radius><length>0.84</length></cylinder></geometry>
+        </collision>
+        <visual name="north_pylon_3_visual">
+          <pose>7.75 3.43 0.52 0 0 0</pose>
+          <geometry><cylinder><radius>0.18</radius><length>0.84</length></cylinder></geometry>
+          <material><ambient>0.12 0.14 0.16 1</ambient><diffuse>0.16 0.18 0.20 1</diffuse></material>
+        </visual>
+        <collision name="north_pylon_4_collision">
+          <pose>11.45 3.46 0.60 0 0 0</pose>
+          <geometry><cylinder><radius>0.22</radius><length>1.00</length></cylinder></geometry>
+        </collision>
+        <visual name="north_pylon_4_visual">
+          <pose>11.45 3.46 0.60 0 0 0</pose>
+          <geometry><cylinder><radius>0.22</radius><length>1.00</length></cylinder></geometry>
+          <material><ambient>0.12 0.14 0.16 1</ambient><diffuse>0.16 0.18 0.20 1</diffuse></material>
+        </visual>
+        <collision name="south_pylon_1_collision">
+          <pose>2.70 -3.45 0.58 0 0 0</pose>
+          <geometry><cylinder><radius>0.19</radius><length>0.96</length></cylinder></geometry>
+        </collision>
+        <visual name="south_pylon_1_visual">
+          <pose>2.70 -3.45 0.58 0 0 0</pose>
+          <geometry><cylinder><radius>0.19</radius><length>0.96</length></cylinder></geometry>
+          <material><ambient>0.12 0.14 0.16 1</ambient><diffuse>0.16 0.18 0.20 1</diffuse></material>
+        </visual>
+        <collision name="south_pylon_2_collision">
+          <pose>5.90 -3.42 0.54 0 0 0</pose>
+          <geometry><cylinder><radius>0.15</radius><length>0.88</length></cylinder></geometry>
+        </collision>
+        <visual name="south_pylon_2_visual">
+          <pose>5.90 -3.42 0.54 0 0 0</pose>
+          <geometry><cylinder><radius>0.15</radius><length>0.88</length></cylinder></geometry>
+          <material><ambient>0.12 0.14 0.16 1</ambient><diffuse>0.16 0.18 0.20 1</diffuse></material>
+        </visual>
+        <collision name="south_pylon_3_collision">
+          <pose>9.60 -3.48 0.64 0 0 0</pose>
+          <geometry><cylinder><radius>0.21</radius><length>1.08</length></cylinder></geometry>
+        </collision>
+        <visual name="south_pylon_3_visual">
+          <pose>9.60 -3.48 0.64 0 0 0</pose>
+          <geometry><cylinder><radius>0.21</radius><length>1.08</length></cylinder></geometry>
+          <material><ambient>0.12 0.14 0.16 1</ambient><diffuse>0.16 0.18 0.20 1</diffuse></material>
+        </visual>
+        <collision name="south_pylon_4_collision">
+          <pose>12.65 -3.44 0.55 0 0 0</pose>
+          <geometry><cylinder><radius>0.17</radius><length>0.90</length></cylinder></geometry>
+        </collision>
+        <visual name="south_pylon_4_visual">
+          <pose>12.65 -3.44 0.55 0 0 0</pose>
+          <geometry><cylinder><radius>0.17</radius><length>0.90</length></cylinder></geometry>
+          <material><ambient>0.12 0.14 0.16 1</ambient><diffuse>0.16 0.18 0.20 1</diffuse></material>
+        </visual>
+        <collision name="east_pylon_1_collision">
+          <pose>13.65 -2.55 0.57 0 0 0</pose>
+          <geometry><cylinder><radius>0.18</radius><length>0.94</length></cylinder></geometry>
+        </collision>
+        <visual name="east_pylon_1_visual">
+          <pose>13.65 -2.55 0.57 0 0 0</pose>
+          <geometry><cylinder><radius>0.18</radius><length>0.94</length></cylinder></geometry>
+          <material><ambient>0.12 0.14 0.16 1</ambient><diffuse>0.16 0.18 0.20 1</diffuse></material>
+        </visual>
+        <collision name="east_pylon_2_collision">
+          <pose>13.67 0.60 0.63 0 0 0</pose>
+          <geometry><cylinder><radius>0.21</radius><length>1.06</length></cylinder></geometry>
+        </collision>
+        <visual name="east_pylon_2_visual">
+          <pose>13.67 0.60 0.63 0 0 0</pose>
+          <geometry><cylinder><radius>0.21</radius><length>1.06</length></cylinder></geometry>
+          <material><ambient>0.12 0.14 0.16 1</ambient><diffuse>0.16 0.18 0.20 1</diffuse></material>
+        </visual>
+        <collision name="east_pylon_3_collision">
+          <pose>13.64 2.75 0.52 0 0 0</pose>
+          <geometry><cylinder><radius>0.16</radius><length>0.84</length></cylinder></geometry>
+        </collision>
+        <visual name="east_pylon_3_visual">
+          <pose>13.64 2.75 0.52 0 0 0</pose>
+          <geometry><cylinder><radius>0.16</radius><length>0.84</length></cylinder></geometry>
+          <material><ambient>0.12 0.14 0.16 1</ambient><diffuse>0.16 0.18 0.20 1</diffuse></material>
+        </visual>
+        <collision name="west_pylon_1_collision">
+          <pose>-0.86 -2.90 0.60 0 0 0</pose>
+          <geometry><cylinder><radius>0.20</radius><length>1.00</length></cylinder></geometry>
+        </collision>
+        <visual name="west_pylon_1_visual">
+          <pose>-0.86 -2.90 0.60 0 0 0</pose>
+          <geometry><cylinder><radius>0.20</radius><length>1.00</length></cylinder></geometry>
+          <material><ambient>0.12 0.14 0.16 1</ambient><diffuse>0.16 0.18 0.20 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
     <!-- Static targets for recording and controlled semantic validation.
          floor_circle_mid_pool: circular floor target at (6.00, 1.40, -3.645)
          floor_rect_far_pool: rectangular floor target at (10.80, -1.50, -3.645)

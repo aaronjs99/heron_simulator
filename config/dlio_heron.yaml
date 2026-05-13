@@ -21,10 +21,16 @@ dlio:
         res: 0.05
     # GICP parameters
     gicp:
-      minNumPoints: 5
+      minNumPoints: 16
       maxIterations: 12
       kCorrespondences: 4
       maxCorrespondenceDistance: 2.0
+
+    # The default DLIO params.yaml keys too sparsely in Heron pool sim. Keep the
+    # package-recommended sim threshold so translation creates keyframes before
+    # the local submap becomes stale.
+    keyframe:
+      threshD: 0.1
 
     # Keep a short gravity/bias alignment even in sim. Starting DLiO with no
     # IMU calibration lets small hector IMU bias/noise integrate directly into
