@@ -58,9 +58,20 @@ class ForbiddenTopicRule:
 
 
 @dataclass(frozen=True)
+class ServiceRule:
+    name: str
+    service: str
+    expected_type: Optional[str] = None
+    servers: Optional[CountRule] = None
+    clients: Optional[CountRule] = None
+    optional: bool = False
+
+
+@dataclass(frozen=True)
 class TopicContract:
     topics: Dict[str, str]
     type_aliases: Dict[str, str]
+    services: Dict[str, ServiceRule]
     modules: List[ModuleRule]
     forbidden_topics: List[ForbiddenTopicRule]
     chains: Dict[str, List[str]] = field(default_factory=dict)
@@ -136,6 +147,13 @@ def _resolve_forbidden_topic(name: str, rule_config: Dict[str, Any]) -> str:
     )
 
 
+def _resolve_service(name: str, rule_config: Dict[str, Any]) -> str:
+    service = str(rule_config.get("service", "") or "")
+    if not service:
+        raise ValueError(f"service rule {name} is missing service")
+    return normalize_topic(service)
+
+
 def load_topic_contract(config: Dict[str, Any]) -> TopicContract:
     topics = {
         name: normalize_topic(topic)
@@ -143,6 +161,19 @@ def load_topic_contract(config: Dict[str, Any]) -> TopicContract:
         if topic
     }
     type_aliases = dict(config.get("types", {}))
+
+    services: Dict[str, ServiceRule] = {}
+    for service_name, service_config in dict(config.get("services", {})).items():
+        if not isinstance(service_config, dict):
+            raise ValueError(f"service rule {service_name} must be a mapping")
+        services[service_name] = ServiceRule(
+            name=service_name,
+            service=_resolve_service(service_name, service_config),
+            expected_type=service_config.get("type"),
+            servers=_parse_count_rule(service_config.get("servers")),
+            clients=_parse_count_rule(service_config.get("clients")),
+            optional=_coerce_bool(service_config.get("optional", False)),
+        )
 
     modules: List[ModuleRule] = []
     for module_name, module_config in dict(config.get("modules", {})).items():
@@ -195,6 +226,7 @@ def load_topic_contract(config: Dict[str, Any]) -> TopicContract:
     return TopicContract(
         topics=topics,
         type_aliases=type_aliases,
+        services=services,
         modules=modules,
         forbidden_topics=forbidden_topics,
         chains=chains,
@@ -206,14 +238,21 @@ def validate_topic_contract(
     subscribers: Dict[str, List[str]],
     topic_types: Dict[str, str],
     contract: TopicContract,
+    services: Optional[Dict[str, List[str]]] = None,
+    service_types: Optional[Dict[str, str]] = None,
 ) -> List[str]:
     errors: List[str] = []
+    services = services or {}
+    service_types = service_types or {}
 
     def pub_count(topic: str) -> int:
         return len(publishers.get(topic, []))
 
     def sub_count(topic: str) -> int:
         return len(subscribers.get(topic, []))
+
+    def service_server_count(service: str) -> int:
+        return len(services.get(service, []))
 
     def validate_count(topic: str, actual: int, rule: CountRule, noun: str) -> None:
         if actual < rule.minimum:
@@ -254,6 +293,23 @@ def validate_topic_contract(
         if pub_count(rule.topic) > 0 or sub_count(rule.topic) > 0:
             errors.append(f"forbidden topic {rule.topic} is active: {rule.reason}")
 
+    for service_rule in contract.services.values():
+        if service_rule.optional and service_server_count(service_rule.service) == 0:
+            continue
+        if service_rule.servers is not None:
+            validate_count(
+                service_rule.service,
+                service_server_count(service_rule.service),
+                service_rule.servers,
+                "service servers",
+            )
+        if service_rule.expected_type:
+            actual_type = service_types.get(service_rule.service)
+            if actual_type and actual_type != service_rule.expected_type:
+                errors.append(
+                    f"{service_rule.service} has service type {actual_type}, expected {service_rule.expected_type}"
+                )
+
     return errors
 
 
@@ -278,7 +334,7 @@ class TopicContractGuard:
         )
 
     def _snapshot(self):
-        publishers, subscribers, _ = self.master.getSystemState()
+        publishers, subscribers, services = self.master.getSystemState()
         topic_types = {
             normalize_topic(topic): topic_type
             for topic, topic_type in self.master.getTopicTypes()
@@ -287,15 +343,21 @@ class TopicContractGuard:
             normalize_topic_map(publishers),
             normalize_topic_map(subscribers),
             topic_types,
+            normalize_topic_map(services),
+            {},
         )
 
     def _tick(self, _event) -> None:
         try:
-            publishers, subscribers, topic_types = self._snapshot()
+            publishers, subscribers, topic_types, services, service_types = (
+                self._snapshot()
+            )
             errors = validate_topic_contract(
                 publishers=publishers,
                 subscribers=subscribers,
                 topic_types=topic_types,
+                services=services,
+                service_types=service_types,
                 contract=self.contract,
             )
         except Exception as exc:
