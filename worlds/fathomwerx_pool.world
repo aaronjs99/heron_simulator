@@ -477,6 +477,8 @@
     <!-- Static targets for recording and controlled semantic validation.
          floor_circle_mid_pool: circular floor target at (6.00, 1.40, -3.645)
          floor_rect_far_pool: rectangular floor target at (10.80, -1.50, -3.645)
+         bottom_marker_rig_mid_pool: weighted bottom target with rods/balls/tether at (5.80, 0.85, -3.645)
+         bottom_rod_line_far_pool: weighted bottom target with short rod line/tether at (9.40, -1.10, -3.645)
          wall_rect_far_east: rectangular wall panel at (13.99, -1.80, -1.40)
          wall_circle_north: circular wall marker at (8.50, 3.00, -1.50) -->
     <model name="floor_circle_mid_pool">
@@ -526,6 +528,330 @@
           <material>
             <ambient>0.96 0.86 0.12 1</ambient>
             <diffuse>0.98 0.90 0.18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="bottom_marker_rig_mid_pool">
+      <static>true</static>
+      <pose>5.80 0.85 -3.645 0 0 0</pose>
+      <link name="target_link">
+        <collision name="weighted_base_collision">
+          <pose>0 0 0.025 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.40 0.95 0.05</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="weighted_base_visual">
+          <pose>0 0 0.025 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.40 0.95 0.05</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.02 0.02 0.02 1</ambient>
+            <diffuse>0.02 0.02 0.02 1</diffuse>
+          </material>
+        </visual>
+        <visual name="base_marker_cross_visual">
+          <pose>0 0 0.06 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.30 0.16 0.03</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.98 0.92 0.12 1</ambient>
+            <diffuse>1.0 0.95 0.18 1</diffuse>
+          </material>
+        </visual>
+        <visual name="base_marker_cross_visual_orthogonal">
+          <pose>0 0 0.065 0 0 1.570796</pose>
+          <geometry>
+            <box>
+              <size>0.90 0.14 0.03</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.98 0.92 0.12 1</ambient>
+            <diffuse>1.0 0.95 0.18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="short_rod_left_collision">
+          <pose>-0.35 -0.25 0.38 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.04</radius>
+              <length>0.70</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="short_rod_left_visual">
+          <pose>-0.35 -0.25 0.38 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.04</radius>
+              <length>0.70</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.05 0.05 0.05 1</ambient>
+            <diffuse>0.04 0.04 0.04 1</diffuse>
+          </material>
+        </visual>
+        <collision name="short_rod_right_collision">
+          <pose>0.35 0.25 0.38 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.04</radius>
+              <length>0.70</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="short_rod_right_visual">
+          <pose>0.35 0.25 0.38 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.04</radius>
+              <length>0.70</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.05 0.05 0.05 1</ambient>
+            <diffuse>0.04 0.04 0.04 1</diffuse>
+          </material>
+        </visual>
+        <collision name="tennis_ball_left_collision">
+          <pose>-0.35 -0.25 0.82 0 0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.14</radius>
+            </sphere>
+          </geometry>
+        </collision>
+        <visual name="tennis_ball_left_visual">
+          <pose>-0.35 -0.25 0.82 0 0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.14</radius>
+            </sphere>
+          </geometry>
+          <material>
+            <ambient>0.72 1.0 0.06 1</ambient>
+            <diffuse>0.80 1.0 0.10 1</diffuse>
+          </material>
+        </visual>
+        <collision name="tennis_ball_right_collision">
+          <pose>0.35 0.25 0.82 0 0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.14</radius>
+            </sphere>
+          </geometry>
+        </collision>
+        <visual name="tennis_ball_right_visual">
+          <pose>0.35 0.25 0.82 0 0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.14</radius>
+            </sphere>
+          </geometry>
+          <material>
+            <ambient>0.72 1.0 0.06 1</ambient>
+            <diffuse>0.80 1.0 0.10 1</diffuse>
+          </material>
+        </visual>
+        <collision name="sonar_tether_collision">
+          <pose>0.0 0.0 1.30 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.025</radius>
+              <length>2.55</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="sonar_tether_visual">
+          <pose>0.0 0.0 1.30 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.025</radius>
+              <length>2.55</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.95 0.10 0.10 1</ambient>
+            <diffuse>1.0 0.14 0.14 1</diffuse>
+          </material>
+        </visual>
+        <collision name="upper_marker_collision">
+          <pose>0.0 0.0 2.62 0 0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.18</radius>
+            </sphere>
+          </geometry>
+        </collision>
+        <visual name="upper_marker_visual">
+          <pose>0.0 0.0 2.62 0 0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.18</radius>
+            </sphere>
+          </geometry>
+          <material>
+            <ambient>0.05 0.80 1.0 1</ambient>
+            <diffuse>0.08 0.86 1.0 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="bottom_rod_line_far_pool">
+      <static>true</static>
+      <pose>9.40 -1.10 -3.645 0 0 0.25</pose>
+      <link name="target_link">
+        <collision name="weighted_base_collision">
+          <pose>0 0 0.025 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.55 0.48 0.05</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="weighted_base_visual">
+          <pose>0 0 0.025 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.55 0.48 0.05</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.02 0.02 0.02 1</ambient>
+            <diffuse>0.02 0.02 0.02 1</diffuse>
+          </material>
+        </visual>
+        <visual name="line_marker_visual">
+          <pose>0 0 0.065 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.45 0.12 0.03</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.98 0.25 0.04 1</ambient>
+            <diffuse>1.0 0.32 0.06 1</diffuse>
+          </material>
+        </visual>
+        <collision name="short_rod_a_collision">
+          <pose>-0.50 0 0.34 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.04</radius>
+              <length>0.62</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="short_rod_a_visual">
+          <pose>-0.50 0 0.34 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.04</radius>
+              <length>0.62</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.94 0.94 0.94 1</ambient>
+            <diffuse>0.98 0.98 0.98 1</diffuse>
+          </material>
+        </visual>
+        <collision name="short_rod_b_collision">
+          <pose>0 0 0.42 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.04</radius>
+              <length>0.78</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="short_rod_b_visual">
+          <pose>0 0 0.42 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.04</radius>
+              <length>0.78</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.94 0.94 0.94 1</ambient>
+            <diffuse>0.98 0.98 0.98 1</diffuse>
+          </material>
+        </visual>
+        <collision name="short_rod_c_collision">
+          <pose>0.50 0 0.34 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.04</radius>
+              <length>0.62</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="short_rod_c_visual">
+          <pose>0.50 0 0.34 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.04</radius>
+              <length>0.62</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.94 0.94 0.94 1</ambient>
+            <diffuse>0.98 0.98 0.98 1</diffuse>
+          </material>
+        </visual>
+        <collision name="sonar_tether_collision">
+          <pose>0.0 0.0 1.30 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.022</radius>
+              <length>2.45</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="sonar_tether_visual">
+          <pose>0.0 0.0 1.30 0 0 0</pose>
+          <geometry>
+            <cylinder>
+              <radius>0.022</radius>
+              <length>2.45</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.05 0.80 1.0 1</ambient>
+            <diffuse>0.08 0.86 1.0 1</diffuse>
+          </material>
+        </visual>
+        <collision name="upper_marker_collision">
+          <pose>0.0 0.0 2.58 0 0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.16</radius>
+            </sphere>
+          </geometry>
+        </collision>
+        <visual name="upper_marker_visual">
+          <pose>0.0 0.0 2.58 0 0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.16</radius>
+            </sphere>
+          </geometry>
+          <material>
+            <ambient>0.72 1.0 0.06 1</ambient>
+            <diffuse>0.80 1.0 0.10 1</diffuse>
           </material>
         </visual>
       </link>
