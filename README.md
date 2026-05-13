@@ -9,7 +9,7 @@ tested together before running on hardware.
 ## What The Simulator Provides
 
 - Heron vehicle spawn and world bringup
-- a synthetic harbor with a short launch dock, longer inspection piers, and moored workboats driven from `slam_grande/data/anchors_sim.yaml`
+- a simulated harbor with a short launch dock, longer inspection piers, and moored workboats driven from `slam_grande/data/anchors_sim.yaml`
 - simulated sensors that mirror the operator dashboard sensor catalog
 - topic bridges needed by MARINER and ORACLE
 - inspection-scene geometry for real DEFECTOR testing
@@ -18,9 +18,8 @@ tested together before running on hardware.
 
 ## Important Runtime Conventions
 
-- The simulation stack applies MARINER planner changes as overlays. The base
-  planner profile still loads first, then sim-only TEB and local-costmap
-  overrides layer on top.
+- MARINER planner behavior is shared with hardware. Optional overlays are
+  explicit navigation or scenario profiles, not hidden simulation behavior.
 - The benchmark Heron hull profile is sourced from
   `../heron/heron_description/urdf/configs/ig_handle_benchmark`, so mass,
   damping, and added-mass changes are explicit.

@@ -1,7 +1,0 @@
-# Minimal simulation exploration mixer profile.
-max_linear: 1.00
-max_angular: 0.24
-yaw_mix: 1.00
-shared_drive_normalization: true
-rate: 30.0
-timeout: 0.80

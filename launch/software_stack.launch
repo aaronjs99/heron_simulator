@@ -9,7 +9,7 @@
   <arg name="topic_odom" default="/state/odometry"/>
   <arg name="topic_cmd_vel_raw" default="/cmd_vel_raw"/>
   <arg name="topic_cmd_vel" default="/cmd_vel"/>
-  <arg name="topic_nav_goal" default="/mariner/final_pose"/>
+  <arg name="topic_mariner_goal_final" default="/mariner/final_pose"/>
   <arg name="topic_nav_goal_pose" default="/mariner/goal"/>
   <arg name="topic_nav_goal_anchor" default="/mariner/goal_anchor"/>
   <arg name="topic_nav_ok" default="/mariner/status/nav_ok"/>
@@ -26,7 +26,7 @@
   <param name="/topic_contract/topics/odom" value="$(arg topic_odom)"/>
   <param name="/topic_contract/topics/cmd_vel_raw" value="$(arg topic_cmd_vel_raw)"/>
   <param name="/topic_contract/topics/cmd_vel" value="$(arg topic_cmd_vel)"/>
-  <param name="/topic_contract/topics/nav_goal" value="$(arg topic_nav_goal)"/>
+  <param name="/topic_contract/topics/nav_goal" value="$(arg topic_mariner_goal_final)"/>
   <param name="/topic_contract/topics/nav_goal_pose" value="$(arg topic_nav_goal_pose)"/>
   <param name="/topic_contract/topics/nav_goal_anchor" value="$(arg topic_nav_goal_anchor)"/>
   <param name="/topic_contract/topics/nav_ok" value="$(arg topic_nav_ok)"/>
@@ -61,7 +61,7 @@
 
   <!-- Move base goal manager: consume PoseStamped goals from ORACLE -->
   <node pkg="mariner" type="move_base_goal_manager.py" name="move_base_goal_manager" output="screen">
-    <param name="goal_topic" value="$(arg topic_nav_goal)"/>
+    <param name="goal_topic" value="$(arg topic_mariner_goal_final)"/>
     <param name="action_name" value="/move_base"/>
     <param name="nav_ok_topic" value="$(arg topic_nav_ok)"/>
     <param name="frame_id" value="map"/>
@@ -86,7 +86,7 @@
     <arg name="topic_nav_goal_pose" value="$(arg topic_nav_goal_pose)"/>
     <arg name="topic_nav_ok" value="$(arg topic_nav_ok)"/>
     <arg name="topic_nav_status" value="$(arg topic_nav_status)"/>
-    <arg name="nav_goal_topic" value="$(arg topic_nav_goal)"/>
+    <arg name="nav_goal_topic" value="$(arg topic_mariner_goal_final)"/>
     <arg name="inspect_service" value="/defector/capture_and_analyze"/>
   </include>
 

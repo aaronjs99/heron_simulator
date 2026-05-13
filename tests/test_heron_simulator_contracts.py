@@ -119,16 +119,10 @@ def test_sim_control_profiles_only_expose_active_node_parameters():
         "right_scale",
     }
 
-    for relpath in (
-        "heron_simulator/config/twist_to_drive.yaml",
-        "heron_simulator/config/twist_to_drive_exploration.yaml",
-    ):
+    for relpath in ("heron_simulator/config/twist_to_drive.yaml",):
         cfg = yaml.safe_load((REPO_ROOT / relpath).read_text(encoding="utf-8"))
         assert set(cfg) == twist_keys
 
-    for relpath in (
-        "heron_simulator/config/thruster_dynamics.yaml",
-        "heron_simulator/config/thruster_dynamics_exploration.yaml",
-    ):
+    for relpath in ("heron_simulator/config/thruster_dynamics.yaml",):
         cfg = yaml.safe_load((REPO_ROOT / relpath).read_text(encoding="utf-8"))
         assert set(cfg) == thrust_keys

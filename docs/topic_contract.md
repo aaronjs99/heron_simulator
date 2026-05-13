@@ -24,7 +24,7 @@ Actuation:
 - `/thrusters/0/input`
 
 Additional modules:
-- `simulation_truth`: sim-only Gazebo truth topics such as `/pose_gt`
+- `simulation_truth`: disabled-by-default Gazebo reference topics such as `/pose_gt`
 - `goal_routing`: the Oracle-to-Mariner navigation goal bridge
 - `ig_handle_sensors`: IMU, LiDAR, sonar, camera feeds
 - `dlio`: pose, path, and map outputs
