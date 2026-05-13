@@ -25,6 +25,9 @@ tested together before running on hardware.
   damping, and added-mass changes are explicit.
 - The simulated sonar publishes `sensor_msgs/PointCloud2` so it can share the
   same browser viewer path as lidar.
+- Runtime cleanup is performed before launching a sim run. The in-launch
+  `simulation_preflight` guard does not kill ROS nodes or port owners unless
+  explicit cleanup arguments are enabled.
 
 ## Common Uses
 

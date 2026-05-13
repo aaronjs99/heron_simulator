@@ -86,6 +86,16 @@ def test_heron_spawn_is_one_shot_without_shutdown_delete_bond():
     assert 'required="true"' not in text
 
 
+def test_sim_preflight_cleanup_is_explicit_opt_in():
+    text = (REPO_ROOT / "heron_simulator/scripts/tools/sim_preflight.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert 'rospy.get_param("~auto_cleanup", False)' in text
+    assert 'rospy.get_param("~cleanup_stale_ros_nodes", False)' in text
+    assert "if cleanup_stale_ros_nodes:" in text
+
+
 def test_cmd_drive_translate_maps_negative_drive_to_reverse_thrust():
     translator_mod = load_module(
         "cmd_drive_translate_contract",

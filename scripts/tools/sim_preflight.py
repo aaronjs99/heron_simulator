@@ -115,7 +115,8 @@ def main():
     gazebo_master_port = int(rospy.get_param("~gazebo_master_port", 11345))
     allow_existing_gazebo = bool(rospy.get_param("~allow_existing_gazebo", False))
     required_free_ports = list(rospy.get_param("~required_free_ports", []))
-    auto_cleanup = bool(rospy.get_param("~auto_cleanup", True))
+    auto_cleanup = bool(rospy.get_param("~auto_cleanup", False))
+    cleanup_stale_ros_nodes = bool(rospy.get_param("~cleanup_stale_ros_nodes", False))
     stale_node_names = list(rospy.get_param("~stale_node_names", []))
 
     errors = []
@@ -151,9 +152,10 @@ def main():
             cleanup_actions.append(f"terminating pids={sorted(cleanup_pids)}")
             terminate_pids(cleanup_pids)
 
-        cleaned_nodes = cleanup_ros_nodes(stale_node_names)
-        if cleaned_nodes:
-            cleanup_actions.append(f"killed_nodes={cleaned_nodes}")
+        if cleanup_stale_ros_nodes:
+            cleaned_nodes = cleanup_ros_nodes(stale_node_names)
+            if cleaned_nodes:
+                cleanup_actions.append(f"killed_nodes={cleaned_nodes}")
 
         # Re-evaluate after cleanup attempt.
         errors = []
