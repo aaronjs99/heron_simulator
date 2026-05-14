@@ -54,10 +54,13 @@ Sonar simulation contract:
   or multipath. Treat it as first-order geometry parity, not acoustic parity.
 
 Camera/IMU simulation contract:
-- Real and sim share the F1/F2 Forge IP67 1GigE image and camera-info topic
-  names used by DEFECTOR.
+- Real and sim share the F1/F2 Forge FG-PGE-50S5C-C-IP color image and
+  camera-info topic names used by DEFECTOR.
 - The sim F1/F2 camera image size is 1280 x 1024 at 15 Hz with the canonical
   optical-frame rotation.
+- The real camera native sensor is Sony IMX264 color at 2448 x 2048, 24 FPS
+  standard or 33 FPS with lossless compression. The sim stream keeps the
+  calibrated 1280 x 1024 profile until the camera-info calibration is updated.
 - Real and sim share `/sensors/imu/data` in `imu_link`. The sim IMU is a
   Gazebo dynamics sensor configured to the same frame/topic boundary as the
   Xsens MTi-30 driver, not an Xsens firmware emulation.
