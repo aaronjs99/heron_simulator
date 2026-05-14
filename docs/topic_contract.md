@@ -86,7 +86,7 @@ Scaling pattern:
 - Toggle that module via `/topic_contract/modules/<name>/enabled` from launch.
 
 Enforcement:
-- `slam_grande/config/topic_contract.yaml` is the canonical source of truth.
+- `slam_grande/config/contracts/topic_contract.yaml` is the canonical source of truth.
 - `slam_grande/launch/bringup.launch` loads that shared contract and enables modules per stack.
 - `topic_contract_guard.py` reads `/topic_contract` and validates the live ROS graph generically.
 - The guard fails launch on duplicate publishers, missing chain links, bad types, or forbidden legacy aliases such as `/mariner/nav_ok`.

@@ -50,7 +50,7 @@ def test_legacy_playback_and_lake_world_do_not_reference_missing_assets():
         encoding="utf-8"
     )
 
-    assert "$(find slam_grande)/rviz/nav_debug.rviz" in playback
+    assert "$(find slam_grande)/config/rviz/nav_debug.rviz" in playback
     assert "config/playback.rviz" not in playback
     assert "model://ned_frame" not in lake
     assert "<exec_depend>defector</exec_depend>" not in package_xml
