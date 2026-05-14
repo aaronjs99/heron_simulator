@@ -5,9 +5,9 @@ it when vehicle motion looks wrong.
 
 ## Model in one line
 
-The simulator applies thrust-generated wrench plus a hydrodynamic wrench
-(damping, buoyancy/restoring terms, and coupling terms) to the hull each update
-step.
+The simulator applies thrust-generated wrench through the Gazebo Heron model and
+its active hydrodynamic plugins. There is no separate `vessel_dynamics.py`
+publisher in the supported bringup path.
 
 ## What is modeled
 
@@ -15,24 +15,24 @@ step.
   empirical non-linear curve
 - linear and quadratic damping terms per axis
 - hydrostatic buoyancy/restoring behavior for roll and pitch stability
-- rigid-body coupling terms used by the vessel dynamics plugin
+- rigid-body coupling terms from the active Gazebo hydrodynamics plugins
 
 ## Where it is implemented
 
 - thrust mapping and thruster wrench publication:
   `heron_simulator/scripts/control/cmd_drive_translate.py`
-- hull dynamics force model:
-  `heron_simulator/scripts/control/vessel_dynamics.py`
 - benchmark hull profile used by the sim stack:
   `heron/heron_description/urdf/configs/ig_handle_benchmark`
+- passive external wrench hook:
+  `/hydro_forces` remains in the URDF for Gazebo compatibility, but no
+  supported launch publishes to it by default
 
 ## High-impact tuning order
 
 If the boat feels unrealistic, tune in this order:
 
 1. `cmd_drive_translate.py` thrust mapping (first-order effect on surge/yaw)
-2. damping coefficients in `vessel_dynamics.py` (first-order effect on drift and
-   turn settling)
+2. active Gazebo hydrodynamic plugin parameters in the Heron model
 3. hull/inertia profile in `ig_handle_benchmark` (global behavior shift)
 
 Do not tune all three at once; isolate one layer per run.
@@ -50,7 +50,8 @@ rostopic echo -n 5 /state/odometry
 
 If `/cmd_drive` changes but thruster wrench topics do not, start with
 `cmd_drive_translate.py`. If wrench topics move but odometry response is
-unrealistic, inspect `vessel_dynamics.py` and hull profile values.
+unrealistic, inspect the active Gazebo hydrodynamic plugins and hull profile
+values.
 
 ## Scope boundary
 

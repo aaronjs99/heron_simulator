@@ -54,7 +54,6 @@ catkin_install_python(PROGRAMS
   # Upstream Clearpath scripts (BSD license)
   scripts/control/activate_control_service.py
   scripts/control/cmd_drive_translate.py
-  scripts/control/vessel_dynamics.py
   scripts/sensors/navsat_vel_translate.py
   scripts/sensors/rpy_translator.py
   scripts/control/twist_translate.py

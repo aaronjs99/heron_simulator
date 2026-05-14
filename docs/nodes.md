@@ -73,20 +73,12 @@ Control enable/disable service surface.
 
 - service: `/heron/activate_control` (`std_srvs/SetBool`)
 
-### `control/vessel_dynamics.py`
-
-Applies hydrodynamic hull-force model in sim runtime.
-
-- subscribes: `~odom_topic` (top-level sim bringup passes `/pose_gt`)
-- publishes: `/{namespace}/hydro_forces`
-- key param: `~namespace` (default `heron`)
-
 ## Where to debug first
 
 - no inspection response: real `defector/detect.launch` and `/defector/capture_and_analyze`
 - missing sim props: `spawn_inspection_models.py`
 - bad lidar/costmap feed: `scan_to_cloud.py`
-- command issued but no vessel motion: `cmd_drive_translate.py` then `vessel_dynamics.py`
+- command issued but no vessel motion: `cmd_drive_translate.py`, thruster topics, then Gazebo model plugins
 
-For end-to-end topic rules, use `topic_contract.md`. For physics tuning, use
+For end-to-end topic rules, use `topic_contract.md`. For physics ownership, use
 `hydrodynamics.md`.
