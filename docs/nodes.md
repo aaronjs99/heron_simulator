@@ -75,7 +75,7 @@ Control enable/disable service surface.
 
 ## Where to debug first
 
-- no inspection response: real `defector/detect.launch` and `/defector/capture_and_analyze`
+- no inspection response: real `defector/launch/detect.launch` and `/defector/capture_and_analyze`
 - missing sim props: `spawn_inspection_models.py`
 - bad lidar/costmap feed: `scan_to_cloud.py`
 - command issued but no vessel motion: `cmd_drive_translate.py`, thruster topics, then Gazebo model plugins

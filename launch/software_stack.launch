@@ -1,11 +1,13 @@
 <launch>
-  <!-- Legacy split-stack helper. Prefer slam_grande/launch/bringup.launch
+  <!-- Standalone split-stack helper. Prefer slam_grande/launch/bringup.launch
        mode:=sim for normal simulation. Use this only when Gazebo/world state is
        already running and you want to bring up MARINER + ORACLE separately. -->
 
   <!-- Arguments -->
   <arg name="llm_model" default="deepseek-v3.1:671b-cloud"/>
-  <arg name="anchor_file" default="$(find slam_grande)/config/anchors/harbor.yaml"/>
+  <arg name="scenario" default="harbor"/>
+  <arg name="anchor_file"
+       default="$(eval eval(open(find('slam_grande') + '/scripts/core/scenario_launch_eval.py').read())(find('slam_grande') + '/..', arg('scenario'), 'map_anchors_file'))"/>
   <arg name="topic_odom" default="/state/odometry"/>
   <arg name="topic_cmd_vel_raw" default="/cmd_vel_raw"/>
   <arg name="topic_cmd_vel" default="/cmd_vel"/>
@@ -73,7 +75,6 @@
     <arg name="use_rviz" value="false"/>
     <arg name="record_bags" value="false"/>
     <arg name="enforce_topic_contract" value="false"/>
-    <arg name="anchor_mode" value="sim"/>
     <arg name="anchor_pose_map_file" value="$(arg anchor_file)"/>
     <arg name="llm_model" value="$(arg llm_model)"/>
     <arg name="odom_topic" value="$(arg topic_odom)"/>

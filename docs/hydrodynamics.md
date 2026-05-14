@@ -6,8 +6,7 @@ it when vehicle motion looks wrong.
 ## Model in one line
 
 The simulator applies thrust-generated wrench through the Gazebo Heron model and
-its active hydrodynamic plugins. There is no separate `vessel_dynamics.py`
-publisher in the supported bringup path.
+its active hydrodynamic plugins.
 
 ## What is modeled
 
