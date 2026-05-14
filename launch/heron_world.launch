@@ -49,9 +49,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="force_software_rendering" default="false"/>
   <arg name="arrange_gui_windows" default="true"/>
   <arg name="demo_window_layout" default="largest_landscape"/>
-  <arg name="bootstrap_pause" default="true"/>
-  <arg name="autounpause_delay_sec" default="10.0"/>
-
   <arg name="start_gazebo" default="true"/>
   <arg name="gazebo_master_port" default="11345"/>
   <arg name="gazebo_extra_args" default="--lockstep"/>
@@ -68,7 +65,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <env name="MESA_LOG_FILE" value="/dev/null"/>
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
       <arg name="world_name" value="$(arg world_name)"/>
-      <arg name="paused" value="$(eval 'true' if str(arg('paused')).lower() == 'true' or str(arg('bootstrap_pause')).lower() == 'true' else 'false')"/>
+      <arg name="paused" value="$(arg paused)"/>
       <arg name="use_sim_time" value="true"/>
       <arg name="gui" value="false"/>
       <arg name="headless" value="$(arg headless)"/>
@@ -76,15 +73,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <arg name="verbose" value="$(arg verbose)"/>
       <arg name="extra_gazebo_args" value="$(arg gazebo_extra_args)"/>
     </include>
-
-    <node if="$(eval str(arg('bootstrap_pause')).lower() == 'true' and str(arg('paused')).lower() != 'true')"
-          name="gazebo_startup_unpause"
-          pkg="heron_simulator"
-          type="startup_unpause.py"
-          output="screen">
-      <param name="delay_sec" value="$(arg autounpause_delay_sec)"/>
-      <param name="service" value="/gazebo/unpause_physics"/>
-    </node>
 
     <node if="$(arg gui)" name="gazebo_gui" pkg="heron_simulator" type="gzclient_plain.py"
           output="screen"

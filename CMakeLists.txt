@@ -50,7 +50,6 @@ catkin_install_python(PROGRAMS
   scripts/sensors/vel_cov_fixed.py
   scripts/tools/sim_preflight.py
   scripts/tools/gzclient_plain.py
-  scripts/tools/startup_unpause.py
   scripts/tools/topic_contract_guard.py
   # Upstream Clearpath scripts (BSD license)
   scripts/control/activate_control_service.py
