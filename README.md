@@ -9,7 +9,7 @@ tested together before running on hardware.
 ## What The Simulator Provides
 
 - Heron vehicle spawn and world bringup
-- a simulated harbor with a short launch dock, longer inspection piers, and moored workboats driven from `slam_grande/data/anchors_sim.yaml`
+- a simulated harbor with a short launch dock, longer inspection piers, and moored workboats driven from `slam_grande/config/anchors/harbor.yaml`
 - simulated sensors that mirror the operator dashboard sensor catalog
 - topic bridges needed by MARINER and ORACLE
 - inspection-scene geometry for real DEFECTOR testing
@@ -49,7 +49,7 @@ roslaunch slam_grande bringup.launch mode:=sim
 ```
 
 By default, the boat spawns at the tip of the short launch dock defined in
-`slam_grande/data/anchors_sim.yaml`. Inspection props still spawn in the
+`slam_grande/config/anchors/harbor.yaml`. Inspection props still spawn in the
 background after startup so the autonomy stack can begin moving without waiting
 on Gazebo model churn.
 

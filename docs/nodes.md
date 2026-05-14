@@ -10,7 +10,7 @@ you need to locate a runtime issue quickly.
 Spawns sim inspection geometry from anchor definitions.
 
 - key params:
-  - `~anchor_file` (default `slam_grande/data/anchors_sim.yaml`)
+  - `~anchor_file` (default `slam_grande/config/anchors/harbor.yaml`)
   - `~spawn_delay` (default `0.5`)
 
 ## Sensor adaptation nodes

@@ -5,7 +5,7 @@
 
   <!-- Arguments -->
   <arg name="llm_model" default="deepseek-v3.1:671b-cloud"/>
-  <arg name="anchor_file" default="$(find slam_grande)/data/anchors.yaml"/>
+  <arg name="anchor_file" default="$(find slam_grande)/config/anchors/harbor.yaml"/>
   <arg name="topic_odom" default="/state/odometry"/>
   <arg name="topic_cmd_vel_raw" default="/cmd_vel_raw"/>
   <arg name="topic_cmd_vel" default="/cmd_vel"/>

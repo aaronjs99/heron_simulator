@@ -19,7 +19,7 @@ def load_module(name: str, relpath: str):
 
 def test_sim_worlds_and_autonomy_runtime_assets_exist():
     assert (REPO_ROOT / "heron_simulator/worlds/ocean_surface.world").exists()
-    assert (REPO_ROOT / "heron_simulator/worlds/fathomwerx_pool.world").exists()
+    assert (REPO_ROOT / "heron_simulator/worlds/pool.world").exists()
     assert (
         REPO_ROOT / "heron_simulator/scripts/autonomy/spawn_inspection_models.py"
     ).exists()

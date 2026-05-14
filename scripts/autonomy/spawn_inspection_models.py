@@ -3,7 +3,7 @@
 ----------------------------------------------
 
 Procedurally generates and spawns SDF models into the Gazebo world based on
-the semantic map definition in `slam_grande/data/anchors.yaml`.
+the semantic map definition in `slam_grande/config/anchors/harbor.yaml`.
 
 This allows the simulation environment to remain strictly synchronized with the
 Cognitive Map (ORACLE), ensuring that every "Inspection Target" (Pillar, Pipe, Dock)
@@ -128,7 +128,9 @@ def load_anchors(anchor_file=""):
     path = str(anchor_file or "").strip()
     if not path:
         rospack = rospkg.RosPack()
-        path = os.path.join(rospack.get_path("slam_grande"), "data", "anchors.yaml")
+        path = os.path.join(
+            rospack.get_path("slam_grande"), "config", "anchors", "harbor.yaml"
+        )
     with open(path, "r") as f:
         return yaml.safe_load(f)
 
