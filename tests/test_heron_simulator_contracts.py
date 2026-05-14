@@ -65,6 +65,77 @@ def test_sim_imu_body_and_frame_match_dlio_geometry():
     assert "<frameId>imu_link</frameId>" in extras
 
 
+def test_sim_sonar_matches_dt100_profile_geometry():
+    for relpath in (
+        "heron_simulator/urdf/ig_handle_sensors.urdf.xacro",
+        "heron_simulator/urdf/heron_sim.urdf.xacro",
+    ):
+        text = (REPO_ROOT / relpath).read_text(encoding="utf-8")
+        sonar_block = text[text.index('<sensor type="ray" name="sonar">') :]
+        sonar_block = sonar_block[: sonar_block.index("</sensor>")]
+
+        assert '<origin xyz="0 0 -0.08" rpy="0 1.5708 0"/>' in text
+        assert "<update_rate>20</update_rate>" in sonar_block
+        assert "<samples>480</samples>" in sonar_block
+        assert "<min_angle>-1.047198</min_angle>" in sonar_block
+        assert "<max_angle>1.047198</max_angle>" in sonar_block
+        assert "<samples>1</samples>" in sonar_block
+        assert "<min>0.5</min>" in sonar_block
+        assert "<max>100.0</max>" in sonar_block
+        assert "<min_range>0.5</min_range>" in sonar_block
+        assert "<max_range>100.0</max_range>" in sonar_block
+        assert "<topicName>/sensors/sonar/scan</topicName>" in sonar_block
+        assert "<frameName>sonar_link</frameName>" in sonar_block
+
+
+def test_sim_lidars_match_vlp16_geometry_contract():
+    for relpath in (
+        "heron_simulator/urdf/ig_handle_sensors.urdf.xacro",
+        "heron_simulator/urdf/heron_sim.urdf.xacro",
+    ):
+        text = (REPO_ROOT / relpath).read_text(encoding="utf-8")
+        for name, topic, frame in (
+            ("lidar_h_sensor", "/sensors/lidar/hori/points", "lidar_h_link"),
+            ("lidar_v_sensor", "/sensors/lidar/vert/points", "lidar_v_link"),
+        ):
+            block = text[text.index(f'<sensor type="ray" name="{name}">') :]
+            block = block[: block.index("</sensor>")]
+
+            assert "<update_rate>10</update_rate>" in block
+            assert "<samples>1800</samples>" in block
+            assert "<samples>16</samples>" in block
+            assert "<min_angle>-3.14159</min_angle>" in block
+            assert "<max_angle>3.14159</max_angle>" in block
+            assert "<min_angle>-0.261799</min_angle>" in block
+            assert "<max_angle>0.261799</max_angle>" in block
+            assert "<max>200.0</max>" in block
+            assert "<max_range>200.0</max_range>" in block
+            assert f"<topicName>{topic}</topicName>" in block
+            assert f"<frameName>{frame}</frameName>" in block
+
+
+def test_sim_cameras_match_forge_profile_contract():
+    for relpath in (
+        "heron_simulator/urdf/ig_handle_sensors.urdf.xacro",
+        "heron_simulator/urdf/heron_sim.urdf.xacro",
+    ):
+        text = (REPO_ROOT / relpath).read_text(encoding="utf-8")
+        for name, frame in (
+            ("camera_F1", "camera_F1_optical_link"),
+            ("camera_F2", "camera_F2_optical_link"),
+        ):
+            sensor_name = f"{name}_sensor" if "ig_handle_sensors" in relpath else name
+            block = text[text.index(f'<sensor type="camera" name="{sensor_name}">') :]
+            block = block[: block.index("</sensor>")]
+
+            assert "<update_rate>15.0</update_rate>" in block
+            assert "<horizontal_fov>1.60</horizontal_fov>" in block
+            assert "<width>1280</width>" in block
+            assert "<height>1024</height>" in block
+            assert "<updateRate>15.0</updateRate>" in block
+            assert f"<frameName>{frame}</frameName>" in block
+
+
 def test_sim_launches_use_portable_xacro_executable():
     for relpath in (
         "heron_simulator/launch/spawn_heron.launch",

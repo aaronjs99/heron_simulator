@@ -30,6 +30,38 @@ Additional modules:
 - `dlio`: pose, path, and map outputs
 - `oracle`: mission/anchor topics
 
+Lidar simulation contract:
+- Real and sim share the typed VLP-16 point-cloud surfaces:
+  `/sensors/lidar/hori/points` in `lidar_h_link` and
+  `/sensors/lidar/vert/points` in `lidar_v_link`.
+- Each Gazebo lidar is configured as a 16-channel, 360 x 30 degree ray scan at
+  10 Hz, matching the VLP-16 600 RPM default frame cadence.
+- Horizontal samples are set to 1800, which gives 0.2 degree azimuth spacing at
+  600 RPM and about 288000 simulated points per second in single-return mode.
+- The sim range cap is 200 m. The simulator does not model VLP-16 dual returns,
+  calibrated reflectivity, per-laser timing offsets, web configuration, or
+  raw UDP packet bytes.
+
+Sonar simulation contract:
+- Real and sim share the typed cloud surface `/sensors/sonar/scan` in
+  `sonar_link`.
+- The active Gazebo sensor is a DT100-style downward profile: 480 beams over a
+  120 degree cross-track fan, 20 Hz maximum update rate, 0.5 m minimum range,
+  and 100 m slant range.
+- The real-only raw byte stream `/sensors/sonar/raw` is not faked in sim.
+  Sim publishes the post-decoder `PointCloud2` equivalent.
+- Gazebo ray casting does not model water acoustics, intensity, reverberation,
+  or multipath. Treat it as first-order geometry parity, not acoustic parity.
+
+Camera/IMU simulation contract:
+- Real and sim share the F1/F2 Forge IP67 1GigE image and camera-info topic
+  names used by DEFECTOR.
+- The sim F1/F2 camera image size is 1280 x 1024 at 15 Hz with the canonical
+  optical-frame rotation.
+- Real and sim share `/sensors/imu/data` in `imu_link`. The sim IMU is a
+  Gazebo dynamics sensor configured to the same frame/topic boundary as the
+  Xsens MTi-30 driver, not an Xsens firmware emulation.
+
 Schema:
 - `topics`: canonical topic keys that launch files can override centrally
 - `types`: reusable message-type aliases

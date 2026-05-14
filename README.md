@@ -23,8 +23,19 @@ tested together before running on hardware.
 - The benchmark Heron hull profile is sourced from
   `../heron/heron_description/urdf/configs/ig_handle_benchmark`, so mass,
   damping, and added-mass changes are explicit.
-- The simulated sonar publishes `sensor_msgs/PointCloud2` so it can share the
-  same browser viewer path as lidar.
+- The simulated lidar pair uses the same ROS surface as the real VLP-16 pair:
+  `/sensors/lidar/hori/points` and `/sensors/lidar/vert/points`. Each Gazebo
+  ray model is configured as a 16-channel, 360 x 30 degree VLP-16-style scan at
+  the 600 RPM / 10 Hz default cadence with 0.2 degree azimuth spacing and 200 m
+  maximum range.
+- The simulated sonar publishes `sensor_msgs/PointCloud2` on the same typed
+  surface as the real DT100 adapter: `/sensors/sonar/scan` in `sonar_link`. The
+  Gazebo ray model is configured as a DT100-style downward 480-beam, 120 degree
+  profile at 20 Hz with a 0.5 m minimum range and 100 m slant range. It does not
+  synthesize proprietary raw DT100 packets or acoustic multipath.
+- The simulated F1/F2 cameras use the same canonical image and camera-info
+  topics as the real Forge IP67 1GigE inspection pair. The sim camera model is
+  a geometry/topic stand-in, not a Forge driver emulation.
 - Runtime cleanup is performed before launching a sim run. The in-launch
   `simulation_preflight` guard does not kill ROS nodes or port owners unless
   explicit cleanup arguments are enabled.
