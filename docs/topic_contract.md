@@ -26,7 +26,9 @@ Actuation:
 Additional modules:
 - `simulation_truth`: disabled-by-default Gazebo reference topics such as `/pose_gt`
 - `goal_routing`: the Oracle-to-Mariner navigation goal bridge
-- `ig_handle_sensors`: IMU, LiDAR, sonar, camera feeds
+- `ig_handle_sensors`: always-on base sensor/pose surfaces such as IMU and optional mocap outputs
+- `lidar_h`, `lidar_v`, `sonar_scan`, and `cameras`: sensor feeds that can be enabled or disabled independently from launch toggles
+- `sim_actuation`: Gazebo thruster topics, enabled only for simulator actuation checks
 - `dlio`: pose, path, and map outputs
 - `oracle`: mission/anchor topics
 
@@ -54,8 +56,8 @@ Sonar simulation contract:
   or multipath. Treat it as first-order geometry parity, not acoustic parity.
 
 Camera/IMU simulation contract:
-- Real and sim share the F1/F2 Forge FG-PGE-50S5C-C-IP color image and
-  camera-info topic names used by DEFECTOR.
+- Real and sim share the F1-F4 camera topic layout. F1/F2 are the forward-facing
+  inspection cameras used by DEFECTOR; F3/F4 are upward-facing context cameras.
 - The sim F1/F2 camera image size is 1280 x 1024 at 15 Hz with the canonical
   optical-frame rotation.
 - The real camera native sensor is Sony IMX264 color at 2448 x 2048, 24 FPS
@@ -69,6 +71,8 @@ Schema:
 - `topics`: canonical topic keys that launch files can override centrally
 - `types`: reusable message-type aliases
 - `modules`: endpoint rules grouped by subsystem
+- `services`: service rules; launch files can disable ORACLE service checks
+  when `use_oracle:=false` while keeping DEFECTOR initialized.
 - `forbidden_topics`: legacy aliases or known-bad split points
 - `chains`: high-level documentation of the intended flow
 
@@ -82,11 +86,15 @@ Semantics:
 Scaling pattern:
 - Add a new topic key under `topics`.
 - Add a type alias under `types` if needed.
-- Add or extend a module under `modules`.
-- Toggle that module via `/topic_contract/modules/<name>/enabled` from launch.
+- Add or extend a module under `modules`, or a service under `services`.
+- Toggle modules via `/topic_contract/modules/<name>/enabled` and services via
+  `/topic_contract/services/<name>/enabled` from launch.
 
 Enforcement:
 - `slam_grande/config/contracts/topic_contract.yaml` is the canonical source of truth.
-- `slam_grande/launch/bringup.launch` loads that shared contract and enables modules per stack.
+- `slam_grande/launch/bringup.launch` loads that shared contract and enables modules and services per stack.
 - `topic_contract_guard.py` reads `/topic_contract` and validates the live ROS graph generically.
 - The guard fails launch on duplicate publishers, missing chain links, bad types, or forbidden legacy aliases such as `/mariner/nav_ok`.
+- Disabled sensor launch toggles disable the corresponding sensor contract
+  module, so a deliberately omitted camera, LiDAR, or sonar path does not fail a
+  valid bringup.

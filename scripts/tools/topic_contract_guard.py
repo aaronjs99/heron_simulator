@@ -61,6 +61,7 @@ class ForbiddenTopicRule:
 class ServiceRule:
     name: str
     service: str
+    enabled: bool = True
     expected_type: Optional[str] = None
     servers: Optional[CountRule] = None
     clients: Optional[CountRule] = None
@@ -169,6 +170,7 @@ def load_topic_contract(config: Dict[str, Any]) -> TopicContract:
         services[service_name] = ServiceRule(
             name=service_name,
             service=_resolve_service(service_name, service_config),
+            enabled=_coerce_bool(service_config.get("enabled", True)),
             expected_type=service_config.get("type"),
             servers=_parse_count_rule(service_config.get("servers")),
             clients=_parse_count_rule(service_config.get("clients")),
@@ -294,6 +296,8 @@ def validate_topic_contract(
             errors.append(f"forbidden topic {rule.topic} is active: {rule.reason}")
 
     for service_rule in contract.services.values():
+        if not service_rule.enabled:
+            continue
         if service_rule.optional and service_server_count(service_rule.service) == 0:
             continue
         if service_rule.servers is not None:
