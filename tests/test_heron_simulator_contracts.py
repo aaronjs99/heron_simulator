@@ -41,7 +41,7 @@ def test_gui_launch_sites_use_shared_window_layout_helper():
         assert "demo_window_layout" in text
 
 
-def test_legacy_playback_and_lake_world_do_not_reference_missing_assets():
+def test_playback_and_lake_world_do_not_reference_missing_assets():
     playback = (REPO_ROOT / "heron_simulator/launch/local_playback.launch").read_text(
         encoding="utf-8"
     )
