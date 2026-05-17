@@ -2,7 +2,7 @@
 # DLIO Configuration for Heron USV Simulation
 #
 # Shared frame IDs and rigid extrinsics live in:
-#   slam_grande/config/dlio/geometry.yaml
+#   mariner/config/dlio/geometry.yaml
 ###########################################################
 
 dlio:

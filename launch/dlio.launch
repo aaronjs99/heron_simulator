@@ -12,10 +12,8 @@
   <arg name="frame_imu" default="imu_link"/>
   <arg name="publish_dlio_odom_tf" default="true"/>
   <arg name="startup_delay_sec" default="0.0"/>
-  <arg name="arrange_gui_windows" default="false"/>
-  <arg name="demo_window_layout" default="largest_landscape"/>
 
-  <include file="$(find slam_grande)/launch/include/dlio_stack.launch">
+  <include file="$(find mariner)/launch/include/dlio_stack.launch">
     <arg name="pointcloud_topic" value="$(arg pointcloud_topic)"/>
     <arg name="imu_topic" value="$(arg imu_topic)"/>
     <arg name="odom_topic" value="$(arg odom_topic)"/>
@@ -28,10 +26,8 @@
     <arg name="frame_imu" value="$(arg frame_imu)"/>
     <arg name="publish_dlio_odom_tf" value="$(arg publish_dlio_odom_tf)"/>
     <arg name="startup_delay_sec" value="$(arg startup_delay_sec)"/>
-    <arg name="geometry_file" value="$(find slam_grande)/config/dlio/geometry.yaml"/>
+    <arg name="geometry_file" value="$(find mariner)/config/dlio/geometry.yaml"/>
     <arg name="config_file" value="$(find heron_simulator)/config/dlio_heron.yaml"/>
     <arg name="rviz" value="$(arg rviz)"/>
-    <arg name="arrange_gui_windows" value="$(arg arrange_gui_windows)"/>
-    <arg name="demo_window_layout" value="$(arg demo_window_layout)"/>
   </include>
 </launch>
