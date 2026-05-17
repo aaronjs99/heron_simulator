@@ -115,8 +115,8 @@ upstream localization source and republishes it through the same odometry
 sanity filter and `/state/odometry` contract used by the rest of the stack. Raw
 simulated DLiO remains published on `/state/dlio/odometry` for diagnostics and
 can be selected deliberately with `sim_odom_source:=dlio`. Real bringup keeps the
-same downstream navigation topic and selects its upstream source explicitly with
-`odom_source:=dlio` or `odom_source:=mocap`.
+same downstream navigation topic and uses DLiO upstream. Mocap stays outside
+bringup as a lab logging/comparison stream.
 
 Useful simulator-only knobs:
 
