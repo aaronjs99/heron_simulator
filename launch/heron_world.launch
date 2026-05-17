@@ -45,6 +45,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="right_thruster_topic" default="/thrusters/0/input"/>
   <arg name="mixer_config" default="$(find heron_simulator)/config/twist_to_drive.yaml"/>
   <arg name="thruster_dynamics_config" default="$(find heron_simulator)/config/thruster_dynamics.yaml"/>
+  <arg name="mcu_heartbeat" default="true"/>
+  <arg name="mcu_arm_sec" default="6.0"/>
+  <arg name="mcu_heartbeat_rate_hz" default="5.0"/>
   <arg name="gui_startup_delay_sec" default="20.0"/>
   <arg name="force_software_rendering" default="false"/>
   <arg name="arrange_gui_windows" default="true"/>
@@ -111,6 +114,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="right_thruster_topic" value="$(arg right_thruster_topic)" />
     <arg name="mixer_config" value="$(arg mixer_config)" />
     <arg name="thruster_dynamics_config" value="$(arg thruster_dynamics_config)" />
+    <arg name="mcu_heartbeat" value="$(arg mcu_heartbeat)" />
+    <arg name="mcu_arm_sec" value="$(arg mcu_arm_sec)" />
+    <arg name="mcu_heartbeat_rate_hz" value="$(arg mcu_heartbeat_rate_hz)" />
   </include>
 
 </launch>
