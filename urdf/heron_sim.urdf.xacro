@@ -8,8 +8,10 @@
   - lidar_h: (0, -91, -268.3) -> (0, -0.091, 0.2683)
   - lidar_v: (180, -126, -181) -> (0.180, -0.126, 0.181)
   - IMU: (65.6, -91, -203) -> (0.0656, -0.091, 0.203)
-  - Camera F1: (16.4, 21.3, -230) -> (0.0164, 0.0213, 0.230)
-  - Camera F2: (16.4, -203.3, -230) -> (0.0164, -0.2033, 0.230)
+  - Camera F1: (16.4, -21.3, -230) -> (0.0164, 0.0213, 0.230)
+  - Camera F2: (16.4, -203.3, -230) -> (0.0164, 0.2033, 0.230)
+  - Camera F3: (16.4, -21.3, -230) -> (0.0164, 0.0213, 0.230), upward
+  - Camera F4: (16.4, -203.3, -230) -> (0.0164, 0.2033, 0.230), upward
 -->
 <robot name="heron_sim" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
@@ -278,10 +280,10 @@
   </joint>
 
   <!-- ====================================================================== -->
-  <!-- Camera F1 (Fisheye 1) -->
+  <!-- Camera F1 (forward left-side) -->
   <!-- User: (16.4, -21.3, -230)mm -> ROS: (0.0164, +0.0213, 0.230)m -->
   <!-- ====================================================================== -->
-  <link name="camera_F1_link">
+  <link name="F1">
     <visual>
       <geometry>
         <box size="0.06 0.06 0.04"/>
@@ -298,25 +300,99 @@
       <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
     </inertial>
   </link>
-  <joint name="camera_F1_joint" type="fixed">
+  <joint name="F1_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="camera_F1_link"/>
+    <child link="F1"/>
     <origin xyz="0.0164 0.0213 0.230" rpy="0 0 0"/>
   </joint>
 
   <!-- Camera F1 optical frame -->
-  <link name="camera_F1_optical_link"/>
-  <joint name="camera_F1_optical_joint" type="fixed">
-    <parent link="camera_F1_link"/>
-    <child link="camera_F1_optical_link"/>
+  <link name="F1_optical"/>
+  <joint name="F1_optical_joint" type="fixed">
+    <parent link="F1"/>
+    <child link="F1_optical"/>
     <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
   </joint>
 
+  <xacro:if value="$(optenv HERON_CAMERA_F2 0)">
+    <!-- ====================================================================== -->
+    <!-- Camera F2 (forward center-ish) -->
+    <!-- User: (16.4, -203.3, -230)mm -> ROS: (0.0164, +0.2033, 0.230)m -->
+    <!-- ====================================================================== -->
+    <link name="F2">
+      <visual>
+        <geometry>
+          <box size="0.06 0.06 0.04"/>
+        </geometry>
+        <material name="sensor_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.06 0.06 0.04"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.1"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+    </link>
+    <joint name="F2_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="F2"/>
+      <origin xyz="0.0164 0.2033 0.230" rpy="0 0 0"/>
+    </joint>
+
+    <!-- Camera F2 optical frame -->
+    <link name="F2_optical"/>
+    <joint name="F2_optical_joint" type="fixed">
+      <parent link="F2"/>
+      <child link="F2_optical"/>
+      <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+    </joint>
+  </xacro:if>
+
+  <xacro:if value="$(optenv HERON_CAMERA_F3 0)">
+    <!-- ====================================================================== -->
+    <!-- Camera F3 (upward left-side) -->
+    <!-- User: (16.4, -21.3, -230)mm -> ROS: (0.0164, +0.0213, 0.230)m -->
+    <!-- ====================================================================== -->
+    <link name="F3">
+      <visual>
+        <geometry>
+          <box size="0.06 0.06 0.04"/>
+        </geometry>
+        <material name="sensor_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.06 0.06 0.04"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.1"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+    </link>
+    <joint name="F3_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="F3"/>
+      <origin xyz="0.0164 0.0213 0.230" rpy="0 -1.5708 0"/>
+    </joint>
+
+    <!-- Camera F3 optical frame -->
+    <link name="F3_optical"/>
+    <joint name="F3_optical_joint" type="fixed">
+      <parent link="F3"/>
+      <child link="F3_optical"/>
+      <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+    </joint>
+  </xacro:if>
+
   <!-- ====================================================================== -->
-  <!-- Camera F2 (Fisheye 2) -->
+  <!-- Camera F4 (upward center-ish) -->
   <!-- User: (16.4, -203.3, -230)mm -> ROS: (0.0164, +0.2033, 0.230)m -->
   <!-- ====================================================================== -->
-  <link name="camera_F2_link">
+  <link name="F4">
     <visual>
       <geometry>
         <box size="0.06 0.06 0.04"/>
@@ -333,17 +409,17 @@
       <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
     </inertial>
   </link>
-  <joint name="camera_F2_joint" type="fixed">
+  <joint name="F4_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="camera_F2_link"/>
-    <origin xyz="0.0164 0.2033 0.230" rpy="0 0 0"/>
+    <child link="F4"/>
+    <origin xyz="0.0164 0.2033 0.230" rpy="0 -1.5708 0"/>
   </joint>
 
-  <!-- Camera F2 optical frame -->
-  <link name="camera_F2_optical_link"/>
-  <joint name="camera_F2_optical_joint" type="fixed">
-    <parent link="camera_F2_link"/>
-    <child link="camera_F2_optical_link"/>
+  <!-- Camera F4 optical frame -->
+  <link name="F4_optical"/>
+  <joint name="F4_optical_joint" type="fixed">
+    <parent link="F4"/>
+    <child link="F4_optical"/>
     <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
   </joint>
 
@@ -559,7 +635,7 @@
   <!-- ====================================================================== -->
   <!-- Camera F1 Gazebo Plugin -->
   <!-- ====================================================================== -->
-  <gazebo reference="camera_F1_link">
+  <gazebo reference="F1">
     <sensor type="camera" name="camera_F1">
       <update_rate>15.0</update_rate>
       <camera name="F1">
@@ -586,18 +662,92 @@
         <cameraName>sensors/camera/f1</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-        <frameName>camera_F1_optical_link</frameName>
+        <frameName>F1_optical</frameName>
       </plugin>
     </sensor>
   </gazebo>
 
+  <xacro:if value="$(optenv HERON_CAMERA_F2 0)">
+    <!-- ====================================================================== -->
+    <!-- Camera F2 Gazebo Plugin -->
+    <!-- ====================================================================== -->
+    <gazebo reference="F2">
+      <sensor type="camera" name="camera_F2">
+        <update_rate>15.0</update_rate>
+        <camera name="F2">
+          <horizontal_fov>1.60</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>100</far>
+          </clip>
+          <visibility_mask>4294967294</visibility_mask>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <plugin name="camera_F2_controller" filename="libgazebo_ros_camera.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>15.0</updateRate>
+          <cameraName>sensors/camera/f2</cameraName>
+          <imageTopicName>image_raw</imageTopicName>
+          <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+          <frameName>F2_optical</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+  </xacro:if>
+
+  <xacro:if value="$(optenv HERON_CAMERA_F3 0)">
+    <!-- ====================================================================== -->
+    <!-- Camera F3 Gazebo Plugin -->
+    <!-- ====================================================================== -->
+    <gazebo reference="F3">
+      <sensor type="camera" name="camera_F3">
+        <update_rate>15.0</update_rate>
+        <camera name="F3">
+          <horizontal_fov>1.60</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>100</far>
+          </clip>
+          <visibility_mask>4294967294</visibility_mask>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <plugin name="camera_F3_controller" filename="libgazebo_ros_camera.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>15.0</updateRate>
+          <cameraName>sensors/camera/f3</cameraName>
+          <imageTopicName>image_raw</imageTopicName>
+          <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+          <frameName>F3_optical</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+  </xacro:if>
+
   <!-- ====================================================================== -->
-  <!-- Camera F2 Gazebo Plugin -->
+  <!-- Camera F4 Gazebo Plugin -->
   <!-- ====================================================================== -->
-  <gazebo reference="camera_F2_link">
-    <sensor type="camera" name="camera_F2">
+  <gazebo reference="F4">
+    <sensor type="camera" name="camera_F4">
       <update_rate>15.0</update_rate>
-      <camera name="F2">
+      <camera name="F4">
         <horizontal_fov>1.60</horizontal_fov>
         <image>
           <width>1280</width>
@@ -615,13 +765,13 @@
           <stddev>0.007</stddev>
         </noise>
       </camera>
-      <plugin name="camera_F2_controller" filename="libgazebo_ros_camera.so">
+      <plugin name="camera_F4_controller" filename="libgazebo_ros_camera.so">
         <alwaysOn>true</alwaysOn>
         <updateRate>15.0</updateRate>
-        <cameraName>sensors/camera/f2</cameraName>
+        <cameraName>sensors/camera/f4</cameraName>
         <imageTopicName>image_raw</imageTopicName>
         <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-        <frameName>camera_F2_optical_link</frameName>
+        <frameName>F4_optical</frameName>
       </plugin>
     </sensor>
   </gazebo>

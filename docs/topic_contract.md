@@ -56,10 +56,17 @@ Sonar simulation contract:
   or multipath. Treat it as first-order geometry parity, not acoustic parity.
 
 Camera/IMU simulation contract:
-- Real and sim share the F1-F4 camera topic layout. F1/F2 are the forward-facing
-  inspection cameras used by DEFECTOR; F3/F4 are upward-facing context cameras.
-- The sim F1/F2 camera image size is 1280 x 1024 at 15 Hz with the canonical
-  optical-frame rotation.
+- Real and sim share the F1-F4 camera topic layout and optical frame names:
+  f1 maps to F1, f2 maps to F2, f3 maps to F3, and f4 maps to F4. F1/F2 are
+  forward-facing camera slots; F3/F4 are upward-facing camera slots. F1/F3 are
+  left-side mounts and F2/F4 are center-ish mounts.
+- The default benchmark rig enables F1/F4 and disables F2/F3 to match the
+  current field hardware. The simulator still keeps F2/F3 as explicit opt-in
+  camera slots, not as aliases for other cameras.
+- Enabled sim camera streams use 1280 x 1024 at 15 Hz with the canonical
+  optical-frame rotation. DEFECTOR consumes the inspection pair selected by
+  integrated bringup; the current field default is F1/F4 because those two
+  cameras are connected on the real boat.
 - The real camera native sensor is Sony IMX264 color at 2448 x 2048, 24 FPS
   standard or 33 FPS with lossless compression. The sim stream keeps the
   calibrated 1280 x 1024 profile until the camera-info calibration is updated.

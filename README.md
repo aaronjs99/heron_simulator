@@ -33,8 +33,11 @@ tested together before running on hardware.
   Gazebo ray model is configured as a DT100-style downward 480-beam, 120 degree
   profile at 20 Hz with a 0.5 m minimum range and 100 m slant range. It does not
   synthesize proprietary raw DT100 packets or acoustic multipath.
-- The simulated F1/F2 cameras use the same canonical image and camera-info
-  topics as the real Forge FG-PGE-50S5C-C-IP color inspection pair. The sim
+- The simulated Forge cameras use the same canonical image and camera-info
+  topics and optical frame names as the real Forge FG-PGE-50S5C-C-IP color
+  camera stack. The default benchmark rig enables F1 and F4 and keeps F2/F3
+  disabled to match the current field hardware. F2/F3 remain named, numbered,
+  and explicitly opt-in through the simulator camera environment flags. The sim
   camera model is a geometry/topic stand-in, not a Forge driver emulation.
 - Runtime cleanup is performed before launching a sim run. The in-launch
   `simulation_preflight` guard does not kill ROS nodes or port owners unless

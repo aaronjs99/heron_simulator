@@ -261,135 +261,116 @@
     <origin xyz="0.0164 0.1 0.13" rpy="0 0 0"/>
   </joint>
 
+  <xacro:macro name="ig_handle_forge_camera"
+               params="id xyz rpy topic_suffix camera_name distortion_k1 distortion_k2 distortion_k3">
+    <link name="${id}">
+      <visual>
+        <geometry><box size="0.06 0.06 0.04"/></geometry>
+        <material name="sensor_blue"/>
+      </visual>
+      <inertial>
+        <mass value="0.1"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+    </link>
+    <joint name="${id}_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="${id}"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+    </joint>
+
+    <link name="${id}_optical"/>
+    <joint name="${id}_optical_joint" type="fixed">
+      <parent link="${id}"/>
+      <child link="${id}_optical"/>
+      <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+    </joint>
+
+    <gazebo reference="${id}">
+      <sensor type="camera" name="camera_${id}_sensor">
+        <update_rate>15.0</update_rate>
+        <camera name="${camera_name}">
+          <horizontal_fov>1.60</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>100</far>
+          </clip>
+          <visibility_mask>4294967294</visibility_mask>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <plugin name="camera_${id}_controller" filename="libgazebo_ros_camera.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>15.0</updateRate>
+          <cameraName>sensors/camera/${topic_suffix}</cameraName>
+          <imageTopicName>image_raw</imageTopicName>
+          <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+          <frameName>${id}_optical</frameName>
+          <hackBaseline>0.07</hackBaseline>
+          <distortionK1>${distortion_k1}</distortionK1>
+          <distortionK2>${distortion_k2}</distortionK2>
+          <distortionK3>${distortion_k3}</distortionK3>
+          <distortionT1>0.0</distortionT1>
+          <distortionT2>0.0</distortionT2>
+        </plugin>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+
   <!-- ====================================================================== -->
-  <!-- Camera F1 (Fisheye 1) -->
-  <!-- User: (16.4, -21.3, -230)mm -> ROS: (0.0164, 0.0213, 0.230)m -->
+  <!-- Forge camera stack -->
+  <!-- F1/F2 face forward; F3/F4 face upward. F1/F3 are left-side mounts, and
+       F2/F4 are center-ish mounts. These frame names intentionally match the
+       real Forge driver frame IDs and shared sensor YAML. -->
   <!-- ====================================================================== -->
-  <link name="camera_F1_link">
-    <visual>
-      <geometry><box size="0.06 0.06 0.04"/></geometry>
-      <material name="sensor_blue"/>
-    </visual>
-    <inertial>
-      <mass value="0.1"/>
-      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
-    </inertial>
-  </link>
-  <joint name="camera_F1_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="camera_F1_link"/>
-    <origin xyz="0.0164 0.0213 0.230" rpy="0 0 0"/>
-  </joint>
-
-  <link name="camera_F1_optical_link"/>
-  <joint name="camera_F1_optical_joint" type="fixed">
-    <parent link="camera_F1_link"/>
-    <child link="camera_F1_optical_link"/>
-    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
-  </joint>
-
-  <gazebo reference="camera_F1_link">
-    <sensor type="camera" name="camera_F1_sensor">
-      <update_rate>15.0</update_rate>
-      <camera name="front_camera">
-        <horizontal_fov>1.60</horizontal_fov>
-        <image>
-          <width>1280</width>
-          <height>1024</height>
-          <format>R8G8B8</format>
-        </image>
-        <clip>
-          <near>0.02</near>
-          <far>100</far>
-        </clip>
-        <visibility_mask>4294967294</visibility_mask>
-        <noise>
-          <type>gaussian</type>
-          <mean>0.0</mean>
-          <stddev>0.007</stddev>
-        </noise>
-      </camera>
-      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
-        <alwaysOn>true</alwaysOn>
-        <updateRate>15.0</updateRate>
-        <cameraName>sensors/camera/f1</cameraName>
-        <imageTopicName>image_raw</imageTopicName>
-        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-        <frameName>camera_F1_optical_link</frameName>
-        <hackBaseline>0.07</hackBaseline>
-        <distortionK1>-0.0100</distortionK1>
-        <distortionK2>0.0030</distortionK2>
-        <distortionK3>-0.0020</distortionK3>
-        <distortionT1>0.0</distortionT1>
-        <distortionT2>0.0</distortionT2>
-      </plugin>
-    </sensor>
-  </gazebo>
-
-  <!-- ====================================================================== -->
-  <!-- Camera F2 (Fisheye 2) -->
-  <!-- User: (16.4, -203.3, -230)mm -> ROS: (0.0164, 0.2033, 0.230)m -->
-  <!-- ====================================================================== -->
-  <link name="camera_F2_link">
-    <visual>
-      <geometry><box size="0.06 0.06 0.04"/></geometry>
-      <material name="sensor_blue"/>
-    </visual>
-    <inertial>
-      <mass value="0.1"/>
-      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
-    </inertial>
-  </link>
-  <joint name="camera_F2_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="camera_F2_link"/>
-    <origin xyz="0.0164 0.2033 0.230" rpy="0 0 0"/>
-  </joint>
-
-  <link name="camera_F2_optical_link"/>
-  <joint name="camera_F2_optical_joint" type="fixed">
-    <parent link="camera_F2_link"/>
-    <child link="camera_F2_optical_link"/>
-    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
-  </joint>
-
-  <gazebo reference="camera_F2_link">
-    <sensor type="camera" name="camera_F2_sensor">
-      <update_rate>15.0</update_rate>
-      <camera name="front_camera_right">
-        <horizontal_fov>1.60</horizontal_fov>
-        <image>
-          <width>1280</width>
-          <height>1024</height>
-          <format>R8G8B8</format>
-        </image>
-        <clip>
-          <near>0.02</near>
-          <far>100</far>
-        </clip>
-        <visibility_mask>4294967294</visibility_mask>
-        <noise>
-          <type>gaussian</type>
-          <mean>0.0</mean>
-          <stddev>0.007</stddev>
-        </noise>
-      </camera>
-      <plugin name="camera_F2_controller" filename="libgazebo_ros_camera.so">
-        <alwaysOn>true</alwaysOn>
-        <updateRate>15.0</updateRate>
-        <cameraName>sensors/camera/f2</cameraName>
-        <imageTopicName>image_raw</imageTopicName>
-        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-        <frameName>camera_F2_optical_link</frameName>
-        <hackBaseline>0.07</hackBaseline>
-        <distortionK1>-0.0090</distortionK1>
-        <distortionK2>0.0028</distortionK2>
-        <distortionK3>-0.0019</distortionK3>
-        <distortionT1>0.0</distortionT1>
-        <distortionT2>0.0</distortionT2>
-      </plugin>
-    </sensor>
-  </gazebo>
+  <xacro:if value="$(optenv HERON_CAMERA_F1 1)">
+    <xacro:ig_handle_forge_camera id="F1"
+                                  xyz="0.0164 0.0213 0.230"
+                                  rpy="0 0 0"
+                                  topic_suffix="f1"
+                                  camera_name="forward_left"
+                                  distortion_k1="-0.0100"
+                                  distortion_k2="0.0030"
+                                  distortion_k3="-0.0020"/>
+  </xacro:if>
+  <xacro:if value="$(optenv HERON_CAMERA_F2 0)">
+    <xacro:ig_handle_forge_camera id="F2"
+                                  xyz="0.0164 0.2033 0.230"
+                                  rpy="0 0 0"
+                                  topic_suffix="f2"
+                                  camera_name="forward_center"
+                                  distortion_k1="-0.0090"
+                                  distortion_k2="0.0028"
+                                  distortion_k3="-0.0019"/>
+  </xacro:if>
+  <xacro:if value="$(optenv HERON_CAMERA_F3 0)">
+    <xacro:ig_handle_forge_camera id="F3"
+                                  xyz="0.0164 0.0213 0.230"
+                                  rpy="0 -1.5708 0"
+                                  topic_suffix="f3"
+                                  camera_name="upward_left"
+                                  distortion_k1="-0.0100"
+                                  distortion_k2="0.0030"
+                                  distortion_k3="-0.0020"/>
+  </xacro:if>
+  <xacro:if value="$(optenv HERON_CAMERA_F4 1)">
+    <xacro:ig_handle_forge_camera id="F4"
+                                  xyz="0.0164 0.2033 0.230"
+                                  rpy="0 -1.5708 0"
+                                  topic_suffix="f4"
+                                  camera_name="upward_center"
+                                  distortion_k1="-0.0090"
+                                  distortion_k2="0.0028"
+                                  distortion_k3="-0.0019"/>
+  </xacro:if>
 
   <!-- ====================================================================== -->
   <!-- IMU Visual (for debugging) -->
