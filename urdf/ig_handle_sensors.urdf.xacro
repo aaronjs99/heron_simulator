@@ -21,7 +21,10 @@
 
   <!-- ====================================================================== -->
   <!-- Lidar H (Horizontal) -->
-  <!-- User: (0, -91, -268.3)mm -> ROS: (0, 0.091, 0.2683)m -->
+  <!-- User measured cable-side/top reference: (0, -91, -268.3)mm.
+       VLP-16 origin is sensor center: cable is on -Y_lidar, body is
+       101.72 mm diameter x 72.38 mm tall.
+       Corrected center -> ROS: (0, 0.14186, 0.23211)m. -->
   <!-- Velodyne VLP-16 model: 16 channels, 360 degree sweep, 10 Hz at 600 RPM. -->
   <!-- ====================================================================== -->
   <!-- Mount pole for Lidar H -->
@@ -43,7 +46,7 @@
 
   <link name="lidar_h_link">
     <visual>
-      <geometry><cylinder radius="0.05" length="0.07"/></geometry>
+      <geometry><cylinder radius="0.05086" length="0.07238"/></geometry>
       <material name="sensor_black"/>
     </visual>
     <inertial>
@@ -54,7 +57,7 @@
   <joint name="lidar_h_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_h_link"/>
-    <origin xyz="0 0.091 0.2683" rpy="0 0 0"/>
+    <origin xyz="0 0.14186 0.23211" rpy="0 0 0"/>
   </joint>
 
   <gazebo reference="lidar_h_link">

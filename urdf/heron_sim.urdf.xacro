@@ -5,7 +5,9 @@
   
   Physical sensor positions (mm, z-down) converted to URDF (meters, z-up):
   - Water level: z = -40mm -> boat floats at z=-0.04m
-  - lidar_h: (0, -91, -268.3) -> (0, -0.091, 0.2683)
+  - lidar_h measured cable-side/top reference: (0, -91, -268.3)
+    VLP-16 center origin after +50.86mm away from cable and -36.19mm from top:
+    (0, -141.86, -232.11) -> (0, +0.14186, 0.23211)
   - lidar_v: (180, -126, -181) -> (0.180, -0.126, 0.181)
   - IMU: (65.6, -91, -203) -> (0.0656, -0.091, 0.203)
   - Camera F1: (16.4, -21.3, -230) -> (0.0164, 0.0213, 0.230)
@@ -162,7 +164,10 @@
 
   <!-- ====================================================================== -->
   <!-- Horizontal Lidar (lidar_h) -->
-  <!-- User: (0, -91, -268.3)mm -> ROS: (0, +0.091, 0.2683)m -->
+  <!-- User measured cable-side/top reference: (0, -91, -268.3)mm.
+       VLP-16 origin is sensor center: cable is on -Y_lidar, body is
+       101.72 mm diameter x 72.38 mm tall.
+       Corrected center -> ROS: (0, +0.14186, 0.23211)m. -->
   <!-- ====================================================================== -->
   <!-- Lidar H mount pole -->
   <link name="lidar_h_mount">
@@ -187,14 +192,14 @@
   <link name="lidar_h_link">
     <visual>
       <geometry>
-        <cylinder radius="0.05" length="0.07"/>
+        <cylinder radius="0.05086" length="0.07238"/>
       </geometry>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <material name="black"/>
     </visual>
     <collision>
       <geometry>
-        <cylinder radius="0.05" length="0.07"/>
+        <cylinder radius="0.05086" length="0.07238"/>
       </geometry>
     </collision>
     <inertial>
@@ -205,7 +210,7 @@
   <joint name="lidar_h_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_h_link"/>
-    <origin xyz="0 0.091 0.2683" rpy="0 0 0"/>
+    <origin xyz="0 0.14186 0.23211" rpy="0 0 0"/>
   </joint>
 
   <!-- ====================================================================== -->
