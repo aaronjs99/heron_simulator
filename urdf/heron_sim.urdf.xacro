@@ -10,7 +10,7 @@
     is 3.72mm forward, 7.15mm left, and 35.64mm higher; the VLP center is
     another 50.86mm forward from the cable side and 36.19mm above the cable
     exit: (120.18, -98.15, -274.83) -> (0.12018, +0.09815, 0.27483)
-  - lidar_v: (180, -126, -181) -> (0.180, -0.126, 0.181)
+  - lidar_v: (180, -126, -181) -> (0.180, +0.126, 0.181)
   - IMU: (65.6, -91, -203) -> (0.0656, -0.091, 0.203)
   - Camera F1: (16.4, -21.3, -230) -> (0.0164, 0.0213, 0.230)
   - Camera F2: (16.4, -203.3, -230) -> (0.0164, 0.2033, 0.230)
@@ -114,8 +114,8 @@
   <!-- ====================================================================== -->
   <!-- IMU Sensor -->
   <!-- User: (65.6, -91, -203)mm -> ROS: (0.0656, +0.091, 0.203)m.
-       Xsens cable exits stern and label side faces down, so imu_link is
-       pitched 180 deg relative to base_link. -->
+       Xsens frame is mounted with +X forward, +Y starboard/right, and +Z down
+       toward the water. -->
   <!-- ====================================================================== -->
   <link name="imu_link">
     <visual>
@@ -132,7 +132,7 @@
   <joint name="imu_joint" type="fixed">
     <parent link="base_link"/>
     <child link="imu_link"/>
-    <origin xyz="0.0656 0.091 0.203" rpy="0 3.141592653589793 0"/>
+    <origin xyz="0.0656 0.091 0.203" rpy="3.141592653589793 0 0"/>
   </joint>
   
   <gazebo>
@@ -221,6 +221,7 @@
   <!-- ====================================================================== -->
   <!-- Vertical Lidar (lidar_v) -->
   <!-- User: (180, -126, -181)mm -> ROS: (0.180, +0.126, 0.181)m -->
+  <!-- Vertical VLP-16 frame: +X starboard/right, +Y up, +Z aft/stern. -->
   <!-- ====================================================================== -->
   <!-- Lidar V mount pole -->
   <link name="lidar_v_mount">
@@ -263,8 +264,7 @@
   <joint name="lidar_v_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_v_link"/>
-    <!-- Rotated 90deg pitch to convert the VLP-16 into a vertical sweep. -->
-    <origin xyz="0.180 0.126 0.181" rpy="0 1.5708 0"/>
+    <origin xyz="0.180 0.126 0.181" rpy="1.5707963267948966 0 -1.5707963267948966"/>
   </joint>
 
   <!-- ====================================================================== -->
@@ -597,11 +597,11 @@
 
   <!-- ====================================================================== -->
   <!-- Vertical Lidar Gazebo Plugin -->
-  <!-- Same VLP-16 model as lidar_h, mounted with a 90 degree pitch. -->
+  <!-- Same VLP-16 model as lidar_h; lidar_v_link already carries the mount frame. -->
   <!-- ====================================================================== -->
   <gazebo reference="lidar_v_link">
     <sensor type="ray" name="lidar_v_sensor">
-      <pose>0 0 0 1.5708 0 0</pose>
+      <pose>0 0 0 0 0 0</pose>
       <visualize>false</visualize>
       <update_rate>10</update_rate>
       <ray>
