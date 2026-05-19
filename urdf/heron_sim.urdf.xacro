@@ -5,9 +5,11 @@
   
   Physical sensor positions (mm, z-down) converted to URDF (meters, z-up):
   - Water level: z = -40mm -> boat floats at z=-0.04m
-  - lidar_h measured cable-side/top reference: (0, -91, -268.3)
-    VLP-16 center origin after +50.86mm away from cable and -36.19mm from top:
-    (0, -141.86, -232.11) -> (0, +0.14186, 0.23211)
+  - lidar_h VLP-16 cable is on -Y_lidar and exits stern, so lidar_h is yawed
+    -90 deg. Relative to the current IMU cable/reference point, the lidar cable
+    is 3.72mm forward, 7.15mm left, and 35.64mm higher; the VLP center is
+    another 50.86mm forward and 36.19mm lower:
+    (120.18, -98.15, -202.45) -> (0.12018, +0.09815, 0.20245)
   - lidar_v: (180, -126, -181) -> (0.180, -0.126, 0.181)
   - IMU: (65.6, -91, -203) -> (0.0656, -0.091, 0.203)
   - Camera F1: (16.4, -21.3, -230) -> (0.0164, 0.0213, 0.230)
@@ -111,8 +113,9 @@
 
   <!-- ====================================================================== -->
   <!-- IMU Sensor -->
-  <!-- User: (65.6, -91, -203)mm -> ROS: (0.0656, +0.091, 0.203)m -->
-  <!-- Y negated: user y-right, ROS y-left -->
+  <!-- User: (65.6, -91, -203)mm -> ROS: (0.0656, +0.091, 0.203)m.
+       Xsens cable exits stern and label side faces down, so imu_link is
+       pitched 180 deg relative to base_link. -->
   <!-- ====================================================================== -->
   <link name="imu_link">
     <visual>
@@ -129,7 +132,7 @@
   <joint name="imu_joint" type="fixed">
     <parent link="base_link"/>
     <child link="imu_link"/>
-    <origin xyz="0.0656 0.091 0.203" rpy="0 0 0"/>
+    <origin xyz="0.0656 0.091 0.203" rpy="0 3.141592653589793 0"/>
   </joint>
   
   <gazebo>
@@ -164,10 +167,12 @@
 
   <!-- ====================================================================== -->
   <!-- Horizontal Lidar (lidar_h) -->
-  <!-- User measured cable-side/top reference: (0, -91, -268.3)mm.
-       VLP-16 origin is sensor center: cable is on -Y_lidar, body is
-       101.72 mm diameter x 72.38 mm tall.
-       Corrected center -> ROS: (0, +0.14186, 0.23211)m. -->
+  <!-- VLP-16 origin is sensor center. The cable is on -Y_lidar and exits
+       toward the stern, so the sensor frame is yawed -90 deg relative to the
+       boat. Relative to the current IMU cable/reference point, the lidar cable
+       is 3.72 mm forward, 7.15 mm left, and 35.64 mm higher; the VLP center is
+       another 50.86 mm forward and 36.19 mm lower.
+       Corrected center -> ROS: (0.12018, +0.09815, 0.20245)m. -->
   <!-- ====================================================================== -->
   <!-- Lidar H mount pole -->
   <link name="lidar_h_mount">
@@ -186,7 +191,7 @@
   <joint name="lidar_h_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_h_mount"/>
-    <origin xyz="0 0.091 0.16" rpy="0 0 0"/>
+    <origin xyz="0.12018 0.09815 0.16" rpy="0 0 0"/>
   </joint>
   
   <link name="lidar_h_link">
@@ -210,7 +215,7 @@
   <joint name="lidar_h_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_h_link"/>
-    <origin xyz="0 0.14186 0.23211" rpy="0 0 0"/>
+    <origin xyz="0.12018 0.09815 0.20245" rpy="0 0 -1.5707963267948966"/>
   </joint>
 
   <!-- ====================================================================== -->

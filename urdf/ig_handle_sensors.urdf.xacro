@@ -21,10 +21,12 @@
 
   <!-- ====================================================================== -->
   <!-- Lidar H (Horizontal) -->
-  <!-- User measured cable-side/top reference: (0, -91, -268.3)mm.
-       VLP-16 origin is sensor center: cable is on -Y_lidar, body is
-       101.72 mm diameter x 72.38 mm tall.
-       Corrected center -> ROS: (0, 0.14186, 0.23211)m. -->
+  <!-- VLP-16 origin is sensor center. The cable is on -Y_lidar and exits
+       toward the stern, so the sensor frame is yawed -90 deg relative to the
+       boat. Relative to the current IMU cable/reference point, the lidar cable
+       is 3.72 mm forward, 7.15 mm left, and 35.64 mm higher; the VLP center is
+       another 50.86 mm forward and 36.19 mm lower.
+       Corrected center -> ROS: (0.12018, 0.09815, 0.20245)m. -->
   <!-- Velodyne VLP-16 model: 16 channels, 360 degree sweep, 10 Hz at 600 RPM. -->
   <!-- ====================================================================== -->
   <!-- Mount pole for Lidar H -->
@@ -41,7 +43,7 @@
   <joint name="lidar_h_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_h_mount"/>
-    <origin xyz="0 0.091 0.16" rpy="0 0 0"/>
+    <origin xyz="0.12018 0.09815 0.16" rpy="0 0 0"/>
   </joint>
 
   <link name="lidar_h_link">
@@ -57,7 +59,7 @@
   <joint name="lidar_h_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_h_link"/>
-    <origin xyz="0 0.14186 0.23211" rpy="0 0 0"/>
+    <origin xyz="0.12018 0.09815 0.20245" rpy="0 0 -1.5707963267948966"/>
   </joint>
 
   <gazebo reference="lidar_h_link">
@@ -377,7 +379,9 @@
 
   <!-- ====================================================================== -->
   <!-- IMU Visual (for debugging) -->
-  <!-- User: (65.6, -91, -203)mm -> ROS: (0.0656, 0.091, 0.203)m -->
+  <!-- User: (65.6, -91, -203)mm -> ROS: (0.0656, 0.091, 0.203)m.
+       Xsens cable exits stern and label side faces down, so imu_link is
+       pitched 180 deg relative to base_link. -->
   <!-- Note: imu_link is already defined in base Heron URDF, just add visual -->
   <!-- ====================================================================== -->
   <!-- Debug link marker - placed at approximate IMU location -->
@@ -394,7 +398,7 @@
   <joint name="debug_extra_joint" type="fixed">
     <parent link="base_link"/>
     <child link="debug_extra_link"/>
-    <origin xyz="0.0656 0.091 0.203" rpy="0 0 0"/>
+    <origin xyz="0.0656 0.091 0.203" rpy="0 3.141592653589793 0"/>
   </joint>
 
   <gazebo>
