@@ -107,7 +107,9 @@
 
   <!-- ====================================================================== -->
   <!-- Lidar V (Vertical) -->
-  <!-- User: (180, -126, -181)mm -> ROS: (0.180, 0.126, 0.181)m -->
+  <!-- Vertical VLP reference plane is 0.10298 m behind the lidar_h connector.
+       With lidar_v +Z aft and the VLP origin at sensor center, the center is
+       one radius forward from that plane: (0.01720, 0.126, 0.181)m. -->
   <!-- Vertical VLP-16 frame: +X starboard/right, +Y up, +Z aft/stern. -->
   <!-- ====================================================================== -->
   <!-- Mount pole for Lidar V -->
@@ -124,7 +126,7 @@
   <joint name="lidar_v_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_v_mount"/>
-    <origin xyz="0.180 0.126 0.11" rpy="0 0 0"/>
+    <origin xyz="0.01720 0.126 0.11" rpy="0 0 0"/>
   </joint>
 
   <link name="lidar_v_link">
@@ -140,7 +142,7 @@
   <joint name="lidar_v_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_v_link"/>
-    <origin xyz="0.180 0.126 0.181" rpy="1.5707963267948966 0 -1.5707963267948966"/>
+    <origin xyz="0.01720 0.126 0.181" rpy="1.5707963267948966 0 -1.5707963267948966"/>
   </joint>
 
   <gazebo reference="lidar_v_link">
@@ -378,9 +380,10 @@
 
   <!-- ====================================================================== -->
   <!-- IMU Visual (for debugging) -->
-  <!-- User: (65.6, -91, -203)mm -> ROS: (0.0656, 0.091, 0.203)m.
-       Xsens frame is mounted with +X forward, +Y starboard/right, and +Z down
-       toward the water. -->
+  <!-- Current connector/reference value: (0.0656, 0.091, 0.203)m.
+       Encased MTi-30 AHRS device ID 0368xxxx: connector side is -X and exits
+       aft, the unit is upside down, so +X is forward, +Y is starboard/right,
+       and +Z points down toward the water. -->
   <!-- Note: imu_link is already defined in base Heron URDF, just add visual -->
   <!-- ====================================================================== -->
   <!-- Debug link marker - placed at approximate IMU location -->
