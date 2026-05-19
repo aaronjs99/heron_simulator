@@ -25,8 +25,8 @@
        toward the stern, so the sensor frame is yawed -90 deg relative to the
        boat. Relative to the current IMU cable/reference point, the lidar cable
        is 3.72 mm forward, 7.15 mm left, and 35.64 mm higher; the VLP center is
-       another 50.86 mm forward and 36.19 mm lower.
-       Corrected center -> ROS: (0.12018, 0.09815, 0.20245)m. -->
+       another 50.86 mm forward from the cable side and 36.19 mm above the cable
+       exit. Corrected center -> ROS: (0.12018, 0.09815, 0.27483)m. -->
   <!-- Velodyne VLP-16 model: 16 channels, 360 degree sweep, 10 Hz at 600 RPM. -->
   <!-- ====================================================================== -->
   <!-- Mount pole for Lidar H -->
@@ -59,7 +59,7 @@
   <joint name="lidar_h_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_h_link"/>
-    <origin xyz="0.12018 0.09815 0.20245" rpy="0 0 -1.5707963267948966"/>
+    <origin xyz="0.12018 0.09815 0.27483" rpy="0 0 -1.5707963267948966"/>
   </joint>
 
   <gazebo reference="lidar_h_link">
