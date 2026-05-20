@@ -3,15 +3,11 @@
   Standalone Heron simulation URDF
   Sensor positions match physical IG-Handle boat configuration
   
-  Physical sensor positions (mm, z-down) converted to URDF (meters, z-up):
+  Physical sensor positions converted to URDF base_link (meters):
   - Water level: z = -40mm -> boat floats at z=-0.04m
-  - lidar_h VLP-16 cable is on -Y_lidar and exits stern, so lidar_h is yawed
-    -90 deg. Relative to the current IMU cable/reference point, the lidar cable
-    is 3.72mm forward, 7.15mm left, and 35.64mm higher; the VLP center is
-    another 50.86mm forward from the cable side and 36.19mm above the cable
-    exit: (120.18, -98.15, -274.83) -> (0.12018, +0.09815, 0.27483)
-  - lidar_v center: lidar_h center x - 0.10298m -> (0.01720, +0.126, 0.181)
-  - IMU: (65.6, -91, -203) -> (0.0656, -0.091, 0.203)
+  - lidar_h VLP-16 origin: (0.00000, +0.13000, 0.29654), yaw -90 deg
+  - lidar_v VLP-16 origin: (-0.19003, +0.12234, 0.18068), roll 90 deg + yaw -90 deg
+  - imu_link origin: (-0.01188, +0.12755, 0.23412), roll 180 deg
   - Camera F1: (16.4, -21.3, -230) -> (0.0164, 0.0213, 0.230)
   - Camera F2: (16.4, -203.3, -230) -> (0.0164, 0.2033, 0.230)
   - Camera F3: (16.4, -21.3, -230) -> (0.0164, 0.0213, 0.230), upward
@@ -113,7 +109,7 @@
 
   <!-- ====================================================================== -->
   <!-- IMU Sensor -->
-  <!-- Current connector/reference value: (0.0656, +0.091, 0.203)m.
+  <!-- Final May 2026 seed: imu_link origin (-0.01188, +0.12755, 0.23412)m.
        Encased MTi-30 AHRS device ID 0368xxxx: connector side is -X and exits
        aft, the unit is upside down, so +X is forward, +Y is starboard/right,
        and +Z points down toward the water. -->
@@ -133,7 +129,7 @@
   <joint name="imu_joint" type="fixed">
     <parent link="base_link"/>
     <child link="imu_link"/>
-    <origin xyz="0.0656 0.091 0.203" rpy="3.141592653589793 0 0"/>
+    <origin xyz="-0.01188 0.12755 0.23412" rpy="3.141592653589793 0 0"/>
   </joint>
   
   <gazebo>
@@ -152,7 +148,7 @@
   </gazebo>
 
   <!-- ====================================================================== -->
-  <!-- GPS/NavSat link (same position as IMU for now) -->
+  <!-- GPS/NavSat link near the IMU for now. -->
   <!-- ====================================================================== -->
   <link name="navsat_link">
     <inertial>
@@ -163,17 +159,14 @@
   <joint name="navsat_joint" type="fixed">
     <parent link="base_link"/>
     <child link="navsat_link"/>
-    <origin xyz="0.0656 0.091 0.25" rpy="0 0 0"/>
+    <origin xyz="-0.01188 0.12755 0.28112" rpy="0 0 0"/>
   </joint>
 
   <!-- ====================================================================== -->
   <!-- Horizontal Lidar (lidar_h) -->
-  <!-- VLP-16 origin is sensor center. The cable is on -Y_lidar and exits
-       toward the stern, so the sensor frame is yawed -90 deg relative to the
-       boat. Relative to the current IMU cable/reference point, the lidar cable
-       is 3.72 mm forward, 7.15 mm left, and 35.64 mm higher; the VLP center is
-       another 50.86 mm forward from the cable side and 36.19 mm above the cable
-       exit. Corrected center -> ROS: (0.12018, +0.09815, 0.27483)m. -->
+  <!-- Final May 2026 seed. VLP-16 origin is sensor center. The cable is on
+       -Y_lidar and exits aft, so the sensor frame is yawed -90 deg relative to
+       base_link. Center -> ROS: (0.00000, +0.13000, 0.29654)m. -->
   <!-- ====================================================================== -->
   <!-- Lidar H mount pole -->
   <link name="lidar_h_mount">
@@ -192,7 +185,7 @@
   <joint name="lidar_h_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_h_mount"/>
-    <origin xyz="0.12018 0.09815 0.16" rpy="0 0 0"/>
+    <origin xyz="0.00000 0.13000 0.16" rpy="0 0 0"/>
   </joint>
   
   <link name="lidar_h_link">
@@ -216,14 +209,13 @@
   <joint name="lidar_h_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_h_link"/>
-    <origin xyz="0.12018 0.09815 0.27483" rpy="0 0 -1.5707963267948966"/>
+    <origin xyz="0.00000 0.13000 0.29654" rpy="0 0 -1.5707963267948966"/>
   </joint>
 
   <!-- ====================================================================== -->
   <!-- Vertical Lidar (lidar_v) -->
-  <!-- Vertical VLP reference plane is 0.10298 m behind the lidar_h connector.
-       With lidar_v +Z aft and the VLP origin at sensor center, the center is
-       one radius forward from that plane: (0.01720, +0.126, 0.181)m. -->
+  <!-- Final May 2026 seed. Vertical VLP center -> ROS:
+       (-0.19003, +0.12234, 0.18068)m. -->
   <!-- Vertical VLP-16 frame: +X starboard/right, +Y up, +Z aft/stern. -->
   <!-- ====================================================================== -->
   <!-- Lidar V mount pole -->
@@ -243,7 +235,7 @@
   <joint name="lidar_v_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_v_mount"/>
-    <origin xyz="0.01720 0.126 0.11" rpy="0 0 0"/>
+    <origin xyz="-0.19003 0.12234 0.11" rpy="0 0 0"/>
   </joint>
   
   <link name="lidar_v_link">
@@ -267,7 +259,7 @@
   <joint name="lidar_v_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_v_link"/>
-    <origin xyz="0.01720 0.126 0.181" rpy="1.5707963267948966 0 -1.5707963267948966"/>
+    <origin xyz="-0.19003 0.12234 0.18068" rpy="1.5707963267948966 0 -1.5707963267948966"/>
   </joint>
 
   <!-- ====================================================================== -->
