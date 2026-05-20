@@ -21,9 +21,9 @@
 
   <!-- ====================================================================== -->
   <!-- Lidar H (Horizontal) -->
-  <!-- Final May 2026 seed. VLP-16 origin is sensor center. The cable is on
-       -Y_lidar and exits aft, so the sensor frame is yawed -90 deg relative to
-       base_link. Center -> ROS: (0.00000, 0.13000, 0.29654)m. -->
+  <!-- Sensor origins come from slam_grande/config/sensors/heron_sensor_suite.yaml
+       via HERON_* environment variables exported by ig_handle_benchmark. -->
+  <!-- Horizontal VLP-16: +X starboard, +Y bow, +Z up. -->
   <!-- Velodyne VLP-16 model: 16 channels, 360 degree sweep, 10 Hz at 600 RPM. -->
   <!-- ====================================================================== -->
   <!-- Mount pole for Lidar H -->
@@ -40,7 +40,7 @@
   <joint name="lidar_h_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_h_mount"/>
-    <origin xyz="0.00000 0.13000 0.16" rpy="0 0 0"/>
+    <origin xyz="$(optenv HERON_LIDAR_H_MOUNT_XYZ)" rpy="0 0 0"/>
   </joint>
 
   <link name="lidar_h_link">
@@ -56,7 +56,7 @@
   <joint name="lidar_h_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_h_link"/>
-    <origin xyz="0.00000 0.13000 0.29654" rpy="0 0 -1.5707963267948966"/>
+    <origin xyz="$(optenv HERON_LIDAR_H_XYZ)" rpy="$(optenv HERON_LIDAR_H_RPY)"/>
   </joint>
 
   <gazebo reference="lidar_h_link">
@@ -104,9 +104,8 @@
 
   <!-- ====================================================================== -->
   <!-- Lidar V (Vertical) -->
-  <!-- Final May 2026 seed. Vertical VLP center -> ROS:
-       (-0.19003, 0.12234, 0.18068)m. -->
-  <!-- Vertical VLP-16 frame: +X starboard/right, +Y up, +Z aft/stern. -->
+  <!-- Vertical VLP-16: +X starboard, +Y up, +Z aft. Runtime TF ownership is
+       lidar_h_link -> lidar_v_link; the mount visual remains in base_link. -->
   <!-- ====================================================================== -->
   <!-- Mount pole for Lidar V -->
   <link name="lidar_v_mount">
@@ -122,7 +121,7 @@
   <joint name="lidar_v_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_v_mount"/>
-    <origin xyz="-0.19003 0.12234 0.11" rpy="0 0 0"/>
+    <origin xyz="$(optenv HERON_LIDAR_V_MOUNT_XYZ)" rpy="0 0 0"/>
   </joint>
 
   <link name="lidar_v_link">
@@ -136,9 +135,9 @@
     </inertial>
   </link>
   <joint name="lidar_v_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="lidar_h_link"/>
     <child link="lidar_v_link"/>
-    <origin xyz="-0.19003 0.12234 0.18068" rpy="1.5707963267948966 0 -1.5707963267948966"/>
+    <origin xyz="$(optenv HERON_LIDAR_V_XYZ)" rpy="$(optenv HERON_LIDAR_V_RPY)"/>
   </joint>
 
   <gazebo reference="lidar_v_link">
@@ -260,7 +259,7 @@
   <joint name="camera_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="camera_mount"/>
-    <origin xyz="0.0164 0.1 0.13" rpy="0 0 0"/>
+    <origin xyz="$(optenv HERON_CAMERA_MOUNT_XYZ)" rpy="0 0 0"/>
   </joint>
 
   <xacro:macro name="ig_handle_forge_camera"
@@ -285,7 +284,7 @@
     <joint name="${id}_optical_joint" type="fixed">
       <parent link="${id}"/>
       <child link="${id}_optical"/>
-      <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+      <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
     </joint>
 
     <gazebo reference="${id}">
@@ -335,28 +334,28 @@
   <!-- ====================================================================== -->
   <xacro:if value="$(optenv HERON_CAMERA_F1 1)">
     <xacro:ig_handle_forge_camera id="F1"
-                                  xyz="0.0164 0.0213 0.230"
-                                  rpy="0 0 0"
+                                  xyz="$(optenv HERON_CAMERA_F1_XYZ)"
+                                  rpy="$(optenv HERON_CAMERA_F1_RPY)"
                                   topic_suffix="f1"
-                                  camera_name="forward_left"
+                                  camera_name="forward_center"
                                   distortion_k1="-0.0100"
                                   distortion_k2="0.0030"
                                   distortion_k3="-0.0020"/>
   </xacro:if>
   <xacro:if value="$(optenv HERON_CAMERA_F2 0)">
     <xacro:ig_handle_forge_camera id="F2"
-                                  xyz="0.0164 0.2033 0.230"
-                                  rpy="0 0 0"
+                                  xyz="$(optenv HERON_CAMERA_F2_XYZ)"
+                                  rpy="$(optenv HERON_CAMERA_F2_RPY)"
                                   topic_suffix="f2"
-                                  camera_name="forward_center"
+                                  camera_name="forward_left"
                                   distortion_k1="-0.0090"
                                   distortion_k2="0.0028"
                                   distortion_k3="-0.0019"/>
   </xacro:if>
   <xacro:if value="$(optenv HERON_CAMERA_F3 0)">
     <xacro:ig_handle_forge_camera id="F3"
-                                  xyz="0.0164 0.0213 0.230"
-                                  rpy="0 -1.5708 0"
+                                  xyz="$(optenv HERON_CAMERA_F3_XYZ)"
+                                  rpy="$(optenv HERON_CAMERA_F3_RPY)"
                                   topic_suffix="f3"
                                   camera_name="upward_left"
                                   distortion_k1="-0.0100"
@@ -365,8 +364,8 @@
   </xacro:if>
   <xacro:if value="$(optenv HERON_CAMERA_F4 1)">
     <xacro:ig_handle_forge_camera id="F4"
-                                  xyz="0.0164 0.2033 0.230"
-                                  rpy="0 -1.5708 0"
+                                  xyz="$(optenv HERON_CAMERA_F4_XYZ)"
+                                  rpy="$(optenv HERON_CAMERA_F4_RPY)"
                                   topic_suffix="f4"
                                   camera_name="upward_center"
                                   distortion_k1="-0.0090"
@@ -376,7 +375,7 @@
 
   <!-- ====================================================================== -->
   <!-- IMU Visual (for debugging) -->
-  <!-- Final May 2026 seed: imu_link origin (-0.01188, 0.12755, 0.23412)m.
+  <!-- IMU pose comes from the canonical sensor suite through HERON_IMU_*.
        Encased MTi-30 AHRS device ID 0368xxxx: connector side is -X and exits
        aft, the unit is upside down, so +X is forward, +Y is starboard/right,
        and +Z points down toward the water. -->
@@ -396,7 +395,7 @@
   <joint name="debug_extra_joint" type="fixed">
     <parent link="base_link"/>
     <child link="debug_extra_link"/>
-    <origin xyz="-0.01188 0.12755 0.23412" rpy="3.141592653589793 0 0"/>
+    <origin xyz="$(optenv HERON_IMU_XYZ)" rpy="$(optenv HERON_IMU_RPY)"/>
   </joint>
 
   <gazebo>

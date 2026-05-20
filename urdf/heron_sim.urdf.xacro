@@ -8,10 +8,12 @@
   - lidar_h VLP-16 origin: (0.00000, +0.13000, 0.29654), yaw -90 deg
   - lidar_v VLP-16 origin: (-0.19003, +0.12234, 0.18068), roll 90 deg + yaw -90 deg
   - imu_link origin: (-0.01188, +0.12755, 0.23412), roll 180 deg
-  - Camera F1: (16.4, -21.3, -230) -> (0.0164, 0.0213, 0.230)
-  - Camera F2: (16.4, -203.3, -230) -> (0.0164, 0.2033, 0.230)
-  - Camera F3: (16.4, -21.3, -230) -> (0.0164, 0.0213, 0.230), upward
-  - Camera F4: (16.4, -203.3, -230) -> (0.0164, 0.2033, 0.230), upward
+  - Camera F1 optical origin: (0.02445, 0.04035, 0.22909), forward center-ish
+  - Camera F2 optical origin: (0.02445, 0.21966, 0.22909), forward port
+  - Camera F3 optical origin: (0.02445, 0.26652, 0.18339), upward port
+  - Camera F4 optical origin: (0.02445, -0.00652, 0.18339), upward center-ish
+  This standalone URDF is legacy; the active simulator uses
+  ig_handle_benchmark plus ig_handle_sensors.urdf.xacro.
 -->
 <robot name="heron_sim" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
@@ -164,9 +166,8 @@
 
   <!-- ====================================================================== -->
   <!-- Horizontal Lidar (lidar_h) -->
-  <!-- Final May 2026 seed. VLP-16 origin is sensor center. The cable is on
-       -Y_lidar and exits aft, so the sensor frame is yawed -90 deg relative to
-       base_link. Center -> ROS: (0.00000, +0.13000, 0.29654)m. -->
+  <!-- Seed mirrors slam_grande/config/sensors/heron_sensor_suite.yaml. -->
+  <!-- Horizontal VLP-16: +X starboard, +Y bow, +Z up. -->
   <!-- ====================================================================== -->
   <!-- Lidar H mount pole -->
   <link name="lidar_h_mount">
@@ -214,9 +215,8 @@
 
   <!-- ====================================================================== -->
   <!-- Vertical Lidar (lidar_v) -->
-  <!-- Final May 2026 seed. Vertical VLP center -> ROS:
-       (-0.19003, +0.12234, 0.18068)m. -->
-  <!-- Vertical VLP-16 frame: +X starboard/right, +Y up, +Z aft/stern. -->
+  <!-- Vertical VLP-16: +X starboard, +Y up, +Z aft. Keep the runtime
+       ownership edge as lidar_h_link -> lidar_v_link. -->
   <!-- ====================================================================== -->
   <!-- Lidar V mount pole -->
   <link name="lidar_v_mount">
@@ -257,9 +257,9 @@
     </inertial>
   </link>
   <joint name="lidar_v_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="lidar_h_link"/>
     <child link="lidar_v_link"/>
-    <origin xyz="-0.19003 0.12234 0.18068" rpy="1.5707963267948966 0 -1.5707963267948966"/>
+    <origin xyz="0.00766 -0.19003 -0.11586" rpy="1.5707963267948966 0 0"/>
   </joint>
 
   <!-- ====================================================================== -->
@@ -281,12 +281,11 @@
   <joint name="camera_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="camera_mount"/>
-    <origin xyz="0.0164 0.1 0.13" rpy="0 0 0"/>
+    <origin xyz="0.02445 0.13000 0.13000" rpy="0 0 0"/>
   </joint>
 
   <!-- ====================================================================== -->
-  <!-- Camera F1 (forward left-side) -->
-  <!-- User: (16.4, -21.3, -230)mm -> ROS: (0.0164, +0.0213, 0.230)m -->
+  <!-- Camera F1 (forward center-ish) -->
   <!-- ====================================================================== -->
   <link name="F1">
     <visual>
@@ -308,7 +307,7 @@
   <joint name="F1_joint" type="fixed">
     <parent link="base_link"/>
     <child link="F1"/>
-    <origin xyz="0.0164 0.0213 0.230" rpy="0 0 0"/>
+    <origin xyz="0.02445 0.04035 0.22909" rpy="0 0 0"/>
   </joint>
 
   <!-- Camera F1 optical frame -->
@@ -316,13 +315,12 @@
   <joint name="F1_optical_joint" type="fixed">
     <parent link="F1"/>
     <child link="F1_optical"/>
-    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+    <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
   </joint>
 
   <xacro:if value="$(optenv HERON_CAMERA_F2 0)">
     <!-- ====================================================================== -->
-    <!-- Camera F2 (forward center-ish) -->
-    <!-- User: (16.4, -203.3, -230)mm -> ROS: (0.0164, +0.2033, 0.230)m -->
+    <!-- Camera F2 (forward port) -->
     <!-- ====================================================================== -->
     <link name="F2">
       <visual>
@@ -344,7 +342,7 @@
     <joint name="F2_joint" type="fixed">
       <parent link="base_link"/>
       <child link="F2"/>
-      <origin xyz="0.0164 0.2033 0.230" rpy="0 0 0"/>
+      <origin xyz="0.02445 0.21966 0.22909" rpy="0 0 0"/>
     </joint>
 
     <!-- Camera F2 optical frame -->
@@ -352,14 +350,13 @@
     <joint name="F2_optical_joint" type="fixed">
       <parent link="F2"/>
       <child link="F2_optical"/>
-      <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+      <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
     </joint>
   </xacro:if>
 
   <xacro:if value="$(optenv HERON_CAMERA_F3 0)">
     <!-- ====================================================================== -->
-    <!-- Camera F3 (upward left-side) -->
-    <!-- User: (16.4, -21.3, -230)mm -> ROS: (0.0164, +0.0213, 0.230)m -->
+    <!-- Camera F3 (upward port) -->
     <!-- ====================================================================== -->
     <link name="F3">
       <visual>
@@ -381,7 +378,7 @@
     <joint name="F3_joint" type="fixed">
       <parent link="base_link"/>
       <child link="F3"/>
-      <origin xyz="0.0164 0.0213 0.230" rpy="0 -1.5708 0"/>
+      <origin xyz="0.02445 0.26652 0.18339" rpy="0 -1.5707963267948966 0"/>
     </joint>
 
     <!-- Camera F3 optical frame -->
@@ -389,13 +386,12 @@
     <joint name="F3_optical_joint" type="fixed">
       <parent link="F3"/>
       <child link="F3_optical"/>
-      <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+      <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
     </joint>
   </xacro:if>
 
   <!-- ====================================================================== -->
   <!-- Camera F4 (upward center-ish) -->
-  <!-- User: (16.4, -203.3, -230)mm -> ROS: (0.0164, +0.2033, 0.230)m -->
   <!-- ====================================================================== -->
   <link name="F4">
     <visual>
@@ -417,7 +413,7 @@
   <joint name="F4_joint" type="fixed">
     <parent link="base_link"/>
     <child link="F4"/>
-    <origin xyz="0.0164 0.2033 0.230" rpy="0 -1.5708 0"/>
+    <origin xyz="0.02445 -0.00652 0.18339" rpy="0 -1.5707963267948966 0"/>
   </joint>
 
   <!-- Camera F4 optical frame -->
@@ -425,7 +421,7 @@
   <joint name="F4_optical_joint" type="fixed">
     <parent link="F4"/>
     <child link="F4_optical"/>
-    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+    <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
   </joint>
 
   <!-- ====================================================================== -->
