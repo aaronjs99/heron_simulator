@@ -5,13 +5,13 @@
   
   Physical sensor positions converted to URDF base_link (meters):
   - Water level: z = -40mm -> boat floats at z=-0.04m
-  - lidar_h VLP-16 origin: (0.00000, +0.13000, 0.29654), yaw -90 deg
-  - lidar_v VLP-16 origin: (-0.19003, +0.12234, 0.18068), roll 90 deg + yaw -90 deg
-  - imu_link origin: (-0.01188, +0.12755, 0.23412), roll 180 deg
-  - Camera F1 optical origin: (0.02445, 0.04035, 0.22909), forward center-ish
-  - Camera F2 optical origin: (0.02445, 0.21966, 0.22909), forward port
-  - Camera F3 optical origin: (0.02445, 0.26652, 0.18339), upward port
-  - Camera F4 optical origin: (0.02445, -0.00652, 0.18339), upward center-ish
+  - lidar_h VLP-16 origin: (0.00000, 0.00000, 0.29654), forward-aligned
+  - lidar_v VLP-16 origin: (0.03781, 0.00000, 0.20835), +Z points forward
+  - imu_link origin: (-0.01200, 0.00000, 0.25235), roll 180 deg
+  - Camera F1 optical origin: (0.03445, -0.089655, 0.22909), forward starboard
+  - Camera F2 optical origin: (0.03445, 0.089655, 0.22909), forward port
+  - Camera F3 optical origin: (0.03445, 0.136515, 0.18339), upward port
+  - Camera F4 optical origin: (0.03445, -0.136515, 0.18339), upward starboard
   This standalone URDF is legacy; the active simulator uses
   ig_handle_benchmark plus ig_handle_sensors.urdf.xacro.
 -->
@@ -111,7 +111,7 @@
 
   <!-- ====================================================================== -->
   <!-- IMU Sensor -->
-  <!-- Final May 2026 seed: imu_link origin (-0.01188, +0.12755, 0.23412)m.
+  <!-- Centerline May 2026 seed: imu_link origin (-0.01200, 0.00000, 0.25235)m.
        Encased MTi-30 AHRS device ID 0368xxxx: connector side is -X and exits
        aft, the unit is upside down, so +X is forward, +Y is starboard/right,
        and +Z points down toward the water. -->
@@ -131,7 +131,7 @@
   <joint name="imu_joint" type="fixed">
     <parent link="base_link"/>
     <child link="imu_link"/>
-    <origin xyz="-0.01188 0.12755 0.23412" rpy="3.141592653589793 0 0"/>
+    <origin xyz="-0.01200 0.00000 0.25235" rpy="3.141592653589793 0 0"/>
   </joint>
   
   <gazebo>
@@ -161,7 +161,7 @@
   <joint name="navsat_joint" type="fixed">
     <parent link="base_link"/>
     <child link="navsat_link"/>
-    <origin xyz="-0.01188 0.12755 0.28112" rpy="0 0 0"/>
+    <origin xyz="-0.01200 0.00000 0.29935" rpy="0 0 0"/>
   </joint>
 
   <!-- ====================================================================== -->
@@ -186,7 +186,7 @@
   <joint name="lidar_h_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_h_mount"/>
-    <origin xyz="0.00000 0.13000 0.16" rpy="0 0 0"/>
+    <origin xyz="0.00000 0.00000 0.16" rpy="0 0 0"/>
   </joint>
   
   <link name="lidar_h_link">
@@ -210,12 +210,12 @@
   <joint name="lidar_h_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_h_link"/>
-    <origin xyz="0.00000 0.13000 0.29654" rpy="0 0 -1.5707963267948966"/>
+    <origin xyz="0.00000 0.00000 0.29654" rpy="0 0 0"/>
   </joint>
 
   <!-- ====================================================================== -->
   <!-- Vertical Lidar (lidar_v) -->
-  <!-- Vertical VLP-16: +X starboard, +Y up, +Z aft. Keep the runtime
+  <!-- Vertical VLP-16: +X port, +Y up, +Z forward. Keep the runtime
        ownership edge as lidar_h_link -> lidar_v_link. -->
   <!-- ====================================================================== -->
   <!-- Lidar V mount pole -->
@@ -235,7 +235,7 @@
   <joint name="lidar_v_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_v_mount"/>
-    <origin xyz="-0.19003 0.12234 0.11" rpy="0 0 0"/>
+    <origin xyz="0.07400 0.00000 0.11" rpy="0 0 0"/>
   </joint>
   
   <link name="lidar_v_link">
@@ -259,7 +259,7 @@
   <joint name="lidar_v_joint" type="fixed">
     <parent link="lidar_h_link"/>
     <child link="lidar_v_link"/>
-    <origin xyz="0.00766 -0.19003 -0.11586" rpy="1.5707963267948966 0 0"/>
+    <origin xyz="0.03781 0.00000 -0.08819" rpy="1.5707963267948966 0 1.5707963267948966"/>
   </joint>
 
   <!-- ====================================================================== -->
@@ -281,11 +281,11 @@
   <joint name="camera_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="camera_mount"/>
-    <origin xyz="0.02445 0.13000 0.13000" rpy="0 0 0"/>
+    <origin xyz="0.03445 0.00000 0.13000" rpy="0 0 0"/>
   </joint>
 
   <!-- ====================================================================== -->
-  <!-- Camera F1 (forward center-ish) -->
+  <!-- Camera F1 (forward starboard) -->
   <!-- ====================================================================== -->
   <link name="F1">
     <visual>
@@ -307,7 +307,7 @@
   <joint name="F1_joint" type="fixed">
     <parent link="base_link"/>
     <child link="F1"/>
-    <origin xyz="0.02445 0.04035 0.22909" rpy="0 0 0"/>
+    <origin xyz="0.03445 -0.089655 0.22909" rpy="0 0 0"/>
   </joint>
 
   <!-- Camera F1 optical frame -->
@@ -318,7 +318,7 @@
     <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
   </joint>
 
-  <xacro:if value="$(optenv HERON_CAMERA_F2 0)">
+  <xacro:if value="$(optenv HERON_CAMERA_F2 1)">
     <!-- ====================================================================== -->
     <!-- Camera F2 (forward port) -->
     <!-- ====================================================================== -->
@@ -342,7 +342,7 @@
     <joint name="F2_joint" type="fixed">
       <parent link="base_link"/>
       <child link="F2"/>
-      <origin xyz="0.02445 0.21966 0.22909" rpy="0 0 0"/>
+      <origin xyz="0.03445 0.089655 0.22909" rpy="0 0 0"/>
     </joint>
 
     <!-- Camera F2 optical frame -->
@@ -378,7 +378,7 @@
     <joint name="F3_joint" type="fixed">
       <parent link="base_link"/>
       <child link="F3"/>
-      <origin xyz="0.02445 0.26652 0.18339" rpy="0 -1.5707963267948966 0"/>
+      <origin xyz="0.03445 0.136515 0.18339" rpy="0 -1.5707963267948966 0"/>
     </joint>
 
     <!-- Camera F3 optical frame -->
@@ -390,39 +390,41 @@
     </joint>
   </xacro:if>
 
-  <!-- ====================================================================== -->
-  <!-- Camera F4 (upward center-ish) -->
-  <!-- ====================================================================== -->
-  <link name="F4">
-    <visual>
-      <geometry>
-        <box size="0.06 0.06 0.04"/>
-      </geometry>
-      <material name="sensor_blue"/>
-    </visual>
-    <collision>
-      <geometry>
-        <box size="0.06 0.06 0.04"/>
-      </geometry>
-    </collision>
-    <inertial>
-      <mass value="0.1"/>
-      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
-    </inertial>
-  </link>
-  <joint name="F4_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="F4"/>
-    <origin xyz="0.02445 -0.00652 0.18339" rpy="0 -1.5707963267948966 0"/>
-  </joint>
+  <xacro:if value="$(optenv HERON_CAMERA_F4 1)">
+    <!-- ====================================================================== -->
+    <!-- Camera F4 (upward starboard) -->
+    <!-- ====================================================================== -->
+    <link name="F4">
+      <visual>
+        <geometry>
+          <box size="0.06 0.06 0.04"/>
+        </geometry>
+        <material name="sensor_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="0.06 0.06 0.04"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.1"/>
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+      </inertial>
+    </link>
+    <joint name="F4_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="F4"/>
+      <origin xyz="0.03445 -0.136515 0.18339" rpy="0 -1.5707963267948966 0"/>
+    </joint>
 
-  <!-- Camera F4 optical frame -->
-  <link name="F4_optical"/>
-  <joint name="F4_optical_joint" type="fixed">
-    <parent link="F4"/>
-    <child link="F4_optical"/>
-    <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
-  </joint>
+    <!-- Camera F4 optical frame -->
+    <link name="F4_optical"/>
+    <joint name="F4_optical_joint" type="fixed">
+      <parent link="F4"/>
+      <child link="F4_optical"/>
+      <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
+    </joint>
+  </xacro:if>
 
   <!-- ====================================================================== -->
   <!-- Sonar -->
@@ -668,7 +670,7 @@
     </sensor>
   </gazebo>
 
-  <xacro:if value="$(optenv HERON_CAMERA_F2 0)">
+  <xacro:if value="$(optenv HERON_CAMERA_F2 1)">
     <!-- ====================================================================== -->
     <!-- Camera F2 Gazebo Plugin -->
     <!-- ====================================================================== -->
@@ -742,40 +744,42 @@
     </gazebo>
   </xacro:if>
 
-  <!-- ====================================================================== -->
-  <!-- Camera F4 Gazebo Plugin -->
-  <!-- ====================================================================== -->
-  <gazebo reference="F4">
-    <sensor type="camera" name="camera_F4">
-      <update_rate>15.0</update_rate>
-      <camera name="F4">
-        <horizontal_fov>1.60</horizontal_fov>
-        <image>
-          <width>1280</width>
-          <height>1024</height>
-          <format>R8G8B8</format>
-        </image>
-        <clip>
-          <near>0.02</near>
-          <far>100</far>
-        </clip>
-        <visibility_mask>4294967294</visibility_mask>
-        <noise>
-          <type>gaussian</type>
-          <mean>0.0</mean>
-          <stddev>0.007</stddev>
-        </noise>
-      </camera>
-      <plugin name="camera_F4_controller" filename="libgazebo_ros_camera.so">
-        <alwaysOn>true</alwaysOn>
-        <updateRate>15.0</updateRate>
-        <cameraName>sensors/camera/f4</cameraName>
-        <imageTopicName>image_raw</imageTopicName>
-        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-        <frameName>F4_optical</frameName>
-      </plugin>
-    </sensor>
-  </gazebo>
+  <xacro:if value="$(optenv HERON_CAMERA_F4 1)">
+    <!-- ====================================================================== -->
+    <!-- Camera F4 Gazebo Plugin -->
+    <!-- ====================================================================== -->
+    <gazebo reference="F4">
+      <sensor type="camera" name="camera_F4">
+        <update_rate>15.0</update_rate>
+        <camera name="F4">
+          <horizontal_fov>1.60</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>1024</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>100</far>
+          </clip>
+          <visibility_mask>4294967294</visibility_mask>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <plugin name="camera_F4_controller" filename="libgazebo_ros_camera.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>15.0</updateRate>
+          <cameraName>sensors/camera/f4</cameraName>
+          <imageTopicName>image_raw</imageTopicName>
+          <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+          <frameName>F4_optical</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+  </xacro:if>
 
   <!-- ====================================================================== -->
   <!-- Ground truth odometry via p3d plugin -->

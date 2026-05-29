@@ -328,26 +328,27 @@
 
   <!-- ====================================================================== -->
   <!-- Forge camera stack -->
-  <!-- F1/F2 face forward; F3/F4 face upward. F1/F3 are left-side mounts, and
-       F2/F4 are center-ish mounts. These frame names intentionally match the
-       real Forge driver frame IDs and shared sensor YAML. -->
+  <!-- F1/F2 face forward; F3/F4 face upward. F1/F4 are right/starboard mounts
+       when looking from behind, and F2/F3 are left/port mounts. These frame
+       names intentionally match the real Forge driver frame IDs and shared
+       sensor YAML. -->
   <!-- ====================================================================== -->
   <xacro:if value="$(optenv HERON_CAMERA_F1 1)">
     <xacro:ig_handle_forge_camera id="F1"
                                   xyz="$(optenv HERON_CAMERA_F1_XYZ)"
                                   rpy="$(optenv HERON_CAMERA_F1_RPY)"
                                   topic_suffix="f1"
-                                  camera_name="forward_center"
+                                  camera_name="forward_starboard"
                                   distortion_k1="-0.0100"
                                   distortion_k2="0.0030"
                                   distortion_k3="-0.0020"/>
   </xacro:if>
-  <xacro:if value="$(optenv HERON_CAMERA_F2 0)">
+  <xacro:if value="$(optenv HERON_CAMERA_F2 1)">
     <xacro:ig_handle_forge_camera id="F2"
                                   xyz="$(optenv HERON_CAMERA_F2_XYZ)"
                                   rpy="$(optenv HERON_CAMERA_F2_RPY)"
                                   topic_suffix="f2"
-                                  camera_name="forward_left"
+                                  camera_name="forward_port"
                                   distortion_k1="-0.0090"
                                   distortion_k2="0.0028"
                                   distortion_k3="-0.0019"/>
@@ -357,7 +358,7 @@
                                   xyz="$(optenv HERON_CAMERA_F3_XYZ)"
                                   rpy="$(optenv HERON_CAMERA_F3_RPY)"
                                   topic_suffix="f3"
-                                  camera_name="upward_left"
+                                  camera_name="upward_port"
                                   distortion_k1="-0.0100"
                                   distortion_k2="0.0030"
                                   distortion_k3="-0.0020"/>
@@ -367,7 +368,7 @@
                                   xyz="$(optenv HERON_CAMERA_F4_XYZ)"
                                   rpy="$(optenv HERON_CAMERA_F4_RPY)"
                                   topic_suffix="f4"
-                                  camera_name="upward_center"
+                                  camera_name="upward_starboard"
                                   distortion_k1="-0.0090"
                                   distortion_k2="0.0028"
                                   distortion_k3="-0.0019"/>
