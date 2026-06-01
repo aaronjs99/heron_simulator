@@ -68,26 +68,25 @@ cloud.
 
 ## Common Uses
 
-### Full stack simulation
+### Package-level simulation
 
 ```bash
-roslaunch slam_grande bringup.launch mode:=sim
+roslaunch heron_simulator heron_world.launch
 ```
 
 By default, the boat spawns into the selected scenario world. Any semantic
 reasoning over the scene is owned by ORACLE and the `/oracle/world/entities`
 pipeline, not by Gazebo model names or simulator scripts.
 
-`heron_simulator` launch files are internal pieces of the full-stack sim path.
-Do not launch this package standalone for normal operation; run it through
-`slam_grande/launch/bringup.launch` so MARINER, ORACLE, topic contracts, and
-state wiring stay consistent.
+`heron_simulator` launch files are Gazebo pieces. Full-stack operation should
+compose them from the active integration launch so MARINER, ORACLE, topic
+contracts, and state wiring stay consistent.
 
 ## Important Pieces
 
 | Path | Role |
 |---|---|
-| `launch/` | Internal Gazebo world/spawn launch pieces used by `slam_grande` |
+| `launch/` | Gazebo world/spawn launch pieces used by an integration stack |
 | `worlds/` | Thin scenario composition files for physics, lighting, GUI camera, and model includes |
 | `models/` | Reusable Gazebo geometry assets such as water surfaces, tank geometry, and tank targets |
 | `scripts/drive_to_thrusters.py` | `/cmd_drive` to Gazebo thruster wrench bridge |
@@ -102,13 +101,13 @@ state wiring stay consistent.
 - Gazebo publishes simulated sensor topics that look like `ig_handle` hardware
   topics
 
-ORACLE, MARINER, DEFECTOR, dashboards, bagging, and topic contracts are composed
-by `slam_grande/launch/bringup.launch`.
+ORACLE, MARINER, DEFECTOR, dashboards, bagging, and topic contracts should be
+composed by the integration layer.
 
-## Shared Runtime Pattern
+## Integration Runtime Pattern
 
-The simulator now mirrors hardware bringup closely through the shared
-`slam_grande/launch/bringup.launch` selector:
+The simulator mirrors hardware bringup most closely when composed by an
+integration launch:
 
 1. Source vehicle state and sensor topics
 2. Build or load the navigation map
@@ -131,17 +130,15 @@ Current shared-bringup defaults:
 | `use_rviz` | `true` | opens the shared navigation RViz layout in sim |
 | `build_map` | `true` | starts RTAB-Map loop closure/global correction when RTAB-Map is installed |
 
-Integrated `slam_grande` simulation now uses Gazebo truth as the default
-upstream localization source and republishes it through the same odometry
-sanity filter and `/state/odometry` contract used by the rest of the stack.
-DLiO launch and configuration are owned by MARINER/top-level bringup, not by
-`heron_simulator`; when enabled, raw DLiO remains published on
-`/state/dlio/odometry` for diagnostics and can be selected deliberately with
-`sim_odom_source:=dlio`. Mocap stays outside bringup as a lab logging/comparison
-stream.
+The current integration stack uses Gazebo truth as the default upstream
+localization source and republishes it through the same odometry sanity filter
+and `/state/odometry` contract used by the rest of the stack. DLiO launch and
+configuration are owned by MARINER/integration bringup, not by
+`heron_simulator`. Mocap stays outside simulator bringup as a lab
+logging/comparison stream.
 
-To open the shared navigation RViz layout in sim:
+To open Gazebo with the package-level simulator launch:
 
 ```bash
-roslaunch slam_grande bringup.launch mode:=sim use_rviz:=true
+roslaunch heron_simulator heron_world.launch gui:=true
 ```

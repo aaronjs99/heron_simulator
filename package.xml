@@ -7,7 +7,7 @@
     sensor publishers. Based on heron_simulator by Clearpath Robotics.
   </description>
 
-  <!-- SLAM GRANDE maintainer -->
+  <!-- Project maintainer -->
   <maintainer email="aaronjs@g.ucla.edu">Aaron John Sabu</maintainer>
 
   <!-- Original Clearpath authors -->
@@ -15,10 +15,9 @@
   <author email="yanma@clearpathrobotics.com">Yan Ma (Clearpath Robotics)</author>
   <author email="mpurvis@clearpathrobotics.com">Mike Purvis (Clearpath Robotics)</author>
 
-  <!-- Dual license: BSD for Clearpath code, MIT for SLAM GRANDE extensions -->
+  <!-- Dual license: BSD for Clearpath code, MIT for local extensions -->
   <license>BSD, MIT</license>
 
-  <url type="repository">https://github.com/aaronjs99/slam_grande</url>
   <url type="repository">https://github.com/heron/heron_simulator</url>
 
   <buildtool_depend>catkin</buildtool_depend>
