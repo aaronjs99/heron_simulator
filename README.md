@@ -13,6 +13,8 @@ this package.
 - Heron vehicle spawn and world bringup
 - reusable water, harbor, and tank environment assets
 - simulated sensors that publish the same topic surfaces as `ig_handle`
+- simulated IG Handle timing-reference topics derived from simulated sensor
+  stamps
 - `/cmd_drive` to Gazebo thruster wrench translation
 - Gazebo plugins for custom force behavior
 
@@ -32,7 +34,10 @@ this package.
   `/sensors/lidar/hori/points` and `/sensors/lidar/vert/points`. Each Gazebo
   ray model is configured as a 16-channel, 360 x 30 degree VLP-16-style scan at
   the 600 RPM / 10 Hz default cadence with 0.2 degree azimuth spacing and 200 m
-  maximum range.
+  maximum range. The simulator does not publish synthetic
+  `velodyne_msgs/VelodyneScan` packet topics; packet-level fidelity belongs to
+  real hardware or bag-backed tests because fabricated packet bytes would not
+  represent the Gazebo ray model honestly.
 - The simulated sonar is a multibeam echosounder path, not a direct scan
   shortcut. Gazebo produces an internal DT100-style 480-beam profile cloud,
   `multibeam_raw.py` packs it as raw 83P/profile bytes on
@@ -47,6 +52,9 @@ this package.
   sensor frame and mount poses from `ig_handle/config/sensors/sensor_frames.yaml`
   through `ig_handle/scripts/frames/export.py`; do not duplicate sensor
   extrinsics in `heron_simulator`.
+- `sim_ig_timing.py` mirrors the optional IG Handle timing surface by publishing
+  `/sensors/pps/time` from sim time, `/sensors/camera/time` from camera image
+  header stamps, and `/sensors/imu/time` from simulated IMU header stamps.
 
 ## Sensor Output Contract
 
@@ -65,6 +73,9 @@ cloud.
 | `/sensors/camera/f3/image_raw` | `sensor_msgs/Image` |
 | `/sensors/camera/f4/image_raw` | `sensor_msgs/Image` |
 | `/sensors/sonar/raw` | `std_msgs/UInt8MultiArray` |
+| `/sensors/pps/time` | `sensor_msgs/TimeReference` |
+| `/sensors/camera/time` | `sensor_msgs/TimeReference` |
+| `/sensors/imu/time` | `sensor_msgs/TimeReference` |
 
 ## Common Uses
 
@@ -74,9 +85,11 @@ cloud.
 roslaunch heron_simulator heron_world.launch
 ```
 
-By default, the boat spawns into the selected scenario world. Any semantic
-reasoning over the scene is owned by ORACLE and the `/oracle/world/entities`
-pipeline, not by Gazebo model names or simulator scripts.
+By default, the boat spawns with the `ig_handle_benchmark` Heron description
+config so the package-level launch exposes the same IG sensor add-ons as the
+full-stack integration launch. Any semantic reasoning over the scene is owned
+by ORACLE and the `/oracle/world/entities` pipeline, not by Gazebo model names
+or simulator scripts.
 
 `heron_simulator` launch files are Gazebo pieces. Full-stack operation should
 compose them from the active integration launch so MARINER, ORACLE, topic
@@ -91,6 +104,7 @@ contracts, and state wiring stay consistent.
 | `models/` | Reusable Gazebo geometry assets such as water surfaces, tank geometry, and tank targets |
 | `scripts/drive_to_thrusters.py` | `/cmd_drive` to Gazebo thruster wrench bridge |
 | `scripts/multibeam_raw.py` | Gazebo multibeam sonar ray cloud to raw 83P/profile packet bridge |
+| `scripts/sim_ig_timing.py` | Simulated IG Handle timing-reference topic bridge |
 | `src/` | Gazebo plugins and compiled simulator support |
 | `tests/` | Simulation launch, rendering, and control regressions |
 

@@ -24,7 +24,7 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCL
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <launch>
-  <arg name="config" default="base" />
+  <arg name="config" default="ig_handle_benchmark" />
   <arg name="x"     default="0"/>
   <arg name="y"     default="0"/>
   <arg name="yaw"   default="0"/>
@@ -43,6 +43,14 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="sonar_raw_topic" default="/sensors/sonar/raw"/>
   <arg name="sonar_min_range_m" default="0.5"/>
   <arg name="sonar_max_range_m" default="100.0"/>
+  <arg name="use_ig_timing" default="true"/>
+  <arg name="pps_time_topic" default="/sensors/pps/time"/>
+  <arg name="camera_time_topic" default="/sensors/camera/time"/>
+  <arg name="imu_time_topic" default="/sensors/imu/time"/>
+  <arg name="imu_topic" default="/sensors/imu/data"/>
+  <arg name="pps_rate_hz" default="1.0"/>
+  <arg name="camera_time_image_topics"
+       default="/sensors/camera/f1/image_raw,/sensors/camera/f2/image_raw,/sensors/camera/f3/image_raw,/sensors/camera/f4/image_raw"/>
   <arg name="use_gazebo" default="true"/>
   <arg name="gazebo_master_port" default="11345"/>
   <arg name="gazebo_extra_args" default="--lockstep"/>
@@ -80,6 +88,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="sonar_raw_topic" value="$(arg sonar_raw_topic)" />
     <arg name="sonar_min_range_m" value="$(arg sonar_min_range_m)" />
     <arg name="sonar_max_range_m" value="$(arg sonar_max_range_m)" />
+    <arg name="use_ig_timing" value="$(arg use_ig_timing)" />
+    <arg name="pps_time_topic" value="$(arg pps_time_topic)" />
+    <arg name="camera_time_topic" value="$(arg camera_time_topic)" />
+    <arg name="imu_time_topic" value="$(arg imu_time_topic)" />
+    <arg name="imu_topic" value="$(arg imu_topic)" />
+    <arg name="pps_rate_hz" value="$(arg pps_rate_hz)" />
+    <arg name="camera_time_image_topics" value="$(arg camera_time_image_topics)" />
   </include>
 
 </launch>
