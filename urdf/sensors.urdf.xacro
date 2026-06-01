@@ -2,10 +2,9 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!-- ====================================================================== -->
-  <!-- IG Handle Sensors Configuration                                        -->
-  <!-- User coordinate frame: x-forward, y-right, z-down                      -->
-  <!-- ROS coordinate frame: x-forward, y-left, z-up                          -->
-  <!-- Conversion: negate Y and Z                                             -->
+  <!-- IG Handle simulator sensor add-on. All sensor frame and mount poses
+       come from ig_handle/config/sensors/sensor_frames.yaml through
+       ig_handle/scripts/frames/export.py and HERON_* environment variables. -->
   <!-- ====================================================================== -->
 
   <!-- Material Definitions -->
@@ -21,7 +20,7 @@
 
   <!-- ====================================================================== -->
   <!-- Lidar H (Horizontal) -->
-  <!-- Sensor origins come from slam_grande/config/sensors/heron_sensor_suite.yaml
+  <!-- Sensor origins come from ig_handle/config/sensors/sensor_frames.yaml
        via HERON_* environment variables exported by ig_handle_benchmark. -->
   <!-- Horizontal VLP-16: +X starboard, +Y bow, +Z up. -->
   <!-- Velodyne VLP-16 model: 16 channels, 360 degree sweep, 10 Hz at 600 RPM. -->
@@ -40,7 +39,7 @@
   <joint name="lidar_h_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_h_mount"/>
-    <origin xyz="$(optenv HERON_LIDAR_H_MOUNT_XYZ)" rpy="0 0 0"/>
+    <origin xyz="$(optenv HERON_LIDAR_H_MOUNT_XYZ)" rpy="$(optenv HERON_LIDAR_H_MOUNT_RPY)"/>
   </joint>
 
   <link name="lidar_h_link">
@@ -121,7 +120,7 @@
   <joint name="lidar_v_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar_v_mount"/>
-    <origin xyz="$(optenv HERON_LIDAR_V_MOUNT_XYZ)" rpy="0 0 0"/>
+    <origin xyz="$(optenv HERON_LIDAR_V_MOUNT_XYZ)" rpy="$(optenv HERON_LIDAR_V_MOUNT_RPY)"/>
   </joint>
 
   <link name="lidar_v_link">
@@ -185,7 +184,7 @@
 
   <!-- ====================================================================== -->
   <!-- Sonar -->
-  <!-- Imagenex DT100 profile model. User: (0, 0, 80)mm -> ROS: (0, 0, -0.08)m. -->
+  <!-- Imagenex DT100 profile model. Pose comes from sensor_frames.yaml. -->
   <!-- The acoustic +X axis is pitched down into ROS -Z. The ray fan models the -->
   <!-- 480-beam, 120 degree cross-track profile. The physical 3 degree along-track -->
   <!-- beam width is a footprint property, not extra profile beams, so Gazebo emits -->
@@ -204,7 +203,7 @@
   <joint name="sonar_joint" type="fixed">
     <parent link="base_link"/>
     <child link="sonar_link"/>
-    <origin xyz="0 0 -0.08" rpy="0 1.5708 0"/>
+    <origin xyz="$(optenv HERON_SONAR_XYZ)" rpy="$(optenv HERON_SONAR_RPY)"/>
   </joint>
 
   <gazebo reference="sonar_link">
@@ -232,7 +231,7 @@
          </range>
       </ray>
       <plugin name="sonar_plugin" filename="libgazebo_ros_velodyne_laser.so">
-        <topicName>/sensors/sonar/scan</topicName>
+        <topicName>$(optenv HERON_SIM_SONAR_RAY_TOPIC /sim/sensors/sonar/multibeam_points)</topicName>
         <frameName>sonar_link</frameName>
         <min_range>0.5</min_range>
         <max_range>100.0</max_range>
@@ -259,11 +258,11 @@
   <joint name="camera_mount_joint" type="fixed">
     <parent link="base_link"/>
     <child link="camera_mount"/>
-    <origin xyz="$(optenv HERON_CAMERA_MOUNT_XYZ)" rpy="0 0 0"/>
+    <origin xyz="$(optenv HERON_CAMERA_MOUNT_XYZ)" rpy="$(optenv HERON_CAMERA_MOUNT_RPY)"/>
   </joint>
 
   <xacro:macro name="ig_handle_forge_camera"
-               params="id xyz rpy topic_suffix camera_name distortion_k1 distortion_k2 distortion_k3">
+               params="id xyz rpy optical_rpy topic_suffix camera_name distortion_k1 distortion_k2 distortion_k3">
     <link name="${id}">
       <visual>
         <geometry><box size="0.06 0.06 0.04"/></geometry>
@@ -284,7 +283,7 @@
     <joint name="${id}_optical_joint" type="fixed">
       <parent link="${id}"/>
       <child link="${id}_optical"/>
-      <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
+      <origin xyz="0 0 0" rpy="${optical_rpy}"/>
     </joint>
 
     <gazebo reference="${id}">
@@ -337,6 +336,7 @@
     <xacro:ig_handle_forge_camera id="F1"
                                   xyz="$(optenv HERON_CAMERA_F1_XYZ)"
                                   rpy="$(optenv HERON_CAMERA_F1_RPY)"
+                                  optical_rpy="$(optenv HERON_CAMERA_FORWARD_OPTICAL_RPY)"
                                   topic_suffix="f1"
                                   camera_name="forward_starboard"
                                   distortion_k1="-0.0100"
@@ -347,16 +347,18 @@
     <xacro:ig_handle_forge_camera id="F2"
                                   xyz="$(optenv HERON_CAMERA_F2_XYZ)"
                                   rpy="$(optenv HERON_CAMERA_F2_RPY)"
+                                  optical_rpy="$(optenv HERON_CAMERA_FORWARD_OPTICAL_RPY)"
                                   topic_suffix="f2"
                                   camera_name="forward_port"
                                   distortion_k1="-0.0090"
                                   distortion_k2="0.0028"
                                   distortion_k3="-0.0019"/>
   </xacro:if>
-  <xacro:if value="$(optenv HERON_CAMERA_F3 0)">
+  <xacro:if value="$(optenv HERON_CAMERA_F3 1)">
     <xacro:ig_handle_forge_camera id="F3"
                                   xyz="$(optenv HERON_CAMERA_F3_XYZ)"
                                   rpy="$(optenv HERON_CAMERA_F3_RPY)"
+                                  optical_rpy="$(optenv HERON_CAMERA_UPWARD_OPTICAL_RPY)"
                                   topic_suffix="f3"
                                   camera_name="upward_port"
                                   distortion_k1="-0.0100"
@@ -367,6 +369,7 @@
     <xacro:ig_handle_forge_camera id="F4"
                                   xyz="$(optenv HERON_CAMERA_F4_XYZ)"
                                   rpy="$(optenv HERON_CAMERA_F4_RPY)"
+                                  optical_rpy="$(optenv HERON_CAMERA_UPWARD_OPTICAL_RPY)"
                                   topic_suffix="f4"
                                   camera_name="upward_starboard"
                                   distortion_k1="-0.0090"
@@ -376,7 +379,7 @@
 
   <!-- ====================================================================== -->
   <!-- IMU Visual (for debugging) -->
-  <!-- IMU pose comes from the canonical sensor suite through HERON_IMU_*.
+  <!-- IMU pose comes from the canonical sensor frame config through HERON_IMU_*.
        Encased MTi-30 AHRS device ID 0368xxxx: connector side is -X and exits
        aft, the unit is upside down, so +X is forward, +Y is starboard/right,
        and +Z points down toward the water. -->

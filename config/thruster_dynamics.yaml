@@ -1,4 +1,4 @@
-# Benchmark simulation thruster profile used by cmd_drive_translate.py.
+# Benchmark simulation thruster profile used by drive_to_thrusters.py.
 # Keep this file limited to parameters the active translator reads.
 rate: 30.0
 cmd_timeout: 0.35

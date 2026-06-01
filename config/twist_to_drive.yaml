@@ -1,8 +1,0 @@
-# Benchmark simulation mixer profile used by mariner/scripts/twist_to_drive.py.
-# Keep this file limited to parameters the active mixer reads.
-max_linear: 1.35
-max_angular: 0.30
-yaw_mix: 1.00
-shared_drive_normalization: true
-rate: 30.0
-timeout: 0.35

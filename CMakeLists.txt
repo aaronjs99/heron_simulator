@@ -2,13 +2,11 @@ cmake_minimum_required(VERSION 3.0.2)
 project(heron_simulator)
 
 find_package(catkin REQUIRED COMPONENTS
-  actionlib_msgs
   rospy
   roscpp
-  std_srvs
   geometry_msgs
-  nav_msgs
   sensor_msgs
+  std_msgs
 )
 
 find_package(gazebo REQUIRED)
@@ -19,7 +17,6 @@ catkin_package()
 # Install directories (config, launch, worlds, urdf, models, docs)
 #############################################################################
 include_directories(
-  include
   ${catkin_INCLUDE_DIRS}
   ${GAZEBO_INCLUDE_DIRS}
 )
@@ -40,32 +37,10 @@ install(TARGETS
 
 #############################################################################
 # Install Python scripts
-# Includes both SLAM GRANDE additions and upstream Clearpath scripts
 #############################################################################
 
 catkin_install_python(PROGRAMS
-  # SLAM GRANDE scripts
-  scripts/sensors/scan_to_cloud.py
-  scripts/autonomy/spawn_inspection_models.py
-  scripts/sensors/vel_cov_fixed.py
-  scripts/tools/sim_preflight.py
-  scripts/tools/gzclient_plain.py
-  scripts/tools/topic_contract_guard.py
-  # Upstream Clearpath scripts (BSD license)
-  scripts/control/activate_control_service.py
-  scripts/control/cmd_drive_translate.py
-  scripts/sensors/navsat_vel_translate.py
-  scripts/sensors/rpy_translator.py
-  scripts/control/twist_translate.py
-  scripts/sensors/vector3_to_magnetic_field.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-#############################################################################
-# Install shell scripts
-#############################################################################
-
-install(PROGRAMS
-  scripts/tools/reset_gazebo.sh
+  scripts/drive_to_thrusters.py
+  scripts/multibeam_raw.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

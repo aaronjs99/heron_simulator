@@ -1,20 +1,20 @@
 # HERON Simulator
 
-Gazebo simulation environment for the Heron USV and the rest of the SLAM
-GRANDE stack.
+Gazebo simulation boundary for the Heron USV.
 
-This package is where planning, navigation, sensing, and mission behavior can be
-tested together before running on hardware.
+This package owns the simulated hull, Gazebo worlds/models, sensor plugins, and
+the small bridge from Heron drive commands to Gazebo thruster wrench inputs.
+Planning, navigation, ORACLE behavior, semantic world reasoning, runtime
+preflight, topic-contract validation, and evaluation orchestration live outside
+this package.
 
 ## What The Simulator Provides
 
 - Heron vehicle spawn and world bringup
-- a simulated harbor with a short launch dock, longer inspection piers, and moored workboats driven from `slam_grande/config/anchors/harbor.yaml`
-- simulated sensors that mirror the operator dashboard sensor catalog
-- topic bridges needed by MARINER and ORACLE
-- inspection-scene geometry for real DEFECTOR testing
+- reusable water, harbor, and tank environment assets
+- simulated sensors that publish the same topic surfaces as `ig_handle`
+- `/cmd_drive` to Gazebo thruster wrench translation
 - Gazebo plugins for custom force behavior
-- the same shared ORACLE, web, RViz, and rosbag surface used by hardware bringup
 
 ## Important Runtime Conventions
 
@@ -23,25 +23,48 @@ tested together before running on hardware.
 - The benchmark Heron hull profile is sourced from
   `../heron/heron_description/urdf/configs/ig_handle_benchmark`, so mass,
   damping, and added-mass changes are explicit.
+- Low-level PID controller gains live only in
+  `heron_controller/config/heron_controller.yaml`. MARINER owns the
+  `cmd_vel` to `/cmd_drive` mixer profile. The simulator owns only the
+  `/cmd_drive` to Gazebo thruster bridge and
+  `heron_simulator/config/thruster_dynamics.yaml`.
 - The simulated lidar pair uses the same ROS surface as the real VLP-16 pair:
   `/sensors/lidar/hori/points` and `/sensors/lidar/vert/points`. Each Gazebo
   ray model is configured as a 16-channel, 360 x 30 degree VLP-16-style scan at
   the 600 RPM / 10 Hz default cadence with 0.2 degree azimuth spacing and 200 m
   maximum range.
-- The simulated sonar publishes `sensor_msgs/PointCloud2` on the same typed
-  surface as the real DT100 adapter: `/sensors/sonar/scan` in `sonar_link`. The
-  Gazebo ray model is configured as a DT100-style downward 480-beam, 120 degree
-  profile at 20 Hz with a 0.5 m minimum range and 100 m slant range. It does not
-  synthesize proprietary raw DT100 packets or acoustic multipath.
+- The simulated sonar is a multibeam echosounder path, not a direct scan
+  shortcut. Gazebo produces an internal DT100-style 480-beam profile cloud,
+  `multibeam_raw.py` packs it as raw 83P/profile bytes on
+  `/sensors/sonar/raw`. MARINER owns raw-to-scan decoding and scan-to-map
+  accumulation.
 - The simulated Forge cameras use the same canonical image and camera-info
   topics and optical frame names as the real Forge FG-PGE-50S5C-C-IP color
-  camera stack. The default benchmark rig enables F1/F2/F4 and keeps F3 off to
-  match the current three-camera field hardware. F3 remains named, numbered,
-  and explicitly opt-in through the simulator camera environment flags. The sim
-  camera model is a geometry/topic stand-in, not a Forge driver emulation.
-- Runtime cleanup is performed before launching a sim run. The in-launch
-  `simulation_preflight` guard does not kill ROS nodes or port owners unless
-  explicit cleanup arguments are enabled.
+  camera stack. Simulation enables F1/F2/F3/F4 so the full camera topic
+  contract is available. The sim camera model is a geometry/topic stand-in, not
+  a Forge driver emulation.
+- The simulator sensor URDF is only a Gazebo plugin/visual add-on. It gets all
+  sensor frame and mount poses from `ig_handle/config/sensors/sensor_frames.yaml`
+  through `ig_handle/scripts/frames/export.py`; do not duplicate sensor
+  extrinsics in `heron_simulator`.
+
+## Sensor Output Contract
+
+`heron_simulator` publishes the same simulated sensor topics consumed by the
+real stack. Sonar follows the hardware boundary: this package publishes raw
+multibeam profile data only, and MARINER decodes that raw stream into a scan
+cloud.
+
+| Topic | Type |
+|---|---|
+| `/sensors/lidar/hori/points` | `sensor_msgs/PointCloud2` |
+| `/sensors/lidar/vert/points` | `sensor_msgs/PointCloud2` |
+| `/sensors/imu/data` | `sensor_msgs/Imu` |
+| `/sensors/camera/f1/image_raw` | `sensor_msgs/Image` |
+| `/sensors/camera/f2/image_raw` | `sensor_msgs/Image` |
+| `/sensors/camera/f3/image_raw` | `sensor_msgs/Image` |
+| `/sensors/camera/f4/image_raw` | `sensor_msgs/Image` |
+| `/sensors/sonar/raw` | `std_msgs/UInt8MultiArray` |
 
 ## Common Uses
 
@@ -51,41 +74,36 @@ tested together before running on hardware.
 roslaunch slam_grande bringup.launch mode:=sim
 ```
 
-By default, the boat spawns at the tip of the short launch dock defined in
-`slam_grande/config/anchors/harbor.yaml`. Inspection props still spawn in the
-background after startup so the autonomy stack can begin moving without waiting
-on Gazebo model churn.
+By default, the boat spawns into the selected scenario world. Any semantic
+reasoning over the scene is owned by ORACLE and the `/oracle/world/entities`
+pipeline, not by Gazebo model names or simulator scripts.
 
-### Simulator-only bringup
-
-```bash
-roslaunch heron_simulator heron_world.launch
-```
-
-Most development should still use the canonical full-stack command above. The
-package-level launch files are lower-level helpers for world/spawn/control
-debugging.
+`heron_simulator` launch files are internal pieces of the full-stack sim path.
+Do not launch this package standalone for normal operation; run it through
+`slam_grande/launch/bringup.launch` so MARINER, ORACLE, topic contracts, and
+state wiring stay consistent.
 
 ## Important Pieces
 
 | Path | Role |
 |---|---|
-| `launch/` | Main simulation entrypoints |
-| `scripts/autonomy/` | Runtime helpers such as model spawning |
-| `scripts/control/` | Command translation between stack layers and Gazebo |
-| `scripts/sensors/` | Sensor adaptation utilities |
+| `launch/` | Internal Gazebo world/spawn launch pieces used by `slam_grande` |
+| `worlds/` | Thin scenario composition files for physics, lighting, GUI camera, and model includes |
+| `models/` | Reusable Gazebo geometry assets such as water surfaces, tank geometry, and tank targets |
+| `scripts/drive_to_thrusters.py` | `/cmd_drive` to Gazebo thruster wrench bridge |
+| `scripts/multibeam_raw.py` | Gazebo multibeam sonar ray cloud to raw 83P/profile packet bridge |
 | `src/` | Gazebo plugins and compiled simulator support |
 | `tests/` | Simulation launch, rendering, and control regressions |
 
 ## How It Fits The Workspace
 
-- ORACLE sends missions
-- MARINER produces plans and control commands
-- the simulator publishes the world, vehicle state, and sensor streams those
-  packages need
+- MARINER produces `/cmd_drive` through the shared navigation stack
+- the simulator turns `/cmd_drive` into Gazebo thruster inputs
+- Gazebo publishes simulated sensor topics that look like `ig_handle` hardware
+  topics
 
-This package is the place to debug integration issues that only show up when the
-full autonomy loop is closed.
+ORACLE, MARINER, DEFECTOR, dashboards, bagging, and topic contracts are composed
+by `slam_grande/launch/bringup.launch`.
 
 ## Shared Runtime Pattern
 
@@ -115,16 +133,12 @@ Current shared-bringup defaults:
 
 Integrated `slam_grande` simulation now uses Gazebo truth as the default
 upstream localization source and republishes it through the same odometry
-sanity filter and `/state/odometry` contract used by the rest of the stack. Raw
-simulated DLiO remains published on `/state/dlio/odometry` for diagnostics and
-can be selected deliberately with `sim_odom_source:=dlio`. Real bringup keeps the
-same downstream navigation topic and uses DLiO upstream. Mocap stays outside
-bringup as a lab logging/comparison stream.
-
-Useful simulator-only knobs:
-
-- `spawn_inspection_models:=false` to skip prop spawning entirely
-- `inspection_spawn_delay_sec:=<seconds>` to delay prop spawning further
+sanity filter and `/state/odometry` contract used by the rest of the stack.
+DLiO launch and configuration are owned by MARINER/top-level bringup, not by
+`heron_simulator`; when enabled, raw DLiO remains published on
+`/state/dlio/odometry` for diagnostics and can be selected deliberately with
+`sim_odom_source:=dlio`. Mocap stays outside bringup as a lab logging/comparison
+stream.
 
 To open the shared navigation RViz layout in sim:
 

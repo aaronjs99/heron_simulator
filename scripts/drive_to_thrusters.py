@@ -6,7 +6,7 @@ from heron_msgs.msg import Drive
 import rospy
 
 
-class ThrusterTranslator:
+class DriveToThrusters:
     """Translate normalized Drive commands to thruster wrench inputs.
 
     Active sim path:
@@ -58,7 +58,7 @@ class ThrusterTranslator:
         self.last_cmd_time = rospy.Time.now()
         self.timer = rospy.Timer(rospy.Duration(1.0 / self.rate_hz), self.update)
         rospy.loginfo(
-            "Thruster translator initialized for namespace: %s drive=%s left=%s right=%s",
+            "Drive-to-thrusters bridge initialized for namespace: %s drive=%s left=%s right=%s",
             namespace,
             drive_topic,
             left_topic,
@@ -96,7 +96,7 @@ class ThrusterTranslator:
 
 if __name__ == "__main__":
     try:
-        ThrusterTranslator()
+        DriveToThrusters()
         rospy.spin()
     except rospy.ROSInterruptException:
         pass

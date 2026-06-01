@@ -1,0 +1,782 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="tank_targets">
+    <static>true</static>
+    <link name="tank_lidar_reference_post_a_link">
+      <pose>2.00 3.68 0.45 0 0 0</pose>
+      <collision name="post_collision">
+        <geometry>
+          <box>
+            <size>0.24 0.24 0.70</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="post_visual">
+        <geometry>
+          <box>
+            <size>0.24 0.24 0.70</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.18 0.18 0.20 1</ambient>
+          <diffuse>0.20 0.20 0.22 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="tank_lidar_reference_post_b_link">
+      <pose>5.60 -3.68 0.45 0 0 0</pose>
+      <collision name="post_collision">
+        <geometry>
+          <box>
+            <size>0.24 0.24 0.70</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="post_visual">
+        <geometry>
+          <box>
+            <size>0.24 0.24 0.70</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.18 0.18 0.20 1</ambient>
+          <diffuse>0.20 0.20 0.22 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="tank_lidar_reference_post_c_link">
+      <pose>10.90 3.68 0.45 0 0 0</pose>
+      <collision name="post_collision">
+        <geometry>
+          <box>
+            <size>0.24 0.24 0.70</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="post_visual">
+        <geometry>
+          <box>
+            <size>0.24 0.24 0.70</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.18 0.18 0.20 1</ambient>
+          <diffuse>0.20 0.20 0.22 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="tank_lidar_reference_post_d_link">
+      <pose>13.78 1.70 0.45 0 0 0</pose>
+      <collision name="post_collision">
+        <geometry>
+          <box>
+            <size>0.24 0.24 0.70</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="post_visual">
+        <geometry>
+          <box>
+            <size>0.24 0.24 0.70</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.18 0.18 0.20 1</ambient>
+          <diffuse>0.20 0.20 0.22 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="tank_lidar_reference_post_e_link">
+      <pose>-1.08 -2.20 0.45 0 0 0</pose>
+      <collision name="post_collision">
+        <geometry>
+          <box>
+            <size>0.24 0.24 0.70</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="post_visual">
+        <geometry>
+          <box>
+            <size>0.24 0.24 0.70</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.18 0.18 0.20 1</ambient>
+          <diffuse>0.20 0.20 0.22 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="tank_lidar_registration_landmarks_link">
+      <collision name="north_pylon_1_collision">
+        <pose>1.20 3.45 0.56 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.16</radius>
+            <length>0.92</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="north_pylon_1_visual">
+        <pose>1.20 3.45 0.56 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.16</radius>
+            <length>0.92</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.12 0.14 0.16 1</ambient>
+          <diffuse>0.16 0.18 0.20 1</diffuse>
+        </material>
+      </visual>
+      <collision name="north_pylon_2_collision">
+        <pose>4.35 3.47 0.62 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.20</radius>
+            <length>1.04</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="north_pylon_2_visual">
+        <pose>4.35 3.47 0.62 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.20</radius>
+            <length>1.04</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.12 0.14 0.16 1</ambient>
+          <diffuse>0.16 0.18 0.20 1</diffuse>
+        </material>
+      </visual>
+      <collision name="north_pylon_3_collision">
+        <pose>7.75 3.43 0.52 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.18</radius>
+            <length>0.84</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="north_pylon_3_visual">
+        <pose>7.75 3.43 0.52 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.18</radius>
+            <length>0.84</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.12 0.14 0.16 1</ambient>
+          <diffuse>0.16 0.18 0.20 1</diffuse>
+        </material>
+      </visual>
+      <collision name="north_pylon_4_collision">
+        <pose>11.45 3.46 0.60 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.22</radius>
+            <length>1.00</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="north_pylon_4_visual">
+        <pose>11.45 3.46 0.60 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.22</radius>
+            <length>1.00</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.12 0.14 0.16 1</ambient>
+          <diffuse>0.16 0.18 0.20 1</diffuse>
+        </material>
+      </visual>
+      <collision name="south_pylon_1_collision">
+        <pose>2.70 -3.45 0.58 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.19</radius>
+            <length>0.96</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="south_pylon_1_visual">
+        <pose>2.70 -3.45 0.58 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.19</radius>
+            <length>0.96</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.12 0.14 0.16 1</ambient>
+          <diffuse>0.16 0.18 0.20 1</diffuse>
+        </material>
+      </visual>
+      <collision name="south_pylon_2_collision">
+        <pose>5.90 -3.42 0.54 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.15</radius>
+            <length>0.88</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="south_pylon_2_visual">
+        <pose>5.90 -3.42 0.54 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.15</radius>
+            <length>0.88</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.12 0.14 0.16 1</ambient>
+          <diffuse>0.16 0.18 0.20 1</diffuse>
+        </material>
+      </visual>
+      <collision name="south_pylon_3_collision">
+        <pose>9.60 -3.48 0.64 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.21</radius>
+            <length>1.08</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="south_pylon_3_visual">
+        <pose>9.60 -3.48 0.64 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.21</radius>
+            <length>1.08</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.12 0.14 0.16 1</ambient>
+          <diffuse>0.16 0.18 0.20 1</diffuse>
+        </material>
+      </visual>
+      <collision name="south_pylon_4_collision">
+        <pose>12.65 -3.44 0.55 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.17</radius>
+            <length>0.90</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="south_pylon_4_visual">
+        <pose>12.65 -3.44 0.55 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.17</radius>
+            <length>0.90</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.12 0.14 0.16 1</ambient>
+          <diffuse>0.16 0.18 0.20 1</diffuse>
+        </material>
+      </visual>
+      <collision name="east_pylon_1_collision">
+        <pose>13.65 -2.55 0.57 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.18</radius>
+            <length>0.94</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="east_pylon_1_visual">
+        <pose>13.65 -2.55 0.57 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.18</radius>
+            <length>0.94</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.12 0.14 0.16 1</ambient>
+          <diffuse>0.16 0.18 0.20 1</diffuse>
+        </material>
+      </visual>
+      <collision name="east_pylon_2_collision">
+        <pose>13.67 0.60 0.63 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.21</radius>
+            <length>1.06</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="east_pylon_2_visual">
+        <pose>13.67 0.60 0.63 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.21</radius>
+            <length>1.06</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.12 0.14 0.16 1</ambient>
+          <diffuse>0.16 0.18 0.20 1</diffuse>
+        </material>
+      </visual>
+      <collision name="east_pylon_3_collision">
+        <pose>13.64 2.75 0.52 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.16</radius>
+            <length>0.84</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="east_pylon_3_visual">
+        <pose>13.64 2.75 0.52 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.16</radius>
+            <length>0.84</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.12 0.14 0.16 1</ambient>
+          <diffuse>0.16 0.18 0.20 1</diffuse>
+        </material>
+      </visual>
+      <collision name="west_pylon_1_collision">
+        <pose>-0.86 -2.90 0.60 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.20</radius>
+            <length>1.00</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="west_pylon_1_visual">
+        <pose>-0.86 -2.90 0.60 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.20</radius>
+            <length>1.00</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.12 0.14 0.16 1</ambient>
+          <diffuse>0.16 0.18 0.20 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="floor_circle_mid_tank_link">
+      <pose>6.00 1.40 -3.645 0 0 0</pose>
+      <collision name="target_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.45</radius>
+            <length>0.03</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="target_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.45</radius>
+            <length>0.03</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.88 0.12 0.12 1</ambient>
+          <diffuse>0.98 0.18 0.18 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="floor_rect_far_tank_link">
+      <pose>10.80 -1.50 -3.645 0 0 0</pose>
+      <collision name="target_collision">
+        <geometry>
+          <box>
+            <size>1.20 0.80 0.03</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="target_visual">
+        <geometry>
+          <box>
+            <size>1.20 0.80 0.03</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.96 0.86 0.12 1</ambient>
+          <diffuse>0.98 0.90 0.18 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="bottom_marker_rig_mid_tank_link">
+      <pose>5.80 0.85 -3.645 0 0 0</pose>
+      <collision name="weighted_base_collision">
+        <pose>0 0 0.025 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.40 0.95 0.05</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="weighted_base_visual">
+        <pose>0 0 0.025 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.40 0.95 0.05</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.02 0.02 0.02 1</ambient>
+          <diffuse>0.02 0.02 0.02 1</diffuse>
+        </material>
+      </visual>
+      <visual name="base_marker_cross_visual">
+        <pose>0 0 0.06 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.30 0.16 0.03</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.98 0.92 0.12 1</ambient>
+          <diffuse>1.0 0.95 0.18 1</diffuse>
+        </material>
+      </visual>
+      <visual name="base_marker_cross_visual_orthogonal">
+        <pose>0 0 0.065 0 0 1.570796</pose>
+        <geometry>
+          <box>
+            <size>0.90 0.14 0.03</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.98 0.92 0.12 1</ambient>
+          <diffuse>1.0 0.95 0.18 1</diffuse>
+        </material>
+      </visual>
+      <collision name="short_rod_left_collision">
+        <pose>-0.35 -0.25 0.38 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.70</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="short_rod_left_visual">
+        <pose>-0.35 -0.25 0.38 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.70</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.05 0.05 0.05 1</ambient>
+          <diffuse>0.04 0.04 0.04 1</diffuse>
+        </material>
+      </visual>
+      <collision name="short_rod_right_collision">
+        <pose>0.35 0.25 0.38 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.70</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="short_rod_right_visual">
+        <pose>0.35 0.25 0.38 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.70</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.05 0.05 0.05 1</ambient>
+          <diffuse>0.04 0.04 0.04 1</diffuse>
+        </material>
+      </visual>
+      <collision name="tennis_ball_left_collision">
+        <pose>-0.35 -0.25 0.82 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>0.14</radius>
+          </sphere>
+        </geometry>
+      </collision>
+      <visual name="tennis_ball_left_visual">
+        <pose>-0.35 -0.25 0.82 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>0.14</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>0.72 1.0 0.06 1</ambient>
+          <diffuse>0.80 1.0 0.10 1</diffuse>
+        </material>
+      </visual>
+      <collision name="tennis_ball_right_collision">
+        <pose>0.35 0.25 0.82 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>0.14</radius>
+          </sphere>
+        </geometry>
+      </collision>
+      <visual name="tennis_ball_right_visual">
+        <pose>0.35 0.25 0.82 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>0.14</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>0.72 1.0 0.06 1</ambient>
+          <diffuse>0.80 1.0 0.10 1</diffuse>
+        </material>
+      </visual>
+      <collision name="sonar_tether_collision">
+        <pose>0.0 0.0 1.30 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.025</radius>
+            <length>2.55</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="sonar_tether_visual">
+        <pose>0.0 0.0 1.30 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.025</radius>
+            <length>2.55</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.95 0.10 0.10 1</ambient>
+          <diffuse>1.0 0.14 0.14 1</diffuse>
+        </material>
+      </visual>
+      <collision name="upper_marker_collision">
+        <pose>0.0 0.0 2.62 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>0.18</radius>
+          </sphere>
+        </geometry>
+      </collision>
+      <visual name="upper_marker_visual">
+        <pose>0.0 0.0 2.62 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>0.18</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>0.05 0.80 1.0 1</ambient>
+          <diffuse>0.08 0.86 1.0 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="bottom_rod_line_far_tank_link">
+      <pose>9.40 -1.10 -3.645 0 0 0.25</pose>
+      <collision name="weighted_base_collision">
+        <pose>0 0 0.025 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.55 0.48 0.05</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="weighted_base_visual">
+        <pose>0 0 0.025 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.55 0.48 0.05</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.02 0.02 0.02 1</ambient>
+          <diffuse>0.02 0.02 0.02 1</diffuse>
+        </material>
+      </visual>
+      <visual name="line_marker_visual">
+        <pose>0 0 0.065 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.45 0.12 0.03</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.98 0.25 0.04 1</ambient>
+          <diffuse>1.0 0.32 0.06 1</diffuse>
+        </material>
+      </visual>
+      <collision name="short_rod_a_collision">
+        <pose>-0.50 0 0.34 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.62</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="short_rod_a_visual">
+        <pose>-0.50 0 0.34 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.62</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.94 0.94 0.94 1</ambient>
+          <diffuse>0.98 0.98 0.98 1</diffuse>
+        </material>
+      </visual>
+      <collision name="short_rod_b_collision">
+        <pose>0 0 0.42 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.78</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="short_rod_b_visual">
+        <pose>0 0 0.42 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.78</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.94 0.94 0.94 1</ambient>
+          <diffuse>0.98 0.98 0.98 1</diffuse>
+        </material>
+      </visual>
+      <collision name="short_rod_c_collision">
+        <pose>0.50 0 0.34 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.62</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="short_rod_c_visual">
+        <pose>0.50 0 0.34 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.04</radius>
+            <length>0.62</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.94 0.94 0.94 1</ambient>
+          <diffuse>0.98 0.98 0.98 1</diffuse>
+        </material>
+      </visual>
+      <collision name="sonar_tether_collision">
+        <pose>0.0 0.0 1.30 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.022</radius>
+            <length>2.45</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="sonar_tether_visual">
+        <pose>0.0 0.0 1.30 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.022</radius>
+            <length>2.45</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.05 0.80 1.0 1</ambient>
+          <diffuse>0.08 0.86 1.0 1</diffuse>
+        </material>
+      </visual>
+      <collision name="upper_marker_collision">
+        <pose>0.0 0.0 2.58 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>0.16</radius>
+          </sphere>
+        </geometry>
+      </collision>
+      <visual name="upper_marker_visual">
+        <pose>0.0 0.0 2.58 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>0.16</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>0.72 1.0 0.06 1</ambient>
+          <diffuse>0.80 1.0 0.10 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="wall_rect_far_east_link">
+      <pose>13.99 -1.80 -1.40 0 0 0</pose>
+      <collision name="target_collision">
+        <geometry>
+          <box>
+            <size>0.04 1.50 1.00</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="target_visual">
+        <geometry>
+          <box>
+            <size>0.04 1.50 1.00</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.12 0.12 0.12 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+          <specular>0.02 0.02 0.02 1</specular>
+        </material>
+      </visual>
+    </link>
+    <link name="wall_circle_north_link">
+      <pose>8.50 3.00 -1.50 1.570796 0 0</pose>
+      <collision name="target_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.50</radius>
+            <length>0.04</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="target_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.50</radius>
+            <length>0.04</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.95 0.45 0.10 1</ambient>
+          <diffuse>0.98 0.52 0.14 1</diffuse>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

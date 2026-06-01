@@ -1,0 +1,111 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="tank">
+    <static>true</static>
+    <link name="tank_floor_link">
+      <pose>6.42 0.0 -3.76 0 0 0</pose>
+      <collision name="floor_collision">
+        <geometry>
+          <box>
+            <size>15.24 7.62 0.2</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="floor_visual">
+        <geometry>
+          <box>
+            <size>15.24 7.62 0.2</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.58 0.66 0.74 1</ambient>
+          <diffuse>0.66 0.74 0.82 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="tank_wall_north_link">
+      <pose>6.42 3.91 -1.755 0 0 0</pose>
+      <collision name="wall_collision">
+        <geometry>
+          <box>
+            <size>15.44 0.20 3.81</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="wall_visual">
+        <geometry>
+          <box>
+            <size>15.44 0.20 3.81</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.62 0.67 0.74 1</ambient>
+          <diffuse>0.72 0.77 0.84 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="tank_wall_south_link">
+      <pose>6.42 -3.91 -1.755 0 0 0</pose>
+      <collision name="wall_collision">
+        <geometry>
+          <box>
+            <size>15.44 0.20 3.81</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="wall_visual">
+        <geometry>
+          <box>
+            <size>15.44 0.20 3.81</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.62 0.67 0.74 1</ambient>
+          <diffuse>0.72 0.77 0.84 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="tank_wall_east_link">
+      <pose>14.14 0.0 -1.755 0 0 0</pose>
+      <collision name="wall_collision">
+        <geometry>
+          <box>
+            <size>0.20 7.62 3.81</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="wall_visual">
+        <geometry>
+          <box>
+            <size>0.20 7.62 3.81</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.62 0.67 0.74 1</ambient>
+          <diffuse>0.72 0.77 0.84 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="tank_wall_west_link">
+      <pose>-1.30 0.0 -1.755 0 0 0</pose>
+      <collision name="wall_collision">
+        <geometry>
+          <box>
+            <size>0.20 7.62 3.81</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="wall_visual">
+        <geometry>
+          <box>
+            <size>0.20 7.62 3.81</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.62 0.67 0.74 1</ambient>
+          <diffuse>0.72 0.77 0.84 1</diffuse>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

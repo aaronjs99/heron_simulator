@@ -15,7 +15,7 @@
      limitations under the License.
 -->
 <sdf version="1.4">
-  <world name="ocean_surface">
+  <world name="open_water">
     <physics name="default_physics" default="true" type="ode">
       <max_step_size>0.002</max_step_size>
       <real_time_factor>1</real_time_factor>
@@ -67,32 +67,11 @@
     </include>
     -->
 
-    <!-- Inline water surface visual.
-         Keep this in the world file so rendering does not depend on whichever
-         conflicting model://ocean definition Gazebo resolves first. -->
-    <model name="water_surface_visual">
-      <static>true</static>
-      <link name="water_link">
-        <visual name="water_surface">
-          <cast_shadows>false</cast_shadows>
-          <!-- Slightly above z=0 so the GUI grid does not visually dominate it. -->
-          <pose>0 0 0.01 0 0 0</pose>
-          <geometry>
-            <box>
-              <size>2000 2000 0.02</size>
-            </box>
-          </geometry>
-          <transparency>0.12</transparency>
-          <material>
-            <ambient>0.02 0.20 0.42 1</ambient>
-            <diffuse>0.05 0.32 0.62 1</diffuse>
-            <specular>0.08 0.08 0.08 1</specular>
-            <emissive>0.01 0.08 0.16 1</emissive>
-          </material>
-        </visual>
-      </link>
+    <!-- Generic visual water surface. Scenario semantics stay outside Gazebo model names. -->
+    <include>
+      <uri>model://water_surface</uri>
       <pose>0 0 0 0 0 0</pose>
-    </model>
+    </include>
 
     <!-- Heightmap -->
     <!--

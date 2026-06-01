@@ -39,25 +39,27 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
   <arg name="namespace" default=""/>
   <arg name="config" default="base" />
-  <arg name="use_interactive_marker" default="false" />
-  <arg name="control_startup_delay_sec" default="0.0" />
-  <arg name="cmd_vel_to_mixer" default="/cmd_vel" />
   <arg name="drive_topic" default="/cmd_drive" />
   <arg name="left_thruster_topic" default="/thrusters/1/input" />
   <arg name="right_thruster_topic" default="/thrusters/0/input" />
-  <arg name="mixer_config" default="$(find heron_simulator)/config/twist_to_drive.yaml" />
   <arg name="thruster_dynamics_config" default="$(find heron_simulator)/config/thruster_dynamics.yaml" />
-  <arg name="mcu_heartbeat" default="true" />
-  <arg name="mcu_arm_sec" default="6.0" />
-  <arg name="mcu_heartbeat_rate_hz" default="5.0" />
+  <arg name="sonar_ray_topic" default="/sim/sensors/sonar/multibeam_points" />
+  <arg name="sonar_raw_topic" default="/sensors/sonar/raw" />
+  <arg name="sonar_min_range_m" default="0.5" />
+  <arg name="sonar_max_range_m" default="100.0" />
 
   <group ns="/$(arg namespace)">
 
-    <!-- Load the upstream Heron model in simulation mode so /cmd_vel drives
-         the same cmd_drive -> thruster -> hull path as the real stack. -->
+    <!-- Load the upstream Heron model in simulation mode. The simulator accepts
+         /cmd_drive directly; cmd_vel -> cmd_drive belongs to MARINER/top-level
+         bringup. Override camera enable flags here so sim publishes the full
+         post-driver camera topic contract without changing the shared hardware
+         benchmark config. -->
     <group if="$(eval arg('namespace') == '')">
       <param name="robot_description"
              command="$(find heron_description)/scripts/env_run $(find heron_description)/urdf/configs/$(arg config)
+                      env HERON_CAMERA_F1=1 HERON_CAMERA_F2=1 HERON_CAMERA_F3=1 HERON_CAMERA_F4=1
+                      HERON_SIM_SONAR_RAY_TOPIC=$(arg sonar_ray_topic)
                       xacro '$(find heron_description)/urdf/heron.urdf.xacro'
                       debug:=$(arg hydro_debug) simulation:=true" />
     </group>
@@ -65,6 +67,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <group unless="$(eval arg('namespace') == '')">
       <param name="robot_description"
              command="$(find heron_description)/scripts/env_run $(find heron_description)/urdf/configs/$(arg config)
+                      env HERON_CAMERA_F1=1 HERON_CAMERA_F2=1 HERON_CAMERA_F3=1 HERON_CAMERA_F4=1
+                      HERON_SIM_SONAR_RAY_TOPIC=$(arg sonar_ray_topic)
                       xacro '$(find heron_description)/urdf/heron.urdf.xacro'
                       debug:=$(arg hydro_debug) simulation:=true
                       namespace:=$(arg namespace) suffix_ns:=$(arg namespace)/" />
@@ -83,27 +87,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
     <!-- Spawn the model in Gazebo -->
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-          args="-urdf -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw) 
+          args="-urdf -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)
                 -model $(arg namespace)heron -param robot_description"/>
 
-    <!-- Launch Teleop (optional, for joystick) -->
-    <include file="$(find heron_control)/launch/teleop.launch">
-      <arg name="joystick"  value="false" />
-      <arg name="namespace" value="$(arg namespace)" />
-      <arg name="use_interactive_marker" value="$(arg use_interactive_marker)" />
-    </include>
-
-    <!-- Keep /cmd_vel as the vehicle-facing command interface. -->
-    <node pkg="mariner" type="twist_to_drive.py" name="twist_to_drive" output="screen">
-      <remap from="cmd_vel" to="$(arg cmd_vel_to_mixer)" />
-      <remap from="cmd_drive" to="$(arg drive_topic)" />
-      <param name="publish_mcu_heartbeat" value="$(arg mcu_heartbeat)" />
-      <param name="mcu_arm_sec" value="$(arg mcu_arm_sec)" />
-      <param name="mcu_heartbeat_rate_hz" value="$(arg mcu_heartbeat_rate_hz)" />
-      <rosparam command="load" file="$(arg mixer_config)" />
-    </node>
-
-    <node pkg="heron_simulator" type="cmd_drive_translate.py" name="cmd_drive_to_thrusters" output="screen">
+    <node pkg="heron_simulator" type="drive_to_thrusters.py" name="cmd_drive_to_thrusters" output="screen">
       <param name="namespace" value="$(arg namespace)" />
       <param name="drive_topic" value="$(arg drive_topic)" />
       <param name="left_thruster_topic" value="$(arg left_thruster_topic)" />
@@ -111,26 +98,14 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <rosparam command="load" file="$(arg thruster_dynamics_config)" />
     </node>
 
-    <!-- Translate navsat/velocity only when the NavSat path is enabled. -->
-    <node if="$(arg enable_navsat)"
-          pkg="heron_simulator" type="navsat_vel_translate.py" name="navvel_translate" />
+    <node pkg="heron_simulator" type="multibeam_raw.py" name="multibeam_raw" output="screen">
+      <param name="input_topic" value="$(arg sonar_ray_topic)" />
+      <param name="raw_topic" value="$(arg sonar_raw_topic)" />
+      <param name="min_range_m" value="$(arg sonar_min_range_m)" />
+      <param name="max_range_m" value="$(arg sonar_max_range_m)" />
+      <param name="max_points" value="480" />
+    </node>
 
-  </group>
-
-  <!-- Optional GPS/EKF stack. Disabled by default; ORACLE uses DLiO state. -->
-  <arg name="enable_ekf" default="false"/>
-  <arg name="enable_navsat" default="false"/>
-  
-  <group ns="/$(arg namespace)">
-    <rosparam param="ekf_localization_node/tf_prefix" subst_value="True">$(arg namespace)</rosparam>
-    <rosparam param="navsat_transform_node/tf_prefix" subst_value="True">$(arg namespace)</rosparam>
-    <rosparam param="navsat_transform_node/use_odometry_yaw">true</rosparam>
-      
-    <include file="$(find heron_control)/launch/control.launch">
-      <arg name="enable_ekf" value="$(arg enable_ekf)"/>
-      <arg name="enable_navsat" value="$(arg enable_navsat)"/>
-      <arg name="startup_delay_sec" value="$(arg control_startup_delay_sec)"/>
-    </include>
   </group>
 
 </launch>

@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="water_surface">
+    <static>true</static>
+
+    <link name="water_surface_link">
+      <visual name="water_surface_visual">
+        <pose>0 0 -0.02 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2000 2000 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.0 0.3 0.7 1.0</ambient>
+          <diffuse>0.0 0.3 0.7 0.7</diffuse>
+          <specular>0.1 0.1 0.1 1.0</specular>
+        </material>
+        <transparency>0.25</transparency>
+      </visual>
+    </link>
+  </model>
+</sdf>
