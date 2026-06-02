@@ -1,6 +1,9 @@
 scenario_name: harbor
 world_file: heron_simulator/worlds/harbor.world
 entity_file: heron_simulator/config/entities/harbor.yaml
+costmap_config:
+  global: mariner/config/global_costmap.yaml
+  local: mariner/config/local_costmap.yaml
 map_bounds:
   x_min: -50.0
   x_max: 150.0
