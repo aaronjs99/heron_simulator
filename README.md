@@ -5,8 +5,7 @@ Gazebo simulation boundary for the Heron USV.
 This package owns the simulated hull, Gazebo worlds/models, sensor plugins, and
 the small bridge from Heron drive commands to Gazebo thruster wrench inputs.
 Planning, navigation, ORACLE behavior, semantic world reasoning, runtime
-preflight, topic-contract validation, and evaluation orchestration live outside
-this package.
+preflight, and evaluation orchestration live outside this package.
 
 ## What The Simulator Provides
 
@@ -46,7 +45,7 @@ this package.
 - The simulated Forge cameras use the same canonical image and camera-info
   topics and optical frame names as the real Forge FG-PGE-50S5C-C-IP color
   camera stack. Simulation enables F1/F2/F3/F4 so the full camera topic
-  contract is available. The sim camera model is a geometry/topic stand-in, not
+  set is available. The sim camera model is a geometry/topic stand-in, not
   a Forge driver emulation.
 - The simulator sensor URDF is only a Gazebo plugin/visual add-on. It gets all
   sensor frame and mount poses from `ig_handle/config/sensors/sensor_frames.yaml`
@@ -92,8 +91,8 @@ by ORACLE and the `/oracle/world/entities` pipeline, not by Gazebo model names
 or simulator scripts.
 
 `heron_simulator` launch files are Gazebo pieces. Full-stack operation should
-compose them from the active integration launch so MARINER, ORACLE, topic
-contracts, and state wiring stay consistent.
+compose them from the active integration launch so MARINER, ORACLE, topics,
+and state wiring stay consistent.
 
 ## Important Pieces
 
@@ -119,7 +118,7 @@ contracts, and state wiring stay consistent.
 - Gazebo publishes simulated sensor topics that look like `ig_handle` hardware
   topics
 
-ORACLE, MARINER, DEFECTOR, dashboards, bagging, and topic contracts should be
+ORACLE, MARINER, DEFECTOR, dashboards, bagging, and topic wiring should be
 composed by the integration layer.
 
 ## Integration Runtime Pattern
@@ -150,7 +149,7 @@ Current shared-bringup defaults:
 
 The current integration stack uses Gazebo truth as the default upstream
 localization source and republishes it through the same odometry sanity filter
-and `/state/odometry` contract used by the rest of the stack. DLiO launch and
+and `/state/odometry` topic used by the rest of the stack. DLiO launch and
 configuration are owned by MARINER/integration bringup, not by
 `heron_simulator`. Mocap stays outside simulator bringup as a lab
 logging/comparison stream.

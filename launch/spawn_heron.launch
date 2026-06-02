@@ -61,7 +61,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <!-- Load the upstream Heron model in simulation mode. The simulator accepts
          /cmd_drive directly; cmd_vel -> cmd_drive belongs to MARINER/top-level
          bringup. Override camera enable flags here so sim publishes the full
-         post-driver camera topic contract without changing the shared hardware
+         post-driver camera topics without changing the shared hardware
          benchmark config. -->
     <group if="$(eval arg('namespace') == '')">
       <param name="robot_description"

@@ -33,7 +33,7 @@ def stamp_key(stamp: rospy.Time) -> Tuple[int, int]:
 
 
 class SimIgTimingBridge:
-    """Bridge simulated message stamps onto the hardware timing topic contract."""
+    """Bridge simulated message stamps onto the hardware timing topics."""
 
     def __init__(self) -> None:
         self.pps_topic = rospy.get_param("~pps_time_topic", "/sensors/pps/time")
