@@ -1,0 +1,157 @@
+# ==============================================================================
+# SLAM GRANDE Environment Configuration: pool.yaml
+# Description:
+#   Bounded training tank scenario used for controlled sim runs.
+#   Dimensions are approximated from 25ft x 50ft x 12ft (7.62m x 15.24m x 3.66m).
+#   Coordinate convention:
+#     - home/start stays at the origin and faces +X.
+#     - tank length runs from west to east along +X.
+#     - the short start edge is the west wall near x=-1.20m.
+#     - tank width runs across Y from about -3.81m to +3.81m.
+#   Target coordinates below match heron_simulator/worlds/tank.world.
+# ==============================================================================
+
+schema_version: 2
+frame: "map"
+units: {pos: "m", angles: "rad"}
+return_entity_id: "home"
+
+zones:
+  - id: "POOL"
+    description: "training tank"
+    bounds: {x_min: -1.20, x_max: 14.04, y_min: -3.81, y_max: 3.81}
+    priority: 10
+    pad_m: 0.5
+
+entities:
+  - id: "home"
+    class: "HOME"
+    virtual: true
+    zone: "POOL"
+    aliases: ["start", "base", "reference"]
+    affordances: ["NAV", "RETURN"]
+    description: "Reference home point near short-edge deployment lane"
+    pose:
+      position: {x: 0.0, y: 0.0, z: 0.2}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+
+  - id: "pool_wall_north"
+    class: "WALL"
+    zone: "POOL"
+    aliases: ["north wall"]
+    affordances: ["AVOID"]
+    description: "North pool boundary wall"
+    pose:
+      position: {x: 6.42, y: 3.81, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [15.24, 0.30, 1.20]
+
+  - id: "pool_wall_south"
+    class: "WALL"
+    zone: "POOL"
+    aliases: ["south wall"]
+    affordances: ["AVOID"]
+    description: "South pool boundary wall"
+    pose:
+      position: {x: 6.42, y: -3.81, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [15.24, 0.30, 1.20]
+
+  - id: "pool_wall_east"
+    class: "WALL"
+    zone: "POOL"
+    aliases: ["east wall"]
+    affordances: ["AVOID"]
+    description: "East pool boundary wall"
+    pose:
+      position: {x: 14.04, y: 0.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [0.30, 7.62, 1.20]
+
+  - id: "pool_wall_west"
+    class: "WALL"
+    zone: "POOL"
+    aliases: ["west wall"]
+    affordances: ["AVOID"]
+    description: "West pool boundary wall"
+    pose:
+      position: {x: -1.20, y: 0.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [0.30, 7.62, 1.20]
+
+  - id: "pool_target_floor_circle"
+    class: "TARGET"
+    zone: "POOL"
+    aliases: ["floor circle", "circular floor target"]
+    affordances: ["INSPECT"]
+    description: "Circular floor target near mid-pool"
+    pose:
+      position: {x: 6.0, y: 1.4, z: -3.645}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    cyl: {r: 0.45, h: 0.03}
+
+  - id: "pool_target_floor_rect"
+    class: "TARGET"
+    zone: "POOL"
+    aliases: ["floor rectangle", "rectangular floor target", "rectilinear floor target"]
+    affordances: ["INSPECT"]
+    description: "Rectangular floor target farther down-pool"
+    pose:
+      position: {x: 10.8, y: -1.5, z: -3.645}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [1.2, 0.8, 0.03]
+
+  - id: "pool_target_bottom_marker_rig"
+    class: "TARGET"
+    zone: "POOL"
+    aliases:
+      - "bottom target marker rig"
+      - "weighted bottom target"
+      - "rectangular weighted base"
+      - "tennis ball target"
+      - "tethered bottom target"
+      - "short rod target"
+    affordances: ["INSPECT"]
+    description: "Weighted rectangular bottom target with high-contrast tennis balls, short rods, and a vertical tether marker"
+    pose:
+      position: {x: 5.8, y: 0.85, z: -3.645}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [1.4, 0.95, 2.65]
+
+  - id: "pool_target_bottom_rod_line"
+    class: "TARGET"
+    zone: "POOL"
+    aliases:
+      - "bottom rod line"
+      - "underwater rod line"
+      - "rectangular bottom marker"
+      - "weighted rod target"
+      - "short rods"
+    affordances: ["INSPECT"]
+    description: "Weighted bottom target with a bright rectangular base, short rod line, and vertical tether marker"
+    pose:
+      position: {x: 9.4, y: -1.1, z: -3.645}
+      orientation: {x: 0.0, y: 0.0, z: 0.1247, w: 0.9922}
+    extent: [1.55, 0.48, 2.60]
+
+  - id: "pool_target_wall_rect"
+    class: "PANEL"
+    zone: "POOL"
+    aliases: ["wall panel", "rectangular wall target", "structure ahead"]
+    affordances: ["INSPECT"]
+    description: "Rectangular wall panel on the far east wall used for inspection"
+    pose:
+      position: {x: 13.99, y: -1.8, z: -1.4}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [0.04, 1.5, 1.0]
+
+  - id: "pool_target_wall_circle"
+    class: "MARKER"
+    zone: "POOL"
+    aliases: ["wall circle", "circular wall marker"]
+    affordances: ["INSPECT"]
+    description: "Circular wall marker on the north wall used for inspection"
+    pose:
+      position: {x: 8.5, y: 3.0, z: -1.5}
+      orientation: {x: 0.7071, y: 0.0, z: 0.0, w: 0.7071}
+    cyl: {r: 0.5, h: 0.04}

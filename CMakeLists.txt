@@ -42,6 +42,7 @@ install(TARGETS
 catkin_install_python(PROGRAMS
   scripts/drive_to_thrusters.py
   scripts/multibeam_raw.py
+  scripts/scenarios.py
   scripts/sim_ig_timing.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

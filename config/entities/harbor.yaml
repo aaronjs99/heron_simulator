@@ -1,0 +1,972 @@
+# ==============================================================================
+# SLAM GRANDE Environment Configuration: harbor.yaml
+# Project: ORACLE
+# Description:
+#   Port-style simulated harbor used by Gazebo. The launch dock is short,
+#   the north and south inspection piers are long and straight, the east pier is
+#   L-shaped, and a few moored boats provide visual context without blocking
+#   navigation.
+# ==============================================================================
+
+# ==============================================================================
+# 0. HEADER & METADATA
+# ==============================================================================
+schema_version: 2
+frame: "map"
+units: {pos: "m", angles: "rad"}
+return_entity_id: "home"
+
+# ==============================================================================
+# 1. ZONES & REGIONS
+# ==============================================================================
+zones:
+  - id: "DOCK"
+    description: "Main harbor apron, shoreline, and launch dock"
+    bounds: {x_min: -46.0, x_max: 48.0, y_min: -44.0, y_max: 40.0}
+    priority: 10
+    pad_m: 2.0
+
+  - id: "NORTH_PIER"
+    description: "Long north inspection pier"
+    bounds: {x_min: -6.0, x_max: 28.0, y_min: 20.0, y_max: 28.0}
+    priority: 10
+    pad_m: 2.0
+
+  - id: "SOUTH_PIER"
+    description: "Long south inspection pier"
+    bounds: {x_min: -8.0, x_max: 26.0, y_min: -22.0, y_max: -14.0}
+    priority: 10
+    pad_m: 2.0
+
+  - id: "FAR_PIER"
+    description: "Right-side L-shaped inspection pier"
+    bounds: {x_min: -4.0, x_max: 36.0, y_min: 6.0, y_max: 28.0}
+    priority: 10
+    pad_m: 2.0
+
+  - id: "OCEAN"
+    description: "Open water area for navigation and targets"
+    bounds: {x_min: -20.0, x_max: 40.0, y_min: -64.0, y_max: 64.0}
+    priority: 1
+    pad_m: 0.0
+
+  - id: "BOUNDARY"
+    description: "Western shoreline and environment limits"
+    bounds: {x_min: -46.0, x_max: -28.0, y_min: -100.0, y_max: 100.0}
+    priority: 0
+    pad_m: 0.0
+
+# ==============================================================================
+# 2. TEMPLATES
+# ==============================================================================
+templates:
+  materials:
+    concrete: &mat_concrete
+      ambient: [0.50, 0.50, 0.55, 1.0]
+      diffuse: [0.60, 0.60, 0.65, 1.0]
+
+    wood_dark: &mat_wood_dark
+      ambient: [0.25, 0.25, 0.25, 1.0]
+      diffuse: [0.35, 0.35, 0.35, 1.0]
+
+    wood_deck: &mat_wood_deck
+      ambient: [0.50, 0.35, 0.20, 1.0]
+      diffuse: [0.60, 0.45, 0.25, 1.0]
+
+    steel_yel: &mat_steel_yel
+      ambient: [0.70, 0.70, 0.20, 1.0]
+      diffuse: [0.90, 0.90, 0.30, 1.0]
+
+    boat_blue: &mat_boat_blue
+      ambient: [0.10, 0.20, 0.45, 1.0]
+      diffuse: [0.15, 0.30, 0.65, 1.0]
+
+    boat_white: &mat_boat_white
+      ambient: [0.75, 0.75, 0.78, 1.0]
+      diffuse: [0.90, 0.90, 0.95, 1.0]
+
+  sim_configs:
+    piling: &sim_piling
+      geometry: "cylinder"
+      visual:
+        radius: 0.30
+        length: 8.0
+        material: *mat_wood_dark
+      collision:
+        radius: 0.30
+        length: 8.0
+
+    dock_pillar: &sim_dock_pillar
+      geometry: "cylinder"
+      visual:
+        radius: 0.40
+        length: 5.0
+        material: *mat_wood_dark
+      collision:
+        radius: 0.40
+        length: 5.0
+
+  inspect_configs:
+    piling: &inspect_piling
+      viewpoint_gen:
+        type: "RING"
+        standoff: 1.8
+        num_angles: 3
+        height_slices: 2
+
+    deck_transect: &inspect_deck_transect
+      viewpoint_gen:
+        type: "TRANSECT"
+        offsets: [-1.2, 1.2]
+        spacing: 6.0
+        standoff: 2.0
+
+# ==============================================================================
+# 3. ENTITIES
+# ==============================================================================
+entities:
+  # ----------------------------------------------------------------------------
+  # HOME / RETURN
+  # ----------------------------------------------------------------------------
+  - id: "home"
+    class: "HOME"
+    zone: "DOCK"
+    aliases: ["start", "base", "launch"]
+    affordances: ["NAV", "RETURN"]
+    description: "Robot home/start position just off the launch dock tip"
+    pose:
+      position: {x: -24.0, y: 10.0, z: 0.2}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    radius: 2.0
+    temp_gate: {decay_rate: 0.001}
+
+  # ----------------------------------------------------------------------------
+  # LAND / SHORELINE
+  # ----------------------------------------------------------------------------
+  - id: "wall_south_boundary"
+    class: "WALL"
+    zone: "BOUNDARY"
+    aliases: ["west shoreline", "boundary"]
+    affordances: ["AVOID"]
+    description: "Western shoreline retaining wall"
+    pose:
+      position: {x: -40.0, y: 0.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [12.0, 112.0, 1.5]
+    temp_gate: {decay_rate: 0.0001}
+    sim:
+      geometry: "box"
+      visual:
+        size: [12.0, 112.0, 1.5]
+        material: *mat_concrete
+      collision:
+        size: [12.0, 112.0, 1.5]
+
+  - id: "harbor_northwest_terminal"
+    class: "WHARF"
+    zone: "DOCK"
+    aliases: ["northwest terminal", "north quay"]
+    affordances: ["AVOID"]
+    description: "Northwest terminal pad feeding the long north pier"
+    pose:
+      position: {x: -20.0, y: 30.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [28.0, 20.0, 1.5]
+    temp_gate: {decay_rate: 0.0002}
+    sim:
+      geometry: "box"
+      visual:
+        size: [28.0, 20.0, 1.5]
+        material: *mat_concrete
+      collision:
+        size: [28.0, 20.0, 1.5]
+
+  - id: "harbor_east_berth"
+    class: "WHARF"
+    zone: "DOCK"
+    aliases: ["east berth", "east quay"]
+    affordances: ["AVOID"]
+    description: "East-side berth that supports the right-side L pier"
+    pose:
+      position: {x: 39.0, y: 14.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [14.0, 76.0, 1.5]
+    temp_gate: {decay_rate: 0.0002}
+    sim:
+      geometry: "box"
+      visual:
+        size: [14.0, 76.0, 1.5]
+        material: *mat_concrete
+      collision:
+        size: [14.0, 76.0, 1.5]
+
+  - id: "harbor_south_breakwater"
+    class: "BREAKWATER"
+    zone: "DOCK"
+    aliases: ["south breakwater", "south apron"]
+    affordances: ["AVOID"]
+    description: "South apron and breakwater tied into the long south pier"
+    pose:
+      position: {x: 8.0, y: -32.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [104.0, 20.0, 1.5]
+    temp_gate: {decay_rate: 0.0002}
+    sim:
+      geometry: "box"
+      visual:
+        size: [104.0, 20.0, 1.5]
+        material: *mat_concrete
+      collision:
+        size: [104.0, 20.0, 1.5]
+
+  - id: "harbor_south_terminal"
+    class: "WHARF"
+    zone: "DOCK"
+    aliases: ["south terminal", "south pier base"]
+    affordances: ["AVOID"]
+    description: "Short south terminal that ties the long south pier into land"
+    pose:
+      position: {x: -14.0, y: -20.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [12.0, 4.0, 1.5]
+    temp_gate: {decay_rate: 0.0002}
+    sim:
+      geometry: "box"
+      visual:
+        size: [12.0, 4.0, 1.5]
+        material: *mat_concrete
+      collision:
+        size: [12.0, 4.0, 1.5]
+
+  # ----------------------------------------------------------------------------
+  # LAUNCH DOCK
+  # ----------------------------------------------------------------------------
+  - id: "dock_main_platform"
+    class: "DOCK"
+    zone: "DOCK"
+    aliases: ["dock", "main dock", "launch dock", "jetty"]
+    affordances: ["NAV", "INSPECT"]
+    risk: "LOW"
+    description: "Short launch dock extending off the west shoreline"
+    pose:
+      position: {x: -30.0, y: 10.0, z: 0.2}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [8.0, 4.0, 0.5]
+    nav_standoff_default: 2.0
+    inspect_standoff_default: 2.0
+    temp_gate: {decay_rate: 0.0005}
+    children:
+      - "dock_pillar_west_north"
+      - "dock_pillar_west_south"
+      - "dock_pillar_mid_north"
+      - "dock_pillar_mid_south"
+      - "dock_pillar_east_north"
+      - "dock_pillar_east_south"
+    sim:
+      geometry: "box"
+      visual:
+        size: [8.0, 4.0, 0.5]
+        material: *mat_wood_deck
+      collision:
+        size: [8.0, 4.0, 0.5]
+
+  - id: "dock_pillar_west_north"
+    class: "PILLAR"
+    zone: "DOCK"
+    affordances: ["AVOID", "INSPECT"]
+    risk: "MED"
+    pose: {position: {x: -32.0, y: 11.4, z: -2.25}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.4, h: 5.0}
+    inspect_standoff_default: 1.5
+    temp_gate: {decay_rate: 0.005}
+    sim: *sim_dock_pillar
+
+  - id: "dock_pillar_west_south"
+    class: "PILLAR"
+    zone: "DOCK"
+    affordances: ["AVOID", "INSPECT"]
+    risk: "MED"
+    pose: {position: {x: -32.0, y: 8.6, z: -2.25}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.4, h: 5.0}
+    inspect_standoff_default: 1.5
+    temp_gate: {decay_rate: 0.005}
+    sim: *sim_dock_pillar
+
+  - id: "dock_pillar_mid_north"
+    class: "PILLAR"
+    zone: "DOCK"
+    affordances: ["AVOID", "INSPECT"]
+    risk: "MED"
+    pose: {position: {x: -30.0, y: 11.4, z: -2.25}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.4, h: 5.0}
+    inspect_standoff_default: 1.5
+    temp_gate: {decay_rate: 0.005}
+    sim: *sim_dock_pillar
+
+  - id: "dock_pillar_mid_south"
+    class: "PILLAR"
+    zone: "DOCK"
+    affordances: ["AVOID", "INSPECT"]
+    risk: "MED"
+    pose: {position: {x: -30.0, y: 8.6, z: -2.25}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.4, h: 5.0}
+    inspect_standoff_default: 1.5
+    temp_gate: {decay_rate: 0.005}
+    sim: *sim_dock_pillar
+
+  - id: "dock_pillar_east_north"
+    class: "PILLAR"
+    zone: "DOCK"
+    affordances: ["AVOID", "INSPECT"]
+    risk: "MED"
+    pose: {position: {x: -28.0, y: 11.4, z: -2.25}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.4, h: 5.0}
+    inspect_standoff_default: 1.5
+    temp_gate: {decay_rate: 0.005}
+    sim: *sim_dock_pillar
+
+  - id: "dock_pillar_east_south"
+    class: "PILLAR"
+    zone: "DOCK"
+    affordances: ["AVOID", "INSPECT"]
+    risk: "MED"
+    pose: {position: {x: -28.0, y: 8.6, z: -2.25}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.4, h: 5.0}
+    inspect_standoff_default: 1.5
+    temp_gate: {decay_rate: 0.005}
+    sim: *sim_dock_pillar
+
+  # ----------------------------------------------------------------------------
+  # NORTH PIER
+  # ----------------------------------------------------------------------------
+  - id: "pier_north"
+    class: "PIER"
+    zone: "NORTH_PIER"
+    aliases: ["north pier", "pier 1", "main pier"]
+    affordances: ["INSPECT"]
+    virtual: true
+    description: "Long straight north inspection pier"
+    pose: {position: {x: 10.0, y: 24.0, z: 3.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    inspect:
+      coverage_target: 0.92
+      budget: 8
+      strategy: "HYBRID"
+    children:
+      - "pier_north_deck"
+      - "pier_north_piling_a_north"
+      - "pier_north_piling_a_south"
+      - "pier_north_piling_b_north"
+      - "pier_north_piling_b_south"
+      - "pier_north_piling_c_north"
+      - "pier_north_piling_c_south"
+      - "pier_north_piling_d_north"
+      - "pier_north_piling_d_south"
+      - "pier_north_piling_e_north"
+      - "pier_north_piling_e_south"
+
+  - id: "pier_north_deck"
+    class: "DECK"
+    zone: "NORTH_PIER"
+    aliases: ["north deck"]
+    affordances: ["NAV", "INSPECT"]
+    description: "Main north inspection deck"
+    pose:
+      position: {x: 10.0, y: 24.0, z: 3.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [32.0, 4.0, 0.5]
+    nav_standoff_default: 2.0
+    inspect_standoff_default: 2.0
+    inspect:
+      model:
+        type: "PLANE_RECT"
+        L: 32.0
+        W: 4.0
+        z: 3.0
+      <<: *inspect_deck_transect
+    temp_gate: {decay_rate: 0.008}
+    sim:
+      geometry: "box"
+      visual:
+        size: [32.0, 4.0, 0.5]
+        material: *mat_wood_deck
+      collision:
+        size: [32.0, 4.0, 0.5]
+
+  - id: "pier_north_piling_a_north"
+    class: "PILING"
+    zone: "NORTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: -2.0, y: 25.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    inspect: *inspect_piling
+    sim: *sim_piling
+
+  - id: "pier_north_piling_a_south"
+    class: "PILING"
+    zone: "NORTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: -2.0, y: 22.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_north_piling_b_north"
+    class: "PILING"
+    zone: "NORTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 4.0, y: 25.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_north_piling_b_south"
+    class: "PILING"
+    zone: "NORTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 4.0, y: 22.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_north_piling_c_north"
+    class: "PILING"
+    zone: "NORTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 10.0, y: 25.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_north_piling_c_south"
+    class: "PILING"
+    zone: "NORTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 10.0, y: 22.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_north_piling_d_north"
+    class: "PILING"
+    zone: "NORTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 16.0, y: 25.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_north_piling_d_south"
+    class: "PILING"
+    zone: "NORTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 16.0, y: 22.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_north_piling_e_north"
+    class: "PILING"
+    zone: "NORTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 22.0, y: 25.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_north_piling_e_south"
+    class: "PILING"
+    zone: "NORTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 22.0, y: 22.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  # ----------------------------------------------------------------------------
+  # SOUTH PIER
+  # ----------------------------------------------------------------------------
+  - id: "pier_south"
+    class: "PIER"
+    zone: "SOUTH_PIER"
+    aliases: ["south pier", "pier 2"]
+    affordances: ["INSPECT"]
+    virtual: true
+    description: "Long straight south inspection pier"
+    pose: {position: {x: 8.0, y: -18.0, z: 3.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    inspect:
+      coverage_target: 0.92
+      budget: 8
+      strategy: "HYBRID"
+    children:
+      - "pier_south_deck"
+      - "pier_south_piling_a_north"
+      - "pier_south_piling_a_south"
+      - "pier_south_piling_b_north"
+      - "pier_south_piling_b_south"
+      - "pier_south_piling_c_north"
+      - "pier_south_piling_c_south"
+      - "pier_south_piling_d_north"
+      - "pier_south_piling_d_south"
+      - "pier_south_piling_e_north"
+      - "pier_south_piling_e_south"
+
+  - id: "pier_south_deck"
+    class: "DECK"
+    zone: "SOUTH_PIER"
+    aliases: ["south deck"]
+    affordances: ["NAV", "INSPECT"]
+    description: "Main south inspection deck"
+    pose:
+      position: {x: 8.0, y: -18.0, z: 3.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [32.0, 4.0, 0.5]
+    nav_standoff_default: 2.0
+    inspect_standoff_default: 2.0
+    inspect:
+      model:
+        type: "PLANE_RECT"
+        L: 32.0
+        W: 4.0
+        z: 3.0
+      <<: *inspect_deck_transect
+    temp_gate: {decay_rate: 0.008}
+    sim:
+      geometry: "box"
+      visual:
+        size: [32.0, 4.0, 0.5]
+        material: *mat_wood_deck
+      collision:
+        size: [32.0, 4.0, 0.5]
+
+  - id: "pier_south_piling_a_north"
+    class: "PILING"
+    zone: "SOUTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: -4.0, y: -16.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    inspect: *inspect_piling
+    sim: *sim_piling
+
+  - id: "pier_south_piling_a_south"
+    class: "PILING"
+    zone: "SOUTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: -4.0, y: -19.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_south_piling_b_north"
+    class: "PILING"
+    zone: "SOUTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 2.0, y: -16.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_south_piling_b_south"
+    class: "PILING"
+    zone: "SOUTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 2.0, y: -19.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_south_piling_c_north"
+    class: "PILING"
+    zone: "SOUTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 8.0, y: -16.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_south_piling_c_south"
+    class: "PILING"
+    zone: "SOUTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 8.0, y: -19.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_south_piling_d_north"
+    class: "PILING"
+    zone: "SOUTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 14.0, y: -16.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_south_piling_d_south"
+    class: "PILING"
+    zone: "SOUTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 14.0, y: -19.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_south_piling_e_north"
+    class: "PILING"
+    zone: "SOUTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 20.0, y: -16.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_south_piling_e_south"
+    class: "PILING"
+    zone: "SOUTH_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 20.0, y: -19.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  # ----------------------------------------------------------------------------
+  # RIGHT-SIDE L PIER
+  # ----------------------------------------------------------------------------
+  - id: "pier_far"
+    class: "PIER"
+    zone: "FAR_PIER"
+    aliases: ["far pier", "right pier", "pier 3"]
+    affordances: ["INSPECT"]
+    virtual: true
+    description: "Right-side L-shaped inspection pier"
+    pose: {position: {x: 14.0, y: 12.0, z: 3.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    inspect:
+      coverage_target: 0.92
+      budget: 8
+      strategy: "HYBRID"
+    children:
+      - "pier_far_deck"
+      - "pier_far_access"
+      - "pier_far_piling_a_north"
+      - "pier_far_piling_a_south"
+      - "pier_far_piling_b_north"
+      - "pier_far_piling_b_south"
+      - "pier_far_piling_c_north"
+      - "pier_far_piling_c_south"
+      - "pier_far_piling_d_north"
+      - "pier_far_piling_d_south"
+      - "pier_far_piling_e_north"
+      - "pier_far_piling_e_south"
+      - "pier_far_access_piling_low"
+      - "pier_far_access_piling_mid"
+      - "pier_far_access_piling_high"
+
+  - id: "pier_far_deck"
+    class: "DECK"
+    zone: "FAR_PIER"
+    aliases: ["far deck", "right deck"]
+    affordances: ["NAV", "INSPECT"]
+    description: "Main straight deck of the right-side L pier"
+    pose:
+      position: {x: 14.0, y: 12.0, z: 3.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [36.0, 4.0, 0.5]
+    nav_standoff_default: 2.0
+    inspect_standoff_default: 2.0
+    inspect:
+      model:
+        type: "PLANE_RECT"
+        L: 36.0
+        W: 4.0
+        z: 3.0
+      <<: *inspect_deck_transect
+    temp_gate: {decay_rate: 0.008}
+    sim:
+      geometry: "box"
+      visual:
+        size: [36.0, 4.0, 0.5]
+        material: *mat_wood_deck
+      collision:
+        size: [36.0, 4.0, 0.5]
+
+  - id: "pier_far_access"
+    class: "DECK"
+    zone: "FAR_PIER"
+    aliases: ["far leg", "right leg"]
+    affordances: ["NAV", "INSPECT"]
+    description: "Leg of the L-shaped pier connected to the east berth"
+    pose:
+      position: {x: 30.0, y: 20.0, z: 3.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [4.0, 16.0, 0.5]
+    nav_standoff_default: 2.0
+    inspect_standoff_default: 2.0
+    temp_gate: {decay_rate: 0.008}
+    sim:
+      geometry: "box"
+      visual:
+        size: [4.0, 16.0, 0.5]
+        material: *mat_wood_deck
+      collision:
+        size: [4.0, 16.0, 0.5]
+
+  - id: "pier_far_piling_a_north"
+    class: "PILING"
+    zone: "FAR_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: -2.0, y: 13.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    inspect: *inspect_piling
+    sim: *sim_piling
+
+  - id: "pier_far_piling_a_south"
+    class: "PILING"
+    zone: "FAR_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: -2.0, y: 10.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_far_piling_b_north"
+    class: "PILING"
+    zone: "FAR_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 6.0, y: 13.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_far_piling_b_south"
+    class: "PILING"
+    zone: "FAR_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 6.0, y: 10.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_far_piling_c_north"
+    class: "PILING"
+    zone: "FAR_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 14.0, y: 13.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_far_piling_c_south"
+    class: "PILING"
+    zone: "FAR_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 14.0, y: 10.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_far_piling_d_north"
+    class: "PILING"
+    zone: "FAR_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 22.0, y: 13.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_far_piling_d_south"
+    class: "PILING"
+    zone: "FAR_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 22.0, y: 10.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_far_piling_e_north"
+    class: "PILING"
+    zone: "FAR_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 30.0, y: 13.4, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_far_piling_e_south"
+    class: "PILING"
+    zone: "FAR_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 30.0, y: 10.6, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_far_access_piling_low"
+    class: "PILING"
+    zone: "FAR_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 30.0, y: 16.0, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_far_access_piling_mid"
+    class: "PILING"
+    zone: "FAR_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 30.0, y: 20.0, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  - id: "pier_far_access_piling_high"
+    class: "PILING"
+    zone: "FAR_PIER"
+    risk: "HIGH"
+    affordances: ["AVOID", "INSPECT"]
+    pose: {position: {x: 30.0, y: 24.0, z: -1.0}, orientation: {x: 0, y: 0, z: 0, w: 1}}
+    cyl: {r: 0.3, h: 8.0}
+    inspect_standoff_default: 1.5
+    sim: *sim_piling
+
+  # ----------------------------------------------------------------------------
+  # MOORED BOATS
+  # ----------------------------------------------------------------------------
+  - id: "service_boat_launch"
+    class: "BOAT"
+    zone: "DOCK"
+    aliases: ["launch skiff", "small workboat"]
+    affordances: ["AVOID", "INSPECT"]
+    risk: "LOW"
+    description: "Small service boat moored near the launch basin"
+    pose:
+      position: {x: -18.0, y: 5.0, z: 0.15}
+      orientation: {x: 0.0, y: 0.0, z: 0.2588, w: 0.9659}
+    extent: [4.5, 1.8, 1.0]
+    temp_gate: {decay_rate: 0.01}
+    sim:
+      geometry: "box"
+      visual:
+        size: [4.5, 1.8, 1.0]
+        material: *mat_boat_blue
+      collision:
+        size: [4.5, 1.8, 1.0]
+
+  - id: "service_boat_east"
+    class: "BOAT"
+    zone: "DOCK"
+    aliases: ["east workboat", "berth workboat"]
+    affordances: ["AVOID", "INSPECT"]
+    risk: "LOW"
+    description: "Workboat moored inside the east berth"
+    pose:
+      position: {x: 22.0, y: 3.0, z: 0.18}
+      orientation: {x: 0.0, y: 0.0, z: 0.7071, w: 0.7071}
+    extent: [5.5, 2.2, 1.1]
+    temp_gate: {decay_rate: 0.01}
+    sim:
+      geometry: "box"
+      visual:
+        size: [5.5, 2.2, 1.1]
+        material: *mat_boat_white
+      collision:
+        size: [5.5, 2.2, 1.1]
+
+  - id: "service_boat_south"
+    class: "BOAT"
+    zone: "DOCK"
+    aliases: ["south patrol boat", "patrol boat"]
+    affordances: ["AVOID", "INSPECT"]
+    risk: "LOW"
+    description: "Small patrol boat moored near the south basin"
+    pose:
+      position: {x: 14.0, y: -8.0, z: 0.15}
+      orientation: {x: 0.0, y: 0.0, z: -0.3827, w: 0.9239}
+    extent: [4.2, 1.8, 1.0]
+    temp_gate: {decay_rate: 0.01}
+    sim:
+      geometry: "box"
+      visual:
+        size: [4.2, 1.8, 1.0]
+        material: *mat_boat_blue
+      collision:
+        size: [4.2, 1.8, 1.0]
+
+  # ----------------------------------------------------------------------------
+  # TARGETS
+  # ----------------------------------------------------------------------------
+  - id: "target_turbine_01"
+    class: "TARGET"
+    zone: "OCEAN"
+    aliases: ["turbine", "tidal turbine"]
+    affordances: ["INSPECT"]
+    description: "Submerged tidal turbine"
+    pose:
+      position: {x: 25.0, y: 40.0, z: -2.0}
+      orientation: {x: 0.7071, y: 0.0, z: 0.0, w: 0.7071}
+    cyl: {r: 1.5, h: 0.8}
+    inspect_standoff_default: 3.0
+    temp_gate: {decay_rate: 0.02}
+    sim:
+      geometry: "cylinder"
+      visual:
+        radius: 1.5
+        length: 0.8
+        material: *mat_steel_yel
+      collision:
+        radius: 1.5
+        length: 0.8
+
+  # ----------------------------------------------------------------------------
+  # SEAFLOOR
+  # ----------------------------------------------------------------------------
+  - id: "seafloor_base"
+    class: "SEAFLOOR"
+    zone: "OCEAN"
+    affordances: ["AVOID"]
+    description: "Ocean floor"
+    pose:
+      position: {x: 0.0, y: 0.0, z: -5.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [150.0, 150.0, 0.1]
+    temp_gate: {decay_rate: 0.0}
+    sim:
+      geometry: "box"
+      visual:
+        size: [150.0, 150.0, 0.1]
+        material: *mat_concrete
+      collision:
+        size: [150.0, 150.0, 0.1]

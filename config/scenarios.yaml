@@ -1,0 +1,6 @@
+schema_version: 1
+default_scenario: harbor
+
+scenarios:
+  harbor: config/scenarios/harbor.yaml
+  pool: config/scenarios/pool.yaml

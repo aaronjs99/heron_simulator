@@ -1,0 +1,47 @@
+scenario_name: harbor
+world_file: heron_simulator/worlds/harbor.world
+entity_file: heron_simulator/config/entities/harbor.yaml
+map_bounds:
+  x_min: -50.0
+  x_max: 150.0
+  y_min: -100.0
+  y_max: 100.0
+known_free_area_estimate_m2: 1680.0
+spawn_pose:
+  x: 0.0
+  y: 0.0
+  yaw_rad: 0.0
+# Entity geometry is authored in the robot-local map frame. In Gazebo, add
+# this offset so the shifted home/deck geometry lands next to the spawned USV.
+world_offset:
+  x: 24.0
+  y: -10.0
+max_navigation_distance_m: 30.0
+exploration:
+  max_generated_goals: 24
+  spacing_m: 6.0
+  radius_m: 30.0
+  min_frontier_progress_m: 1.0
+  min_total_exploration_radius_m: 3.0
+  required_extent_m: 3.0
+  goal_current_pose_tolerance_m: 0.35
+  goal_min_displacement_m: 1.0
+  goal_precommit_inflation_threshold: 60
+  goal_min_obstacle_clearance_m: 1.5
+  goal_min_frontier_standoff_m: 0.0
+  goal_preferred_frontier_standoff_m: 0.0
+  goal_map_bounds_margin_m: 0.0
+  goal_standoff_projection_step_m: 0.25
+  goal_standoff_projection_max_m: 3.0
+  precommit_clearance_m: 1.0
+  precommit_clearance_max_blocked_ratio: 0.22
+  precommit_clearance_min_blocked_cells: 4
+  final_approach_min_free_ratio: 0.60
+  weak_frontier_gain_threshold: 0.08
+  long_plan_threshold_m: 8.0
+  min_gain_per_meter_long_plan: 0.035
+  absolute_plan_max_m: 18.0
+  progressive_distance_cap_m: 10.0
+  progressive_distance_cap_max_m: 16.0
+  progressive_distance_increment_m: 1.5
+  frontier_exhaustion_threshold: 0

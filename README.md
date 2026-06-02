@@ -100,8 +100,12 @@ contracts, and state wiring stay consistent.
 | Path | Role |
 |---|---|
 | `launch/` | Gazebo world/spawn launch pieces used by an integration stack |
+| `config/scenarios.yaml` | Simulator scenario index used by integration launch defaults |
+| `config/scenarios/` | Per-scenario world/entity/navigation profile metadata |
+| `config/entities/` | Simulation semantic entity fixtures matched to the Gazebo scenes |
 | `worlds/` | Thin scenario composition files for physics, lighting, GUI camera, and model includes |
 | `models/` | Reusable Gazebo geometry assets such as water surfaces, tank geometry, and tank targets |
+| `scripts/scenarios.py` | Minimal roslaunch resolver for scenario-specific values |
 | `scripts/drive_to_thrusters.py` | `/cmd_drive` to Gazebo thruster wrench bridge |
 | `scripts/multibeam_raw.py` | Gazebo multibeam sonar ray cloud to raw 83P/profile packet bridge |
 | `scripts/sim_ig_timing.py` | Simulated IG Handle timing-reference topic bridge |
