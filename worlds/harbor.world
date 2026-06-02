@@ -454,6 +454,276 @@
           </material>
         </visual>
       </link>
+
+      <link name="corner_dolphin_pile_01_link">
+        <pose>17.25 4.35 0.0 0 0 0</pose>
+        <collision name="pile_collision">
+          <geometry>
+            <cylinder>
+              <radius>0.28</radius>
+              <length>3.0</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="pile_visual">
+          <geometry>
+            <cylinder>
+              <radius>0.28</radius>
+              <length>3.0</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.16 0.14 0.12 1</ambient>
+            <diffuse>0.21 0.18 0.15 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <link name="corner_dolphin_pile_02_link">
+        <pose>17.85 4.95 0.0 0 0 0</pose>
+        <collision name="pile_collision">
+          <geometry>
+            <cylinder>
+              <radius>0.24</radius>
+              <length>2.8</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="pile_visual">
+          <geometry>
+            <cylinder>
+              <radius>0.24</radius>
+              <length>2.8</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.16 0.14 0.12 1</ambient>
+            <diffuse>0.21 0.18 0.15 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <link name="corner_dolphin_pile_03_link">
+        <pose>17.10 5.72 0.0 0 0 0</pose>
+        <collision name="pile_collision">
+          <geometry>
+            <cylinder>
+              <radius>0.22</radius>
+              <length>2.7</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="pile_visual">
+          <geometry>
+            <cylinder>
+              <radius>0.22</radius>
+              <length>2.7</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.16 0.14 0.12 1</ambient>
+            <diffuse>0.21 0.18 0.15 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <link name="corner_cap_beam_link">
+        <pose>17.40 5.05 1.15 0 0 0.72</pose>
+        <collision name="beam_collision">
+          <geometry>
+            <box>
+              <size>2.0 0.24 0.24</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="beam_visual">
+          <geometry>
+            <box>
+              <size>2.0 0.24 0.24</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.20 0.17 0.13 1</ambient>
+            <diffuse>0.27 0.22 0.17 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <link name="underdeck_stringer_west_link">
+        <pose>7.5 4.55 0.02 0 0 0</pose>
+        <collision name="stringer_collision">
+          <geometry>
+            <box>
+              <size>5.4 0.22 0.34</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="stringer_visual">
+          <geometry>
+            <box>
+              <size>5.4 0.22 0.34</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.24 0.20 0.16 1</ambient>
+            <diffuse>0.30 0.25 0.20 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <link name="underdeck_stringer_east_link">
+        <pose>13.9 7.05 0.02 0 0 0</pose>
+        <collision name="stringer_collision">
+          <geometry>
+            <box>
+              <size>4.6 0.22 0.34</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="stringer_visual">
+          <geometry>
+            <box>
+              <size>4.6 0.22 0.34</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.24 0.20 0.16 1</ambient>
+            <diffuse>0.30 0.25 0.20 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <link name="short_service_post_link">
+        <pose>6.7 6.95 0.95 0 0 0</pose>
+        <collision name="post_collision">
+          <geometry>
+            <box>
+              <size>0.28 0.28 1.7</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="post_visual">
+          <geometry>
+            <box>
+              <size>0.28 0.28 1.7</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.36 0.34 0.29 1</ambient>
+            <diffuse>0.44 0.41 0.35 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <link name="tall_service_post_link">
+        <pose>13.4 6.95 1.35 0 0 0</pose>
+        <collision name="post_collision">
+          <geometry>
+            <box>
+              <size>0.34 0.34 2.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="post_visual">
+          <geometry>
+            <box>
+              <size>0.34 0.34 2.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.36 0.34 0.29 1</ambient>
+            <diffuse>0.44 0.41 0.35 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <link name="ladder_rail_link">
+        <pose>8.8 4.58 0.30 0 0 0</pose>
+        <collision name="ladder_collision">
+          <geometry>
+            <box>
+              <size>0.22 0.18 1.45</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="ladder_visual">
+          <geometry>
+            <box>
+              <size>0.22 0.18 1.45</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.06 0.07 0.07 1</ambient>
+            <diffuse>0.10 0.11 0.11 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <link name="offset_fender_short_link">
+        <pose>7.2 4.52 0.72 0 0 0</pose>
+        <collision name="fender_collision">
+          <geometry>
+            <box>
+              <size>1.25 0.20 0.32</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="fender_visual">
+          <geometry>
+            <box>
+              <size>1.25 0.20 0.32</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.02 0.02 0.02 1</ambient>
+            <diffuse>0.03 0.03 0.03 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <link name="offset_fender_tall_link">
+        <pose>12.9 4.50 0.58 0 0 0</pose>
+        <collision name="fender_collision">
+          <geometry>
+            <box>
+              <size>1.55 0.22 0.48</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="fender_visual">
+          <geometry>
+            <box>
+              <size>1.55 0.22 0.48</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.02 0.02 0.02 1</ambient>
+            <diffuse>0.03 0.03 0.03 1</diffuse>
+          </material>
+        </visual>
+      </link>
+
+      <link name="bollard_pair_link">
+        <pose>15.2 6.2 0.62 0 0 0</pose>
+        <collision name="bollard_collision">
+          <geometry>
+            <box>
+              <size>0.85 0.28 0.28</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="bollard_visual">
+          <geometry>
+            <box>
+              <size>0.85 0.28 0.28</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.08 0.08 0.08 1</ambient>
+            <diffuse>0.12 0.12 0.12 1</diffuse>
+          </material>
+        </visual>
+      </link>
     </model>
 
   </world>
