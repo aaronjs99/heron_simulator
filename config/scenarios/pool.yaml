@@ -1,9 +1,6 @@
 scenario_name: pool
 world_file: heron_simulator/worlds/tank.world
 entity_file: heron_simulator/config/entities/pool.yaml
-costmap_config:
-  global: mariner/config/global_costmap.yaml
-  local: mariner/config/local_costmap.yaml
 map_bounds:
   x_min: -2.0
   x_max: 14.0

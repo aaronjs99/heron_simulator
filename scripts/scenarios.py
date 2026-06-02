@@ -11,6 +11,8 @@ import yaml
 
 PACKAGE_DIR = Path(__file__).resolve().parents[1]
 SCENARIO_INDEX_PATH = PACKAGE_DIR / "config" / "scenarios.yaml"
+DEFAULT_GLOBAL_COSTMAP_CONFIG = "mariner/config/global_costmap.yaml"
+DEFAULT_LOCAL_COSTMAP_CONFIG = "mariner/config/local_costmap.yaml"
 
 LAUNCH_ARG_KEYS = {
     "max_generated_goals": "exploration_max_generated_goals",
@@ -74,8 +76,12 @@ def _launch_values(root: Path, scenario: Mapping[str, Any]) -> Dict[str, str]:
         "map_entities_file": _resolve_path(root, scenario.get("entity_file", "")),
         "sim_world_offset_x": str(float(offset.get("x", 0.0) or 0.0)),
         "sim_world_offset_y": str(float(offset.get("y", 0.0) or 0.0)),
-        "global_costmap_config": _resolve_path(root, costmap.get("global", "")),
-        "local_costmap_config": _resolve_path(root, costmap.get("local", "")),
+        "global_costmap_config": _resolve_path(
+            root, costmap.get("global", DEFAULT_GLOBAL_COSTMAP_CONFIG)
+        ),
+        "local_costmap_config": _resolve_path(
+            root, costmap.get("local", DEFAULT_LOCAL_COSTMAP_CONFIG)
+        ),
         "global_costmap_overlay_config": _resolve_path(
             root, costmap.get("global_overlay", "")
         ),
