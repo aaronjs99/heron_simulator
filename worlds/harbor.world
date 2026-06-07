@@ -1,727 +1,1621 @@
-<?xml version="1.0" ?>
+<?xml version='1.0' encoding='UTF-8'?>
 <sdf version="1.6">
   <world name="harbor">
-    <gui fullscreen='0'>
-      <camera name='user_camera'>
-        <pose frame=''>0 -16 9 0 0.42 1.57</pose>
+    <gui fullscreen="0">
+      <camera name="user_camera">
+        <pose frame="">0 -16 9 0 0.42 1.57</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>
     </gui>
 
-    <!-- Physics settings for simulation -->
     <physics type="ode">
-      <max_step_size>0.001</max_step_size>
-      <real_time_factor>1</real_time_factor>
-      <real_time_update_rate>1000</real_time_update_rate>
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
     </physics>
 
-    <!-- Lighting -->
     <include>
       <uri>model://sun</uri>
     </include>
 
-    <!-- Generic visual water surface. Scenario semantics stay outside Gazebo model names. -->
     <include>
       <uri>model://water_surface</uri>
       <pose>0 0 0 0 0 0</pose>
     </include>
 
-    <!-- Static dock geometry only. ORACLE semantic entities are supplied by
-         the semantic world, not by Gazebo model names. -->
-    <model name="harbor_dock">
+    <model name="wall_south_boundary">
+      <pose>-19.500000 4.000000 0.550000 0.000000 0.000000 0.000000</pose>
       <static>true</static>
-
-      <link name="main_deck_link">
-        <pose>10.0 6.0 0.35 0 0 0</pose>
-        <collision name="main_deck_collision">
-          <geometry>
-            <box>
-              <size>14.0 2.0 0.35</size>
-            </box>
-          </geometry>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>8.000000 22.000000 0.800000</size></box></geometry>
         </collision>
-        <visual name="main_deck_visual">
-          <geometry>
-            <box>
-              <size>14.0 2.0 0.35</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.42 0.34 0.25 1</ambient>
-            <diffuse>0.50 0.40 0.30 1</diffuse>
-            <specular>0.08 0.07 0.06 1</specular>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>8.000000 22.000000 0.800000</size></box></geometry>
+          <material><ambient>0.72 0.72 0.72 1</ambient><diffuse>0.82 0.82 0.82 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="finger_deck_link">
-        <pose>3.0 3.0 0.35 0 0 0</pose>
-        <collision name="finger_deck_collision">
-          <geometry>
-            <box>
-              <size>2.0 6.0 0.35</size>
-            </box>
-          </geometry>
+    <model name="harbor_northwest_terminal">
+      <pose>23.500000 26.000000 0.550000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>90.000000 20.000000 0.800000</size></box></geometry>
         </collision>
-        <visual name="finger_deck_visual">
-          <geometry>
-            <box>
-              <size>2.0 6.0 0.35</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.42 0.34 0.25 1</ambient>
-            <diffuse>0.50 0.40 0.30 1</diffuse>
-            <specular>0.08 0.07 0.06 1</specular>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>90.000000 20.000000 0.800000</size></box></geometry>
+          <material><ambient>0.72 0.72 0.72 1</ambient><diffuse>0.82 0.82 0.82 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="dock_face_link">
-        <pose>10.0 4.88 0.10 0 0 0</pose>
-        <collision name="dock_face_collision">
-          <geometry>
-            <box>
-              <size>14.0 0.28 2.20</size>
-            </box>
-          </geometry>
+    <model name="harbor_east_berth">
+      <pose>70.500000 -3.000000 0.550000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>8.000000 46.000000 0.800000</size></box></geometry>
         </collision>
-        <visual name="dock_face_visual">
-          <geometry>
-            <box>
-              <size>14.0 0.28 2.20</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.30 0.29 0.27 1</ambient>
-            <diffuse>0.36 0.34 0.31 1</diffuse>
-            <specular>0.06 0.06 0.05 1</specular>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>8.000000 46.000000 0.800000</size></box></geometry>
+          <material><ambient>0.72 0.72 0.72 1</ambient><diffuse>0.82 0.82 0.82 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="fender_west_link">
-        <pose>5.6 4.66 0.38 0 0 0</pose>
-        <collision name="fender_collision">
-          <geometry>
-            <box>
-              <size>2.2 0.18 0.26</size>
-            </box>
-          </geometry>
+    <model name="harbor_south_breakwater">
+      <pose>25.500000 -42.000000 0.550000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>90.000000 20.000000 0.800000</size></box></geometry>
         </collision>
-        <visual name="fender_visual">
-          <geometry>
-            <box>
-              <size>2.2 0.18 0.26</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.03 0.03 0.03 1</ambient>
-            <diffuse>0.04 0.04 0.04 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>90.000000 20.000000 0.800000</size></box></geometry>
+          <material><ambient>0.72 0.72 0.72 1</ambient><diffuse>0.82 0.82 0.82 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="fender_center_link">
-        <pose>10.0 4.66 0.38 0 0 0</pose>
-        <collision name="fender_collision">
-          <geometry>
-            <box>
-              <size>2.2 0.18 0.26</size>
-            </box>
-          </geometry>
+    <model name="dock_main_platform">
+      <pose>-6.500000 2.000000 0.200000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>8.000000 4.000000 0.500000</size></box></geometry>
         </collision>
-        <visual name="fender_visual">
-          <geometry>
-            <box>
-              <size>2.2 0.18 0.26</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.03 0.03 0.03 1</ambient>
-            <diffuse>0.04 0.04 0.04 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>8.000000 4.000000 0.500000</size></box></geometry>
+          <material><ambient>0.72 0.72 0.72 1</ambient><diffuse>0.82 0.82 0.82 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="fender_east_link">
-        <pose>14.4 4.66 0.38 0 0 0</pose>
-        <collision name="fender_collision">
-          <geometry>
-            <box>
-              <size>2.2 0.18 0.26</size>
-            </box>
-          </geometry>
+    <model name="launch_shore_apron">
+      <pose>-15.500000 0.000000 0.550000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>10.000000 12.000000 0.800000</size></box></geometry>
         </collision>
-        <visual name="fender_visual">
-          <geometry>
-            <box>
-              <size>2.2 0.18 0.26</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.03 0.03 0.03 1</ambient>
-            <diffuse>0.04 0.04 0.04 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>10.000000 12.000000 0.800000</size></box></geometry>
+          <material><ambient>0.72 0.72 0.72 1</ambient><diffuse>0.82 0.82 0.82 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="main_pile_01_link">
-        <pose>4.0 5.1 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
+    <model name="launch_gangway">
+      <pose>-10.500000 0.000000 0.650000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>7.000000 1.400000 0.250000</size></box></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.18 0.16 0.14 1</ambient>
-            <diffuse>0.22 0.19 0.16 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>7.000000 1.400000 0.250000</size></box></geometry>
+          <material><ambient>0.72 0.72 0.72 1</ambient><diffuse>0.82 0.82 0.82 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="main_pile_02_link">
-        <pose>4.0 6.9 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
+    <model name="floating_launch_dock">
+      <pose>-5.250000 0.000000 0.250000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>5.500000 2.400000 0.350000</size></box></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.18 0.16 0.14 1</ambient>
-            <diffuse>0.22 0.19 0.16 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>5.500000 2.400000 0.350000</size></box></geometry>
+          <material><ambient>0.72 0.72 0.72 1</ambient><diffuse>0.82 0.82 0.82 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="main_pile_03_link">
-        <pose>8.0 5.1 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
+    <model name="launch_guide_post_north">
+      <pose>-3.000000 2.000000 -1.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.180000</radius><length>3.800000</length></cylinder></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.18 0.16 0.14 1</ambient>
-            <diffuse>0.22 0.19 0.16 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.180000</radius><length>3.800000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="main_pile_04_link">
-        <pose>8.0 6.9 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
+    <model name="launch_guide_post_south">
+      <pose>-3.000000 -2.000000 -1.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.180000</radius><length>3.800000</length></cylinder></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.18 0.16 0.14 1</ambient>
-            <diffuse>0.22 0.19 0.16 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.180000</radius><length>3.800000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="main_pile_05_link">
-        <pose>12.0 5.1 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
+    <model name="launch_cleat_north">
+      <pose>-4.500000 0.950000 0.420000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.450000 0.120000 0.120000</size></box></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.18 0.16 0.14 1</ambient>
-            <diffuse>0.22 0.19 0.16 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>0.450000 0.120000 0.120000</size></box></geometry>
+          <material><ambient>0.7 0.7 0.2 1</ambient><diffuse>0.9 0.9 0.3 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="main_pile_06_link">
-        <pose>12.0 6.9 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
+    <model name="launch_cleat_south">
+      <pose>-4.500000 -0.950000 0.420000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.450000 0.120000 0.120000</size></box></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.18 0.16 0.14 1</ambient>
-            <diffuse>0.22 0.19 0.16 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>0.450000 0.120000 0.120000</size></box></geometry>
+          <material><ambient>0.7 0.7 0.2 1</ambient><diffuse>0.9 0.9 0.3 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="main_pile_07_link">
-        <pose>16.0 5.1 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
+    <model name="north_concrete_wharf_deck">
+      <pose>23.500000 16.000000 1.100000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>78.000000 4.500000 0.450000</size></box></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.18 0.16 0.14 1</ambient>
-            <diffuse>0.22 0.19 0.16 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>78.000000 4.500000 0.450000</size></box></geometry>
+          <material><ambient>0.72 0.72 0.72 1</ambient><diffuse>0.82 0.82 0.82 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="main_pile_08_link">
-        <pose>16.0 6.9 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
+    <model name="south_concrete_wharf_deck">
+      <pose>23.500000 -30.000000 1.100000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>78.000000 4.500000 0.450000</size></box></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.18 0.16 0.14 1</ambient>
-            <diffuse>0.22 0.19 0.16 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>78.000000 4.500000 0.450000</size></box></geometry>
+          <material><ambient>0.72 0.72 0.72 1</ambient><diffuse>0.82 0.82 0.82 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="finger_pile_01_link">
-        <pose>2.2 1.0 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
+    <model name="diagonal_access_pier_deck">
+      <pose>53.500000 -13.000000 1.100000 0.000000 0.000000 -0.785449</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>38.000000 4.000000 0.450000</size></box></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.18 0.16 0.14 1</ambient>
-            <diffuse>0.22 0.19 0.16 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>38.000000 4.000000 0.450000</size></box></geometry>
+          <material><ambient>0.72 0.72 0.72 1</ambient><diffuse>0.82 0.82 0.82 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="finger_pile_02_link">
-        <pose>3.8 1.0 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
+    <model name="diagonal_revetment_rock_00">
+      <pose>44.000000 -2.400000 -0.550000 0.000000 0.000000 -0.785449</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>2.000000 0.900000 0.500000</size></box></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.18 0.16 0.14 1</ambient>
-            <diffuse>0.22 0.19 0.16 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>2.000000 0.900000 0.500000</size></box></geometry>
+          <material><ambient>0.28 0.28 0.3 1</ambient><diffuse>0.38 0.38 0.4 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="finger_pile_03_link">
-        <pose>2.2 3.2 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
+    <model name="diagonal_revetment_rock_01">
+      <pose>48.300000 -6.700000 -0.550000 0.000000 0.000000 -0.785449</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>2.000000 0.900000 0.500000</size></box></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.18 0.16 0.14 1</ambient>
-            <diffuse>0.22 0.19 0.16 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>2.000000 0.900000 0.500000</size></box></geometry>
+          <material><ambient>0.28 0.28 0.3 1</ambient><diffuse>0.38 0.38 0.4 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="finger_pile_04_link">
-        <pose>3.8 3.2 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
+    <model name="diagonal_revetment_rock_02">
+      <pose>52.500000 -10.900000 -0.550000 0.000000 0.000000 -0.785449</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>2.000000 0.900000 0.500000</size></box></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.18</radius>
-              <length>2.4</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.18 0.16 0.14 1</ambient>
-            <diffuse>0.22 0.19 0.16 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>2.000000 0.900000 0.500000</size></box></geometry>
+          <material><ambient>0.28 0.28 0.3 1</ambient><diffuse>0.38 0.38 0.4 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="corner_dolphin_pile_01_link">
-        <pose>17.25 4.35 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.28</radius>
-              <length>3.0</length>
-            </cylinder>
-          </geometry>
+    <model name="diagonal_revetment_rock_03">
+      <pose>56.700000 -15.100000 -0.550000 0.000000 0.000000 -0.785449</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>2.000000 0.900000 0.500000</size></box></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.28</radius>
-              <length>3.0</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.16 0.14 0.12 1</ambient>
-            <diffuse>0.21 0.18 0.15 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>2.000000 0.900000 0.500000</size></box></geometry>
+          <material><ambient>0.28 0.28 0.3 1</ambient><diffuse>0.38 0.38 0.4 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="corner_dolphin_pile_02_link">
-        <pose>17.85 4.95 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.24</radius>
-              <length>2.8</length>
-            </cylinder>
-          </geometry>
+    <model name="diagonal_revetment_rock_04">
+      <pose>61.000000 -19.400000 -0.550000 0.000000 0.000000 -0.785449</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>2.000000 0.900000 0.500000</size></box></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.24</radius>
-              <length>2.8</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.16 0.14 0.12 1</ambient>
-            <diffuse>0.21 0.18 0.15 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>2.000000 0.900000 0.500000</size></box></geometry>
+          <material><ambient>0.28 0.28 0.3 1</ambient><diffuse>0.38 0.38 0.4 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="corner_dolphin_pile_03_link">
-        <pose>17.10 5.72 0.0 0 0 0</pose>
-        <collision name="pile_collision">
-          <geometry>
-            <cylinder>
-              <radius>0.22</radius>
-              <length>2.7</length>
-            </cylinder>
-          </geometry>
+    <model name="diagonal_revetment_rock_05">
+      <pose>65.200000 -23.600000 -0.550000 0.000000 0.000000 -0.785449</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>2.000000 0.900000 0.500000</size></box></geometry>
         </collision>
-        <visual name="pile_visual">
-          <geometry>
-            <cylinder>
-              <radius>0.22</radius>
-              <length>2.7</length>
-            </cylinder>
-          </geometry>
-          <material>
-            <ambient>0.16 0.14 0.12 1</ambient>
-            <diffuse>0.21 0.18 0.15 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><box><size>2.000000 0.900000 0.500000</size></box></geometry>
+          <material><ambient>0.28 0.28 0.3 1</ambient><diffuse>0.38 0.38 0.4 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="corner_cap_beam_link">
-        <pose>17.40 5.05 1.15 0 0 0.72</pose>
-        <collision name="beam_collision">
-          <geometry>
-            <box>
-              <size>2.0 0.24 0.24</size>
-            </box>
-          </geometry>
+    <model name="north_wharf_pile_xm36_water">
+      <pose>-12.500000 14.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
         </collision>
-        <visual name="beam_visual">
-          <geometry>
-            <box>
-              <size>2.0 0.24 0.24</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.20 0.17 0.13 1</ambient>
-            <diffuse>0.27 0.22 0.17 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="underdeck_stringer_west_link">
-        <pose>7.5 4.55 0.02 0 0 0</pose>
-        <collision name="stringer_collision">
-          <geometry>
-            <box>
-              <size>5.4 0.22 0.34</size>
-            </box>
-          </geometry>
+    <model name="north_wharf_pile_xm36_apron">
+      <pose>-12.500000 16.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
         </collision>
-        <visual name="stringer_visual">
-          <geometry>
-            <box>
-              <size>5.4 0.22 0.34</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.24 0.20 0.16 1</ambient>
-            <diffuse>0.30 0.25 0.20 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="underdeck_stringer_east_link">
-        <pose>13.9 7.05 0.02 0 0 0</pose>
-        <collision name="stringer_collision">
-          <geometry>
-            <box>
-              <size>4.6 0.22 0.34</size>
-            </box>
-          </geometry>
+    <model name="north_wharf_pile_xm30_water">
+      <pose>-6.500000 14.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
         </collision>
-        <visual name="stringer_visual">
-          <geometry>
-            <box>
-              <size>4.6 0.22 0.34</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.24 0.20 0.16 1</ambient>
-            <diffuse>0.30 0.25 0.20 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="short_service_post_link">
-        <pose>6.7 6.95 0.95 0 0 0</pose>
-        <collision name="post_collision">
-          <geometry>
-            <box>
-              <size>0.28 0.28 1.7</size>
-            </box>
-          </geometry>
+    <model name="north_wharf_pile_xm30_apron">
+      <pose>-6.500000 16.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
         </collision>
-        <visual name="post_visual">
-          <geometry>
-            <box>
-              <size>0.28 0.28 1.7</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.36 0.34 0.29 1</ambient>
-            <diffuse>0.44 0.41 0.35 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="tall_service_post_link">
-        <pose>13.4 6.95 1.35 0 0 0</pose>
-        <collision name="post_collision">
-          <geometry>
-            <box>
-              <size>0.34 0.34 2.5</size>
-            </box>
-          </geometry>
+    <model name="north_wharf_pile_xm24_water">
+      <pose>-0.500000 14.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
         </collision>
-        <visual name="post_visual">
-          <geometry>
-            <box>
-              <size>0.34 0.34 2.5</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.36 0.34 0.29 1</ambient>
-            <diffuse>0.44 0.41 0.35 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="ladder_rail_link">
-        <pose>8.8 4.58 0.30 0 0 0</pose>
-        <collision name="ladder_collision">
-          <geometry>
-            <box>
-              <size>0.22 0.18 1.45</size>
-            </box>
-          </geometry>
+    <model name="north_wharf_pile_xm24_apron">
+      <pose>-0.500000 16.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
         </collision>
-        <visual name="ladder_visual">
-          <geometry>
-            <box>
-              <size>0.22 0.18 1.45</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.06 0.07 0.07 1</ambient>
-            <diffuse>0.10 0.11 0.11 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="offset_fender_short_link">
-        <pose>7.2 4.52 0.72 0 0 0</pose>
-        <collision name="fender_collision">
-          <geometry>
-            <box>
-              <size>1.25 0.20 0.32</size>
-            </box>
-          </geometry>
+    <model name="north_wharf_pile_xm18_water">
+      <pose>5.500000 14.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
         </collision>
-        <visual name="fender_visual">
-          <geometry>
-            <box>
-              <size>1.25 0.20 0.32</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.02 0.02 0.02 1</ambient>
-            <diffuse>0.03 0.03 0.03 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="offset_fender_tall_link">
-        <pose>12.9 4.50 0.58 0 0 0</pose>
-        <collision name="fender_collision">
-          <geometry>
-            <box>
-              <size>1.55 0.22 0.48</size>
-            </box>
-          </geometry>
+    <model name="north_wharf_pile_xm18_apron">
+      <pose>5.500000 16.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
         </collision>
-        <visual name="fender_visual">
-          <geometry>
-            <box>
-              <size>1.55 0.22 0.48</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.02 0.02 0.02 1</ambient>
-            <diffuse>0.03 0.03 0.03 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
         </visual>
       </link>
+    </model>
 
-      <link name="bollard_pair_link">
-        <pose>15.2 6.2 0.62 0 0 0</pose>
-        <collision name="bollard_collision">
-          <geometry>
-            <box>
-              <size>0.85 0.28 0.28</size>
-            </box>
-          </geometry>
+    <model name="north_wharf_pile_xm12_water">
+      <pose>11.500000 14.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
         </collision>
-        <visual name="bollard_visual">
-          <geometry>
-            <box>
-              <size>0.85 0.28 0.28</size>
-            </box>
-          </geometry>
-          <material>
-            <ambient>0.08 0.08 0.08 1</ambient>
-            <diffuse>0.12 0.12 0.12 1</diffuse>
-          </material>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_xm12_apron">
+      <pose>11.500000 16.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_xm6_water">
+      <pose>17.500000 14.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_xm6_apron">
+      <pose>17.500000 16.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_x0_water">
+      <pose>23.500000 14.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_x0_apron">
+      <pose>23.500000 16.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_x6_water">
+      <pose>29.500000 14.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_x6_apron">
+      <pose>29.500000 16.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_x12_water">
+      <pose>35.500000 14.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_x12_apron">
+      <pose>35.500000 16.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_x18_water">
+      <pose>41.500000 14.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_x18_apron">
+      <pose>41.500000 16.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_x24_water">
+      <pose>47.500000 14.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_x24_apron">
+      <pose>47.500000 16.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_x30_water">
+      <pose>53.500000 14.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_x30_apron">
+      <pose>53.500000 16.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_x36_water">
+      <pose>59.500000 14.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="north_wharf_pile_x36_apron">
+      <pose>59.500000 16.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_xm36_water">
+      <pose>-12.500000 -28.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_xm36_apron">
+      <pose>-12.500000 -30.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_xm30_water">
+      <pose>-6.500000 -28.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_xm30_apron">
+      <pose>-6.500000 -30.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_xm24_water">
+      <pose>-0.500000 -28.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_xm24_apron">
+      <pose>-0.500000 -30.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_xm18_water">
+      <pose>5.500000 -28.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_xm18_apron">
+      <pose>5.500000 -30.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_xm12_water">
+      <pose>11.500000 -28.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_xm12_apron">
+      <pose>11.500000 -30.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_xm6_water">
+      <pose>17.500000 -28.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_xm6_apron">
+      <pose>17.500000 -30.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_x0_water">
+      <pose>23.500000 -28.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_x0_apron">
+      <pose>23.500000 -30.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_x6_water">
+      <pose>29.500000 -28.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_x6_apron">
+      <pose>29.500000 -30.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_x12_water">
+      <pose>35.500000 -28.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_x12_apron">
+      <pose>35.500000 -30.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_x18_water">
+      <pose>41.500000 -28.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_x18_apron">
+      <pose>41.500000 -30.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_x24_water">
+      <pose>47.500000 -28.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_x24_apron">
+      <pose>47.500000 -30.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_x30_water">
+      <pose>53.500000 -28.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_x30_apron">
+      <pose>53.500000 -30.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_x36_water">
+      <pose>59.500000 -28.000000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="south_wharf_pile_x36_apron">
+      <pose>59.500000 -30.500000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_00_inner">
+      <pose>40.242000 -1.509000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_00_outer">
+      <pose>42.010000 0.259000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_01_inner">
+      <pose>43.778000 -5.045000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_01_outer">
+      <pose>45.546000 -3.277000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_02_inner">
+      <pose>47.313000 -8.580000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_02_outer">
+      <pose>49.081000 -6.813000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_03_inner">
+      <pose>50.848000 -12.116000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_03_outer">
+      <pose>52.616000 -10.348000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_04_inner">
+      <pose>54.384000 -15.652000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_04_outer">
+      <pose>56.152000 -13.884000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_05_inner">
+      <pose>57.919000 -19.187000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_05_outer">
+      <pose>59.687000 -17.420000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_06_inner">
+      <pose>61.454000 -22.723000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_06_outer">
+      <pose>63.222000 -20.955000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_07_inner">
+      <pose>64.990000 -26.259000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="diagonal_pier_pile_07_outer">
+      <pose>66.758000 -24.491000 -2.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.320000</radius><length>7.200000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="floating_dock_piling_00_north">
+      <pose>-7.500000 1.200000 -3.050000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="floating_dock_piling_00_south">
+      <pose>-7.500000 -1.200000 -3.050000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="floating_dock_piling_01_north">
+      <pose>-5.500000 1.200000 -3.050000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="floating_dock_piling_01_south">
+      <pose>-5.500000 -1.200000 -3.050000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="floating_dock_piling_02_north">
+      <pose>-3.500000 1.200000 -3.050000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="floating_dock_piling_02_south">
+      <pose>-3.500000 -1.200000 -3.050000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="floating_dock_piling_03_north">
+      <pose>-3.000000 1.200000 -3.050000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="floating_dock_piling_03_south">
+      <pose>-3.000000 -1.200000 -3.050000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.250000</radius><length>6.300000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="service_boat_launch">
+      <pose>5.500000 -3.000000 0.150000 0.000000 0.000000 0.523545</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>4.500000 1.800000 1.000000</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>4.500000 1.800000 1.000000</size></box></geometry>
+          <material><ambient>0.1 0.2 0.45 1</ambient><diffuse>0.15 0.3 0.65 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="service_boat_east">
+      <pose>45.500000 -5.000000 0.180000 0.000000 0.000000 1.570777</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>5.500000 2.200000 1.100000</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>5.500000 2.200000 1.100000</size></box></geometry>
+          <material><ambient>0.75 0.75 0.78 1</ambient><diffuse>0.9 0.9 0.95 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="service_boat_south">
+      <pose>37.500000 -16.000000 0.150000 0.000000 0.000000 -0.785449</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>4.200000 1.800000 1.000000</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>4.200000 1.800000 1.000000</size></box></geometry>
+          <material><ambient>0.1 0.2 0.45 1</ambient><diffuse>0.15 0.3 0.65 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="target_turbine_01">
+      <pose>48.500000 32.000000 -2.000000 1.570777 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>1.500000</radius><length>0.800000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>1.500000</radius><length>0.800000</length></cylinder></geometry>
+          <material><ambient>0.7 0.7 0.2 1</ambient><diffuse>0.9 0.9 0.3 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="broken_piling_under_launch">
+      <pose>-0.500000 -1.000000 -4.500000 0.000000 1.564603 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.220000</radius><length>5.000000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.220000</radius><length>5.000000</length></cylinder></geometry>
+          <material><ambient>0.25 0.25 0.25 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="sunken_pipe_bundle_01">
+      <pose>28.500000 -13.000000 -4.700000 0.000000 1.564603 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.180000</radius><length>4.000000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.180000</radius><length>4.000000</length></cylinder></geometry>
+          <material><ambient>0.7 0.7 0.2 1</ambient><diffuse>0.9 0.9 0.3 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="concrete_debris_cluster_01">
+      <pose>17.500000 10.000000 -4.850000 0.000000 0.000000 0.261734</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>2.200000 1.200000 0.350000</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>2.200000 1.200000 0.350000</size></box></geometry>
+          <material><ambient>0.72 0.72 0.72 1</ambient><diffuse>0.82 0.82 0.82 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="metal_plate_wreckage_01">
+      <pose>39.500000 -2.000000 -4.850000 0.000000 0.000000 0.523545</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>4.000000 1.600000 0.120000</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>4.000000 1.600000 0.120000</size></box></geometry>
+          <material><ambient>0.7 0.7 0.2 1</ambient><diffuse>0.9 0.9 0.3 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="anchor_chain_cluster_01">
+      <pose>25.500000 6.000000 -4.750000 0.000000 1.564603 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.120000</radius><length>3.000000</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.120000</radius><length>3.000000</length></cylinder></geometry>
+          <material><ambient>0.7 0.7 0.2 1</ambient><diffuse>0.9 0.9 0.3 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="small_hull_wreckage_01">
+      <pose>51.500000 -15.000000 -4.550000 0.000000 0.000000 -0.785449</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>5.000000 1.800000 0.700000</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>5.000000 1.800000 0.700000</size></box></geometry>
+          <material><ambient>0.1 0.2 0.45 1</ambient><diffuse>0.15 0.3 0.65 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="seafloor_base">
+      <pose>23.500000 -8.000000 -6.200000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>150.000000 150.000000 0.100000</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>150.000000 150.000000 0.100000</size></box></geometry>
+          <material><ambient>0.22 0.18 0.12 1</ambient><diffuse>0.32 0.26 0.18 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="dredged_channel_floor">
+      <pose>31.500000 -8.000000 -6.000000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>80.000000 18.000000 0.120000</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>80.000000 18.000000 0.120000</size></box></geometry>
+          <material><ambient>0.22 0.18 0.12 1</ambient><diffuse>0.32 0.26 0.18 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="inner_basin_floor">
+      <pose>5.500000 2.000000 -4.800000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>32.000000 28.000000 0.100000</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>32.000000 28.000000 0.100000</size></box></geometry>
+          <material><ambient>0.45 0.4 0.3 1</ambient><diffuse>0.58 0.52 0.38 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="sand_shelf_north">
+      <pose>31.500000 26.000000 -4.200000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>48.000000 10.000000 0.100000</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>48.000000 10.000000 0.100000</size></box></geometry>
+          <material><ambient>0.45 0.4 0.3 1</ambient><diffuse>0.58 0.52 0.38 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="sand_shelf_south">
+      <pose>31.500000 -46.000000 -4.200000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>72.000000 10.000000 0.100000</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>72.000000 10.000000 0.100000</size></box></geometry>
+          <material><ambient>0.45 0.4 0.3 1</ambient><diffuse>0.58 0.52 0.38 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="launch_scour_depression">
+      <pose>-3.500000 2.000000 -5.800000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>10.000000 8.000000 0.100000</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>10.000000 8.000000 0.100000</size></box></geometry>
+          <material><ambient>0.22 0.18 0.12 1</ambient><diffuse>0.32 0.26 0.18 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="pier_scour_patch_01">
+      <pose>47.500000 5.000000 -5.600000 0.000000 0.000000 0.000000</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>18.000000 8.000000 0.100000</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>18.000000 8.000000 0.100000</size></box></geometry>
+          <material><ambient>0.28 0.28 0.3 1</ambient><diffuse>0.38 0.38 0.4 1</diffuse></material>
         </visual>
       </link>
     </model>

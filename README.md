@@ -54,6 +54,11 @@ preflight, and evaluation orchestration live outside this package.
 - `sim_ig_timing.py` mirrors the optional IG Handle timing surface by publishing
   `/sensors/pps/time` from sim time, `/sensors/camera/time` from camera image
   header stamps, and `/sensors/imu/time` from simulated IMU header stamps.
+- The default harbor scenario is a port-style basin with concrete wharves,
+  pile fields, a diagonal quay, moored service boats, underwater debris, and a
+  compact floating launch dock. The launch dock is intentionally small and
+  offset from the boat start so the global costmap has enough free water for
+  initial planning without shrinking navigation safety margins.
 
 ## Sensor Output Contract
 
@@ -147,15 +152,22 @@ Current shared-bringup defaults:
 | `use_rviz` | `true` | opens the shared navigation RViz layout in sim |
 | `build_map` | `true` | starts RTAB-Map loop closure/global correction when RTAB-Map is installed |
 
-The current integration stack uses Gazebo truth as the default upstream
-localization source and republishes it through the same odometry sanity filter
-and `/state/odometry` topic used by the rest of the stack. DLiO launch and
-configuration are owned by MARINER/integration bringup, not by
-`heron_simulator`. Mocap stays outside simulator bringup as a lab
-logging/comparison stream.
+The current integration stack uses simulated LiDAR and IMU data as DLiO inputs
+and publishes the result on the same `/state/odometry` topic used by the rest
+of the stack. MARINER/integration bringup owns DLiO launch, configuration, and
+the `odom -> base_footprint` TF publication. Gazebo truth remains a diagnostic
+topic, not the default navigation odometry source. Mocap stays outside
+simulator bringup as a lab logging/comparison stream.
 
 To open Gazebo with the package-level simulator launch:
 
 ```bash
 roslaunch heron_simulator heron_world.launch gui:=true
+```
+
+For machines with broken or very slow OpenGL drivers, force Gazebo Classic
+OpenGL through Mesa software rendering:
+
+```bash
+roslaunch heron_simulator heron_world.launch gui:=true gazebo_software_rendering:=true
 ```

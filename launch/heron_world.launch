@@ -54,6 +54,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="use_gazebo" default="true"/>
   <arg name="gazebo_master_port" default="11345"/>
   <arg name="gazebo_extra_args" default="--lockstep"/>
+  <arg name="gazebo_software_rendering" default="false"/>
   <arg name="world_name" default="$(find heron_simulator)/worlds/open_water.world"/>
   <env name="GAZEBO_MASTER_URI" value="http://127.0.0.1:$(arg gazebo_master_port)"/>
 
@@ -62,6 +63,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <env name="MESA_DEBUG" value="silent"/>
     <env name="MESA_LOG_LEVEL" value="error"/>
     <env name="MESA_LOG_FILE" value="/dev/null"/>
+    <env if="$(arg gazebo_software_rendering)" name="LIBGL_ALWAYS_SOFTWARE" value="1"/>
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
       <arg name="world_name" value="$(arg world_name)"/>
       <arg name="paused" value="$(arg paused)"/>
