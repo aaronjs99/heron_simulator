@@ -29,14 +29,24 @@ def test_harbor_scenario_config_file_resolves_to_yaml():
     exploration = data["exploration"]
     assert exploration["required_extent_m"] == 3.0
     assert exploration["precommit_clearance_m"] == 1.0
-    assert exploration["progressive_distance_cap_m"] == 4.0
+    assert exploration["radius_initial_m"] == 4.0
+    assert exploration["bound_m"] == 30.0
 
 
-def test_harbor_progressive_cap_still_resolves_as_launch_arg():
-    value = resolved_launch_value(
-        repo_root=REPO_ROOT,
-        scenario="harbor",
-        key="exploration_goal_progressive_distance_cap_m",
-    )
+def test_harbor_region_exploration_surface_resolves_as_launch_args():
+    expected = {
+        "exploration_bound_m": "30.0",
+        "exploration_radius_initial_m": "4.0",
+        "exploration_radius_growth_m": "1.5",
+        "exploration_radius_growth_mode": "linear",
+        "frontier_unknown_support_radius_m": "2.5",
+        "frontier_region_connectivity": "8",
+        "frontier_region_min_candidate_count": "3",
+        "exploration_feasibility_mode": "balanced",
+    }
 
-    assert value == "4.0"
+    for key, value in expected.items():
+        assert (
+            resolved_launch_value(repo_root=REPO_ROOT, scenario="harbor", key=key)
+            == value
+        )

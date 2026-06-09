@@ -18,7 +18,7 @@ max_navigation_distance_m: 18.0
 exploration:
   max_generated_goals: 16
   spacing_m: 2.5
-  radius_m: 12.0
+  bound_m: 12.0
   min_frontier_progress_m: 0.55
   min_total_exploration_radius_m: 2.0
   required_extent_m: 2.0
@@ -39,8 +39,12 @@ exploration:
   long_plan_threshold_m: 5.0
   min_gain_per_meter_long_plan: 0.02
   absolute_plan_max_m: 10.0
-  progressive_distance_cap_m: 6.0
-  progressive_distance_cap_max_m: 8.0
-  progressive_distance_increment_m: 1.0
+  radius_initial_m: 6.0
+  radius_growth_m: 1.0
+  radius_growth_mode: linear
+  frontier_unknown_support_radius_m: 2.5
+  frontier_region_connectivity: 8
+  frontier_region_min_candidate_count: 3
+  feasibility_mode: balanced
   stall_cooldown_radius_m: 0.45
   frontier_exhaustion_threshold: 0

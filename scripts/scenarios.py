@@ -17,7 +17,7 @@ DEFAULT_LOCAL_COSTMAP_CONFIG = "mariner/config/local_costmap.yaml"
 LAUNCH_ARG_KEYS = {
     "max_generated_goals": "exploration_max_generated_goals",
     "spacing_m": "exploration_spacing",
-    "radius_m": "exploration_radius",
+    "bound_m": "exploration_bound_m",
     "min_frontier_progress_m": "exploration_min_frontier_progress_m",
     "min_total_exploration_radius_m": "exploration_min_total_exploration_radius_m",
     "goal_current_pose_tolerance_m": "exploration_goal_current_pose_tolerance_m",
@@ -28,9 +28,13 @@ LAUNCH_ARG_KEYS = {
     "goal_map_bounds_margin_m": "exploration_goal_map_bounds_margin_m",
     "goal_standoff_projection_step_m": "exploration_goal_standoff_projection_step_m",
     "goal_standoff_projection_max_m": "exploration_goal_standoff_projection_max_m",
-    "progressive_distance_cap_m": "exploration_goal_progressive_distance_cap_m",
-    "progressive_distance_cap_max_m": "exploration_goal_progressive_distance_cap_max_m",
-    "progressive_distance_increment_m": "exploration_goal_progressive_distance_increment_m",
+    "radius_initial_m": "exploration_radius_initial_m",
+    "radius_growth_m": "exploration_radius_growth_m",
+    "radius_growth_mode": "exploration_radius_growth_mode",
+    "frontier_unknown_support_radius_m": "frontier_unknown_support_radius_m",
+    "frontier_region_connectivity": "frontier_region_connectivity",
+    "frontier_region_min_candidate_count": "frontier_region_min_candidate_count",
+    "feasibility_mode": "exploration_feasibility_mode",
 }
 
 
