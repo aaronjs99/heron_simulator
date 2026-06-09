@@ -41,7 +41,7 @@ exploration:
   long_plan_threshold_m: 8.0
   min_gain_per_meter_long_plan: 0.035
   absolute_plan_max_m: 18.0
-  progressive_distance_cap_m: 10.0
+  progressive_distance_cap_m: 4.0
   progressive_distance_cap_max_m: 16.0
   progressive_distance_increment_m: 1.5
   frontier_exhaustion_threshold: 0

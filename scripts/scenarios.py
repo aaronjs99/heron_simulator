@@ -28,6 +28,9 @@ LAUNCH_ARG_KEYS = {
     "goal_map_bounds_margin_m": "exploration_goal_map_bounds_margin_m",
     "goal_standoff_projection_step_m": "exploration_goal_standoff_projection_step_m",
     "goal_standoff_projection_max_m": "exploration_goal_standoff_projection_max_m",
+    "progressive_distance_cap_m": "exploration_goal_progressive_distance_cap_m",
+    "progressive_distance_cap_max_m": "exploration_goal_progressive_distance_cap_max_m",
+    "progressive_distance_increment_m": "exploration_goal_progressive_distance_increment_m",
 }
 
 
