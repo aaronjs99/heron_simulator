@@ -65,16 +65,15 @@ def _scenario_file(index: Mapping[str, Any], name: str) -> Path:
     return path if path.is_absolute() else PACKAGE_DIR / path
 
 
-def _scenario(index: Mapping[str, Any], name: str) -> Dict[str, Any]:
-    return _load_yaml(_scenario_file(index, name))
-
-
-def _launch_values(root: Path, scenario: Mapping[str, Any]) -> Dict[str, str]:
+def _launch_values(
+    root: Path, scenario: Mapping[str, Any], scenario_file: Path
+) -> Dict[str, str]:
     spawn = dict(scenario.get("spawn_pose", {}) or {})
     offset = dict(scenario.get("world_offset", {}) or {})
     costmap = dict(scenario.get("costmap_config", {}) or {})
     exploration = dict(scenario.get("exploration", {}) or {})
     values = {
+        "scenario_config_file": str(scenario_file),
         "sim_world_file": _resolve_path(root, scenario.get("world_file", "")),
         "map_entities_file": _resolve_path(root, scenario.get("entity_file", "")),
         "sim_world_offset_x": str(float(offset.get("x", 0.0) or 0.0)),
@@ -105,9 +104,12 @@ def _launch_values(root: Path, scenario: Mapping[str, Any]) -> Dict[str, str]:
 
 
 def resolved_launch_value(*, repo_root: str, scenario: str, key: str) -> str:
+    index = _load_yaml(SCENARIO_INDEX_PATH)
+    scenario_file = _scenario_file(index, scenario)
     values = _launch_values(
         _workspace_root(repo_root),
-        _scenario(_load_yaml(SCENARIO_INDEX_PATH), scenario),
+        _load_yaml(scenario_file),
+        scenario_file,
     )
     token = str(key or "").strip()
     if token not in values:
