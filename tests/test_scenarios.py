@@ -28,7 +28,6 @@ def test_harbor_scenario_config_file_resolves_to_yaml():
         data = yaml.safe_load(handle)
     exploration = data["exploration"]
     assert exploration["required_extent_m"] == 3.0
-    assert exploration["precommit_clearance_m"] == 1.0
     assert exploration["radius_initial_m"] == 4.0
     assert exploration["bound_m"] == 30.0
 

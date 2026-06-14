@@ -22,7 +22,6 @@ LAUNCH_ARG_KEYS = {
     "min_total_exploration_radius_m": "exploration_min_total_exploration_radius_m",
     "goal_current_pose_tolerance_m": "exploration_goal_current_pose_tolerance_m",
     "goal_min_displacement_m": "exploration_goal_min_displacement_m",
-    "goal_min_obstacle_clearance_m": "exploration_goal_min_obstacle_clearance_m",
     "goal_min_frontier_standoff_m": "exploration_goal_min_frontier_standoff_m",
     "goal_preferred_frontier_standoff_m": "exploration_goal_preferred_frontier_standoff_m",
     "goal_map_bounds_margin_m": "exploration_goal_map_bounds_margin_m",

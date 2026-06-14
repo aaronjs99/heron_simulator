@@ -27,15 +27,11 @@ exploration:
   goal_current_pose_tolerance_m: 0.35
   goal_min_displacement_m: 1.0
   goal_precommit_inflation_threshold: 60
-  goal_min_obstacle_clearance_m: 1.5
   goal_min_frontier_standoff_m: 0.0
-  goal_preferred_frontier_standoff_m: 0.0
+  goal_preferred_frontier_standoff_m: 0.75
   goal_map_bounds_margin_m: 0.0
   goal_standoff_projection_step_m: 0.25
   goal_standoff_projection_max_m: 3.0
-  precommit_clearance_m: 1.0
-  precommit_clearance_max_blocked_ratio: 0.22
-  precommit_clearance_min_blocked_cells: 4
   final_approach_min_free_ratio: 0.60
   weak_frontier_gain_threshold: 0.08
   long_plan_threshold_m: 8.0
