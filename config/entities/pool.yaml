@@ -1,5 +1,5 @@
 # ==============================================================================
-# SLAM GRANDE Environment Configuration: pool.yaml
+# GRANDE Environment Configuration: pool.yaml
 # Description:
 #   Bounded training tank scenario used for controlled sim runs.
 #   Dimensions are approximated from 25ft x 50ft x 12ft (7.62m x 15.24m x 3.66m).
