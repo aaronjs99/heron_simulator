@@ -34,6 +34,7 @@ def test_harbor_scenario_config_file_resolves_to_yaml():
 
 def test_harbor_region_exploration_surface_resolves_as_launch_args():
     expected = {
+        "sonar_profile": "harbor",
         "exploration_bound_m": "30.0",
         "exploration_radius_initial_m": "4.0",
         "exploration_radius_growth_m": "1.5",

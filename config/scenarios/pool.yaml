@@ -1,4 +1,5 @@
 scenario_name: pool
+sonar_profile: pool
 world_file: heron_simulator/worlds/tank.world
 entity_file: heron_simulator/config/entities/pool.yaml
 map_bounds:
@@ -24,7 +25,6 @@ exploration:
   required_extent_m: 2.0
   goal_current_pose_tolerance_m: 0.30
   goal_min_displacement_m: 0.60
-  goal_precommit_inflation_threshold: 70
   goal_min_frontier_standoff_m: 0.0
   goal_preferred_frontier_standoff_m: 0.75
   goal_map_bounds_margin_m: 1.10

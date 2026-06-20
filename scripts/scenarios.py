@@ -77,6 +77,9 @@ def _launch_values(
     exploration = dict(scenario.get("exploration", {}) or {})
     values = {
         "scenario_config_file": str(scenario_file),
+        "sonar_profile": str(
+            scenario.get("sonar_profile") or scenario.get("scenario_name") or "harbor"
+        ),
         "sim_world_file": _resolve_path(root, scenario.get("world_file", "")),
         "map_entities_file": _resolve_path(root, scenario.get("entity_file", "")),
         "sim_world_offset_x": str(float(offset.get("x", 0.0) or 0.0)),

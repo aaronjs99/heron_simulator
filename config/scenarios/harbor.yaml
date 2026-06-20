@@ -1,4 +1,5 @@
 scenario_name: harbor
+sonar_profile: harbor
 world_file: heron_simulator/worlds/harbor.world
 entity_file: heron_simulator/config/entities/harbor.yaml
 map_bounds:
@@ -26,7 +27,6 @@ exploration:
   required_extent_m: 3.0
   goal_current_pose_tolerance_m: 0.35
   goal_min_displacement_m: 1.0
-  goal_precommit_inflation_threshold: 60
   goal_min_frontier_standoff_m: 0.0
   goal_preferred_frontier_standoff_m: 0.75
   goal_map_bounds_margin_m: 0.0
