@@ -1,74 +1,50 @@
 # HERON Simulator
 
-Gazebo simulation boundary for the Heron USV.
+`heron_simulator` provides the Gazebo Classic simulation boundary for the
+Heron-style USV. It owns simulated worlds, vehicle spawn, simulated sensors,
+and the bridge from Heron drive commands to Gazebo thruster wrench inputs.
 
-This package owns the simulated hull, Gazebo worlds/models, sensor plugins, and
-the small bridge from Heron drive commands to Gazebo thruster wrench inputs.
-Planning, navigation, ORACLE behavior, semantic world reasoning, runtime
-preflight, and evaluation orchestration live outside this package.
+It does not own mission logic, navigation policy, mapping, operator surfaces,
+or evaluation orchestration. Those are composed by `grande`, ORACLE, and
+MARINER.
 
-## What The Simulator Provides
+## What It Provides
 
-- Heron vehicle spawn and world bringup
-- reusable water, harbor, and tank environment assets
-- simulated sensors that publish the same topic surfaces as `ig_handle`
-- simulated IG Handle timing-reference topics derived from simulated sensor
-  stamps
-- `/cmd_drive` to Gazebo thruster wrench translation
-- Gazebo plugins for custom force behavior
+- Heron vehicle spawn and world launch files
+- water, harbor, and tank environment assets
+- simulated LiDAR, IMU, camera, sonar, and timing topics
+- scenario metadata and semantic entity fixtures
+- `/cmd_drive` to Gazebo thruster wrench conversion
+- Gazebo plugins and simulation regression tests
 
-## Important Runtime Conventions
+## Quick Start
 
-- MARINER planner behavior is shared with hardware. Optional overlays are
-  explicit navigation or scenario profiles, not hidden simulation behavior.
-- The benchmark Heron hull profile is sourced from
-  `../heron/heron_description/urdf/configs/ig_handle_benchmark`, so mass,
-  damping, and added-mass changes are explicit.
-- Low-level PID controller gains live only in
-  `heron_controller/config/heron_controller.yaml`. MARINER owns the
-  `cmd_vel` to `/cmd_drive` mixer profile. The simulator owns only the
-  `/cmd_drive` to Gazebo thruster bridge and
-  `heron_simulator/config/thruster_dynamics.yaml`.
-- The simulated lidar pair uses the same ROS surface as the real VLP-16 pair:
-  `/sensors/lidar/hori/points` and `/sensors/lidar/vert/points`. Each Gazebo
-  ray model is configured as a 16-channel, 360 x 30 degree VLP-16-style scan at
-  the 600 RPM / 10 Hz default cadence with 0.2 degree azimuth spacing and 200 m
-  maximum range. The simulator does not publish synthetic
-  `velodyne_msgs/VelodyneScan` packet topics; packet-level fidelity belongs to
-  real hardware or bag-backed tests because fabricated packet bytes would not
-  represent the Gazebo ray model honestly.
-- The simulated sonar is a multibeam echosounder path, not a direct scan
-  shortcut. Gazebo produces an internal DT100-style 480-beam profile cloud,
-  `multibeam_raw.py` packs it as raw 83P/profile bytes on
-  `/sensors/sonar/raw`. MARINER owns raw-to-scan decoding and scan-to-map
-  accumulation.
-- The simulated Forge cameras use the same canonical image and camera-info
-  topics and optical frame names as the real Forge FG-PGE-50S5C-C-IP color
-  camera stack. Simulation enables F1/F2/F3/F4 so the full camera topic
-  set is available. The sim camera model is a geometry/topic stand-in, not
-  a Forge driver emulation.
-- The simulator sensor URDF is only a Gazebo plugin/visual add-on. It gets all
-  sensor frame and mount poses from `ig_handle/config/sensors/sensor_frames.yaml`
-  through `ig_handle/scripts/frames/export.py`; do not duplicate sensor
-  extrinsics in `heron_simulator`.
-- `sim_ig_timing.py` mirrors the optional IG Handle timing surface by publishing
-  `/sensors/pps/time` from sim time, `/sensors/camera/time` from camera image
-  header stamps, and `/sensors/imu/time` from simulated IMU header stamps.
-- The default harbor scenario is a port-style basin with concrete wharves,
-  pile fields, a diagonal quay, moored service boats, underwater debris, and a
-  compact floating launch dock. The launch dock is intentionally small and
-  offset from the boat start so the global costmap has enough free water for
-  initial planning without shrinking navigation safety margins.
+Package-level simulation:
 
-## Sensor Output Contract
+```bash
+roslaunch heron_simulator heron_world.launch gui:=true
+```
 
-`heron_simulator` publishes the same simulated sensor topics consumed by the
-real stack. Sonar follows the hardware boundary: this package publishes raw
-multibeam profile data only, and MARINER decodes that raw stream into a scan
-cloud.
+Full integrated simulation:
+
+```bash
+roslaunch grande bringup.launch mode:=sim
+```
+
+Software OpenGL fallback:
+
+```bash
+roslaunch heron_simulator heron_world.launch \
+  gui:=true \
+  gazebo_software_rendering:=true
+```
+
+## Sensor Contract
+
+The simulator publishes the same ROS topic surface expected from IG Handle:
 
 | Topic | Type |
-|---|---|
+| --- | --- |
 | `/sensors/lidar/hori/points` | `sensor_msgs/PointCloud2` |
 | `/sensors/lidar/vert/points` | `sensor_msgs/PointCloud2` |
 | `/sensors/imu/data` | `sensor_msgs/Imu` |
@@ -81,93 +57,73 @@ cloud.
 | `/sensors/camera/time` | `sensor_msgs/TimeReference` |
 | `/sensors/imu/time` | `sensor_msgs/TimeReference` |
 
-## Common Uses
+The simulator does not fabricate Velodyne packet bytes. Packet-level fidelity
+belongs to real hardware or bag-backed tests.
 
-### Package-level simulation
+## Vehicle and Sensor Geometry
 
-```bash
-roslaunch heron_simulator heron_world.launch
+The benchmark Heron hull profile is sourced from:
+
+```text
+../heron/heron_description/urdf/configs/ig_handle_benchmark
 ```
 
-By default, the boat spawns with the `ig_handle_benchmark` Heron description
-config so the package-level launch exposes the same IG sensor add-ons as the
-full-stack integration launch. Any semantic reasoning over the scene is owned
-by ORACLE and the `/oracle/world/entities` pipeline, not by Gazebo model names
-or simulator scripts.
+Sensor frame and mount poses come from:
 
-`heron_simulator` launch files are Gazebo pieces. Full-stack operation should
-compose them from the active integration launch so MARINER, ORACLE, topics,
-and state wiring stay consistent.
+```text
+ig_handle/config/sensors/sensor_frames.yaml
+```
 
-## Important Pieces
+Do not duplicate sensor extrinsics inside simulator-specific files.
+
+## Sonar Simulation
+
+Gazebo produces an internal multibeam profile cloud. `multibeam_raw.py` packs
+that profile as DT100-style raw bytes on `/sensors/sonar/raw`. MARINER owns the
+decoder and map accumulation path.
+
+This preserves the hardware boundary:
+
+```text
+simulated sonar geometry -> raw DT100-style packets -> MARINER decoder -> sonar evidence
+```
+
+## Scenarios
+
+Scenario metadata and fixtures live in:
+
+| Path | Purpose |
+| --- | --- |
+| `config/scenarios.yaml` | Scenario index |
+| `config/scenarios/` | Per-scenario launch and navigation metadata |
+| `config/entities/` | Semantic entities matched to simulator scenes |
+| `worlds/` | Gazebo world composition files |
+| `models/` | Reusable Gazebo assets |
+
+The default harbor scenario is a compact port-style basin with wharves,
+pile fields, service boats, underwater debris, and a launch dock.
+
+## Integration Pattern
+
+Integrated simulation should look like real bringup wherever possible:
+
+1. Gazebo publishes simulated sensor topics.
+2. MARINER runs the selected odometry backend and navigation stack.
+3. RTAB-Map builds map evidence when mapping is enabled.
+4. ORACLE consumes semantic and map evidence.
+5. The dashboard, RViz, and recorder expose the same operator surfaces used in
+   real mode.
+
+Gazebo truth is diagnostic. It is not the default navigation odometry source.
+
+## Important Files
 
 | Path | Role |
-|---|---|
-| `launch/` | Gazebo world/spawn launch pieces used by an integration stack |
-| `config/scenarios.yaml` | Simulator scenario index used by integration launch defaults |
-| `config/scenarios/` | Per-scenario world/entity/navigation profile metadata |
-| `config/entities/` | Simulation semantic entity fixtures matched to the Gazebo scenes |
-| `worlds/` | Thin scenario composition files for physics, lighting, GUI camera, and model includes |
-| `models/` | Reusable Gazebo geometry assets such as water surfaces, tank geometry, and tank targets |
-| `scripts/scenarios.py` | Minimal roslaunch resolver for scenario-specific values |
-| `scripts/drive_to_thrusters.py` | `/cmd_drive` to Gazebo thruster wrench bridge |
-| `scripts/multibeam_raw.py` | Gazebo multibeam sonar ray cloud to raw 83P/profile packet bridge |
-| `scripts/sim_ig_timing.py` | Simulated IG Handle timing-reference topic bridge |
-| `src/` | Gazebo plugins and compiled simulator support |
-| `tests/` | Simulation launch, rendering, and control regressions |
-
-## How It Fits The Workspace
-
-- MARINER produces `/cmd_drive` through the shared navigation stack
-- the simulator turns `/cmd_drive` into Gazebo thruster inputs
-- Gazebo publishes simulated sensor topics that look like `ig_handle` hardware
-  topics
-
-ORACLE, MARINER, DEFECTOR, dashboards, bagging, and topic wiring should be
-composed by the integration layer.
-
-## Integration Runtime Pattern
-
-The simulator mirrors hardware bringup most closely when composed by an
-integration launch:
-
-1. Source vehicle state and sensor topics
-2. Build or load the navigation map
-3. Run MARINER navigation
-4. Run ORACLE with `/oracle/world/entities` as the live semantic world
-5. Expose the web dashboard and RViz
-6. Record a rosbag of sensors, state, MARINER, and ORACLE topics
-
-The main difference is the source of data:
-
-- `mode:=sim` uses Gazebo and simulated sensors
-- `mode:=real` uses real sensors through `ig_handle`
-
-Current shared-bringup defaults:
-
-| Setting | Sim Default | Meaning |
-| --- | --- | --- |
-| `use_web_viz` | `true` | starts dashboard/rosbridge/video bridge |
-| `record_bags` | `true` | records runtime evidence unless disabled |
-| `use_rviz` | `true` | opens the shared navigation RViz layout in sim |
-| `build_map` | `true` | starts RTAB-Map loop closure/global correction when RTAB-Map is installed |
-
-The current integration stack uses simulated LiDAR and IMU data as DLiO inputs
-and publishes the result on the same `/state/odometry` topic used by the rest
-of the stack. MARINER/integration bringup owns DLiO launch, configuration, and
-the `odom -> base_footprint` TF publication. Gazebo truth remains a diagnostic
-topic, not the default navigation odometry source. Mocap stays outside
-simulator bringup as a lab logging/comparison stream.
-
-To open Gazebo with the package-level simulator launch:
-
-```bash
-roslaunch heron_simulator heron_world.launch gui:=true
-```
-
-For machines with broken or very slow OpenGL drivers, force Gazebo Classic
-OpenGL through Mesa software rendering:
-
-```bash
-roslaunch heron_simulator heron_world.launch gui:=true gazebo_software_rendering:=true
-```
+| --- | --- |
+| `launch/` | Gazebo world and spawn launch files |
+| `scripts/scenarios.py` | Scenario value resolver for roslaunch |
+| `scripts/drive_to_thrusters.py` | `/cmd_drive` to Gazebo wrench bridge |
+| `scripts/multibeam_raw.py` | Simulated sonar profile to raw packet bridge |
+| `scripts/sim_ig_timing.py` | Simulated timing-reference publisher |
+| `src/` | Gazebo plugins |
+| `tests/` | Simulation launch and behavior regressions |
