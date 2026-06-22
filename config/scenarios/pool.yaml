@@ -28,6 +28,7 @@ exploration:
   goal_min_frontier_standoff_m: 0.0
   goal_preferred_frontier_standoff_m: 0.75
   goal_map_bounds_margin_m: 1.10
+  goal_standoff_projection_enabled: true
   goal_standoff_projection_step_m: 0.25
   goal_standoff_projection_max_m: 4.0
   final_approach_min_free_ratio: 0.50

@@ -47,6 +47,7 @@ def test_harbor_region_exploration_surface_resolves_as_launch_args():
         "exploration_feasibility_mode": "balanced",
         "exploration_make_plan_tolerance_m": "0.5",
         "exploration_navigation_goal_max_cost": "50",
+        "exploration_goal_standoff_projection_enabled": "true",
     }
 
     for key, value in expected.items():

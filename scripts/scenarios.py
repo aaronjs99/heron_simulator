@@ -25,6 +25,7 @@ LAUNCH_ARG_KEYS = {
     "goal_min_frontier_standoff_m": "exploration_goal_min_frontier_standoff_m",
     "goal_preferred_frontier_standoff_m": "exploration_goal_preferred_frontier_standoff_m",
     "goal_map_bounds_margin_m": "exploration_goal_map_bounds_margin_m",
+    "goal_standoff_projection_enabled": "exploration_goal_standoff_projection_enabled",
     "goal_standoff_projection_step_m": "exploration_goal_standoff_projection_step_m",
     "goal_standoff_projection_max_m": "exploration_goal_standoff_projection_max_m",
     "radius_initial_m": "exploration_radius_initial_m",
@@ -107,7 +108,11 @@ def _launch_values(
     }
     for source_key, launch_key in LAUNCH_ARG_KEYS.items():
         if source_key in exploration and exploration[source_key] is not None:
-            values[launch_key] = str(exploration[source_key])
+            value = exploration[source_key]
+            if isinstance(value, bool):
+                values[launch_key] = "true" if value else "false"
+            else:
+                values[launch_key] = str(value)
     return values
 
 
