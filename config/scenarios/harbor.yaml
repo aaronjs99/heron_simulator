@@ -44,4 +44,5 @@ exploration:
   frontier_region_connectivity: 8
   frontier_region_min_candidate_count: 3
   feasibility_mode: balanced
+  make_plan_tolerance_m: 0.5
   frontier_exhaustion_threshold: 0

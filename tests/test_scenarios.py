@@ -23,7 +23,9 @@ def test_harbor_scenario_config_file_resolves_to_yaml():
         key="scenario_config_file",
     )
 
-    assert path.endswith("heron_simulator/config/scenarios/harbor.yaml")
+    assert path.replace("\\", "/").endswith(
+        "heron_simulator/config/scenarios/harbor.yaml"
+    )
     with open(path, "r", encoding="utf-8") as handle:
         data = yaml.safe_load(handle)
     exploration = data["exploration"]
@@ -43,6 +45,7 @@ def test_harbor_region_exploration_surface_resolves_as_launch_args():
         "frontier_region_connectivity": "8",
         "frontier_region_min_candidate_count": "3",
         "exploration_feasibility_mode": "balanced",
+        "exploration_make_plan_tolerance_m": "0.5",
     }
 
     for key, value in expected.items():
