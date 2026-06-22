@@ -46,6 +46,7 @@ def test_harbor_region_exploration_surface_resolves_as_launch_args():
         "frontier_region_min_candidate_count": "3",
         "exploration_feasibility_mode": "balanced",
         "exploration_make_plan_tolerance_m": "0.5",
+        "exploration_navigation_goal_max_cost": "50",
     }
 
     for key, value in expected.items():

@@ -35,6 +35,7 @@ LAUNCH_ARG_KEYS = {
     "frontier_region_min_candidate_count": "frontier_region_min_candidate_count",
     "feasibility_mode": "exploration_feasibility_mode",
     "make_plan_tolerance_m": "exploration_make_plan_tolerance_m",
+    "navigation_goal_max_cost": "exploration_navigation_goal_max_cost",
 }
 
 
