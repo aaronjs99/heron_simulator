@@ -113,8 +113,9 @@ class SimIgTimingBridge:
         try:
             publisher.publish(msg)
         except ROSException as exc:
-            if not rospy.is_shutdown():
-                raise exc
+            if rospy.is_shutdown() or "closed topic" in str(exc).lower():
+                return
+            raise
 
     def _pps_cb(self, _event: rospy.timer.TimerEvent) -> None:
         stamp = rospy.Time.now()
