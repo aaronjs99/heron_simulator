@@ -6,7 +6,6 @@ import sys
 
 import yaml
 
-
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 SIM_ROOT = os.path.join(REPO_ROOT, "heron_simulator")
 SCRIPTS_ROOT = os.path.join(SIM_ROOT, "scripts")
@@ -48,6 +47,8 @@ def test_harbor_region_exploration_surface_resolves_as_launch_args():
         "exploration_make_plan_tolerance_m": "0.5",
         "exploration_navigation_goal_max_cost": "50",
         "exploration_goal_standoff_projection_enabled": "true",
+        "exploration_map_expansion_min_free_cells": "25",
+        "exploration_map_expansion_min_unknown_reduction": "25",
     }
 
     for key, value in expected.items():

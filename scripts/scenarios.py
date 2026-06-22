@@ -8,7 +8,6 @@ from typing import Any, Dict, Mapping
 
 import yaml
 
-
 PACKAGE_DIR = Path(__file__).resolve().parents[1]
 SCENARIO_INDEX_PATH = PACKAGE_DIR / "config" / "scenarios.yaml"
 DEFAULT_GLOBAL_COSTMAP_CONFIG = "mariner/config/global_costmap.yaml"
@@ -28,6 +27,8 @@ LAUNCH_ARG_KEYS = {
     "goal_standoff_projection_enabled": "exploration_goal_standoff_projection_enabled",
     "goal_standoff_projection_step_m": "exploration_goal_standoff_projection_step_m",
     "goal_standoff_projection_max_m": "exploration_goal_standoff_projection_max_m",
+    "map_expansion_min_free_cells": "exploration_map_expansion_min_free_cells",
+    "map_expansion_min_unknown_reduction": "exploration_map_expansion_min_unknown_reduction",
     "radius_initial_m": "exploration_radius_initial_m",
     "radius_growth_m": "exploration_radius_growth_m",
     "radius_growth_mode": "exploration_radius_growth_mode",
