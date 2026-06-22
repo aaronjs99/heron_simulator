@@ -9,6 +9,7 @@ from typing import List, Sequence, Tuple
 
 import rospy
 import sensor_msgs.point_cloud2 as pc2
+from rospy.exceptions import ROSException
 from sensor_msgs.msg import PointCloud2
 from std_msgs.msg import UInt8MultiArray
 
@@ -112,6 +113,8 @@ class MultibeamRawNode:
         )
 
     def _cloud_cb(self, cloud: PointCloud2) -> None:
+        if rospy.is_shutdown():
+            return
         points = point_records_from_cloud(
             cloud,
             max_points=self.max_points,
@@ -125,7 +128,12 @@ class MultibeamRawNode:
         )
         msg = UInt8MultiArray()
         msg.data = list(packet)
-        self.publisher.publish(msg)
+        try:
+            self.publisher.publish(msg)
+        except ROSException as exc:
+            if rospy.is_shutdown() or "closed topic" in str(exc):
+                return
+            raise
         rospy.logdebug(
             "multibeam_raw packet_kind=%s points=%d bytes=%d",
             self.packet_kind.decode("ascii", errors="replace"),
