@@ -6,6 +6,7 @@ from __future__ import annotations
 from typing import Iterable, Optional, Sequence, Tuple
 
 import rospy
+from rospy.exceptions import ROSException
 from sensor_msgs.msg import Image, Imu, TimeReference
 
 
@@ -106,10 +107,19 @@ class SimIgTimingBridge:
         msg.source = source
         return msg
 
+    def _safe_publish(self, publisher: rospy.Publisher, msg: TimeReference) -> None:
+        if rospy.is_shutdown():
+            return
+        try:
+            publisher.publish(msg)
+        except ROSException as exc:
+            if not rospy.is_shutdown():
+                raise exc
+
     def _pps_cb(self, _event: rospy.timer.TimerEvent) -> None:
         stamp = rospy.Time.now()
-        self.pps_pub.publish(
-            self._time_reference(stamp, self.pps_frame_id, "sim_clock")
+        self._safe_publish(
+            self.pps_pub, self._time_reference(stamp, self.pps_frame_id, "sim_clock")
         )
 
     def _camera_cb(self, msg: Image, topic: str) -> None:
@@ -119,14 +129,16 @@ class SimIgTimingBridge:
             return
         self.last_camera_stamp = key
         frame_id = msg.header.frame_id or self.default_camera_frame_id
-        self.camera_pub.publish(
-            self._time_reference(stamp, frame_id, "sim_camera:" + topic)
+        self._safe_publish(
+            self.camera_pub, self._time_reference(stamp, frame_id, "sim_camera:" + topic)
         )
 
     def _imu_cb(self, msg: Imu) -> None:
         stamp = valid_stamp_or_now(msg.header.stamp)
         frame_id = msg.header.frame_id or self.default_imu_frame_id
-        self.imu_pub.publish(self._time_reference(stamp, frame_id, "sim_imu"))
+        self._safe_publish(
+            self.imu_pub, self._time_reference(stamp, frame_id, "sim_imu")
+        )
 
 
 def main() -> None:
