@@ -31,6 +31,8 @@ exploration:
   goal_standoff_projection_enabled: true
   goal_standoff_projection_step_m: 0.25
   goal_standoff_projection_max_m: 4.0
+  map_expansion_min_free_cells: 25
+  map_expansion_min_unknown_reduction: 25
   final_approach_min_free_ratio: 0.50
   weak_frontier_gain_threshold: 0.05
   long_plan_threshold_m: 5.0

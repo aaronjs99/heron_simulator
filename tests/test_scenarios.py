@@ -56,3 +56,16 @@ def test_harbor_region_exploration_surface_resolves_as_launch_args():
             resolved_launch_value(repo_root=REPO_ROOT, scenario="harbor", key=key)
             == value
         )
+
+
+def test_pool_map_expansion_thresholds_resolve_as_launch_args():
+    expected = {
+        "exploration_map_expansion_min_free_cells": "25",
+        "exploration_map_expansion_min_unknown_reduction": "25",
+    }
+
+    for key, value in expected.items():
+        assert (
+            resolved_launch_value(repo_root=REPO_ROOT, scenario="pool", key=key)
+            == value
+        )
