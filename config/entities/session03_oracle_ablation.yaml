@@ -1,0 +1,152 @@
+schema_version: 2
+frame: map
+units: {pos: m, angles: rad}
+return_entity_id: home
+
+entities:
+  - id: home
+    class: HOME
+    aliases: [home, start, base, launch]
+    affordances: [NAV, RETURN]
+    description: Reference home point for controlled Session 03 ORACLE ablation.
+    pose:
+      position: {x: 0.0, y: 0.0, z: 0.2}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    confidence: 0.99
+
+  - id: drifting_marker_alpha
+    class: TARGET
+    aliases: [drifting marker alpha, alpha marker, stale marker, orange marker]
+    affordances: [INSPECT]
+    description: Dynamic inspection target with stale existence probability for AVG testing.
+    pose:
+      position: {x: 4.0, y: 1.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [0.6, 0.6, 1.0]
+    confidence: 0.92
+    probability: 0.62
+    dynamic: true
+    semantic_ambiguity: 0.25
+    class_entropy: 0.20
+    last_seen_age_sec: 900.0
+    gate: {decay_rate: 0.0015}
+    reachable_viewpoints:
+      - {x: 2.4, y: 1.0, z: 0.0, yaw: 0.0, standoff_m: 1.6, visibility_score: 1.0, reachability_score: 1.0, safety_score: 1.0}
+
+  - id: inspection_target_beta
+    class: TARGET
+    aliases: [beta marker, blue marker, calibration target beta]
+    affordances: [INSPECT]
+    description: Fresh inspection distractor west of the alpha marker.
+    pose:
+      position: {x: 3.0, y: -1.4, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [0.5, 0.5, 0.8]
+    confidence: 0.93
+    probability: 0.98
+    last_seen_age_sec: 5.0
+
+  - id: inspection_target_gamma
+    class: TARGET
+    aliases: [gamma marker, green marker, calibration target gamma]
+    affordances: [INSPECT]
+    description: Fresh inspection distractor east of the alpha marker.
+    pose:
+      position: {x: 5.7, y: 1.8, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [0.5, 0.5, 0.8]
+    confidence: 0.91
+    probability: 0.97
+    last_seen_age_sec: 8.0
+
+  - id: dock_face_north
+    class: DOCK
+    aliases: [north dock face, upper dock face]
+    affordances: [NAV, INSPECT]
+    description: Structural dock distractor used to increase prompt context.
+    pose:
+      position: {x: 5.0, y: 3.4, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [4.0, 0.6, 0.5]
+    confidence: 0.95
+
+  - id: dock_face_south
+    class: DOCK
+    aliases: [south dock face, lower dock face]
+    affordances: [NAV, INSPECT]
+    description: Structural dock distractor used to increase prompt context.
+    pose:
+      position: {x: 5.0, y: -3.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [4.0, 0.6, 0.5]
+    confidence: 0.95
+
+  - id: quay_wall_east
+    class: WALL
+    aliases: [east quay wall, far wall]
+    affordances: [AVOID]
+    description: Shoreline distractor outside the requested target class.
+    pose:
+      position: {x: 8.0, y: 0.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [0.5, 7.0, 1.0]
+    confidence: 0.96
+
+  - id: survey_buoy_01
+    class: floating_object
+    aliases: [survey buoy one, yellow buoy]
+    affordances: [NAV]
+    description: Floating distractor for semantic-cache/context tests.
+    pose:
+      position: {x: 2.0, y: 2.5, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [0.4, 0.4, 0.6]
+    confidence: 0.88
+
+  - id: survey_buoy_02
+    class: floating_object
+    aliases: [survey buoy two, red buoy]
+    affordances: [NAV]
+    description: Floating distractor for semantic-cache/context tests.
+    pose:
+      position: {x: 6.5, y: -2.2, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [0.4, 0.4, 0.6]
+    confidence: 0.88
+
+  - id: transient_vessel_shadow
+    class: vessel_candidate
+    aliases: [small vessel, transient vessel, boat shadow]
+    affordances: [AVOID]
+    description: Dynamic vessel-like distractor for context and gate scoring.
+    pose:
+      position: {x: 7.0, y: 2.6, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [1.5, 0.8, 0.6]
+    confidence: 0.76
+    probability: 0.84
+    dynamic: true
+    semantic_ambiguity: 0.40
+    last_seen_age_sec: 120.0
+
+  - id: piling_cluster_a
+    class: PILING
+    aliases: [piling cluster a, first pile cluster]
+    affordances: [INSPECT, AVOID]
+    description: Vertical post cluster distractor.
+    pose:
+      position: {x: 1.6, y: -2.5, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    cyl: {r: 0.25, h: 1.4}
+    confidence: 0.90
+
+  - id: piling_cluster_b
+    class: PILING
+    aliases: [piling cluster b, second pile cluster]
+    affordances: [INSPECT, AVOID]
+    description: Vertical post cluster distractor.
+    pose:
+      position: {x: 7.2, y: -0.8, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    cyl: {r: 0.25, h: 1.4}
+    confidence: 0.90
