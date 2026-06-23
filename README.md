@@ -39,7 +39,7 @@ roslaunch heron_simulator heron_world.launch \
   gazebo_software_rendering:=true
 ```
 
-## Sensor Contract
+## Sensor Surface
 
 The simulator publishes the same ROS topic surface expected from IG Handle:
 
