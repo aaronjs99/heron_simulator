@@ -4,5 +4,9 @@ rate: 30.0
 cmd_timeout: 0.35
 max_fwd_thrust: 45.0
 max_bck_thrust: 25.0
-left_scale: 1.0
+# Initial real-run correction: Friday bags showed asymmetric current/yaw and
+# residual yaw during coast, while the old sim was perfectly symmetric.
+left_scale: 0.92
 right_scale: 1.0
+response_time_constant_sec: 0.45
+max_drive_delta_per_sec: 1.25
