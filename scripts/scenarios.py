@@ -103,6 +103,9 @@ def _launch_values(
         "teb_local_planner_overlay_config": _resolve_path(
             root, costmap.get("teb_overlay", "")
         ),
+        "move_base_overlay_config": _resolve_path(
+            root, costmap.get("move_base_overlay", "")
+        ),
         "x": str(float(spawn.get("x", 0.0) or 0.0)),
         "y": str(float(spawn.get("y", 0.0) or 0.0)),
         "yaw": str(float(spawn.get("yaw_rad", 0.0) or 0.0)),
