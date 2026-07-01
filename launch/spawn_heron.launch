@@ -55,18 +55,29 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="pps_rate_hz" default="1.0" />
   <arg name="camera_time_image_topics"
        default="/sensors/camera/f1/image_raw,/sensors/camera/f2/image_raw,/sensors/camera/f3/image_raw,/sensors/camera/f4/image_raw" />
+  <arg name="disabled_sensor_ids" default="" />
+  <arg name="camera_f1_requested"
+       default="$(eval '0' if '4' in [item.strip() for item in str(arg('disabled_sensor_ids')).split(',')] else '1')" />
+  <arg name="camera_f2_requested"
+       default="$(eval '0' if '5' in [item.strip() for item in str(arg('disabled_sensor_ids')).split(',')] else '1')" />
+  <arg name="camera_f3_requested"
+       default="$(eval '0' if '6' in [item.strip() for item in str(arg('disabled_sensor_ids')).split(',')] else '1')" />
+  <arg name="camera_f4_requested"
+       default="$(eval '0' if '7' in [item.strip() for item in str(arg('disabled_sensor_ids')).split(',')] else '1')" />
 
   <group ns="/$(arg namespace)">
 
     <!-- Load the upstream Heron model in simulation mode. The simulator accepts
          /cmd_drive directly; cmd_vel -> cmd_drive belongs to MARINER/top-level
-         bringup. Override camera enable flags here so sim publishes the full
-         post-driver camera topics without changing the shared hardware
-         benchmark config. -->
+         bringup. Camera spawn follows the shared disabled_sensor_ids contract
+         without changing the shared hardware benchmark config. -->
     <group if="$(eval arg('namespace') == '')">
       <param name="robot_description"
              command="$(find heron_description)/scripts/env_run.sh $(find heron_description)/urdf/configs/$(arg config)
-                      env HERON_CAMERA_F1=1 HERON_CAMERA_F2=1 HERON_CAMERA_F3=1 HERON_CAMERA_F4=1
+                      env HERON_CAMERA_F1=$(arg camera_f1_requested)
+                          HERON_CAMERA_F2=$(arg camera_f2_requested)
+                          HERON_CAMERA_F3=$(arg camera_f3_requested)
+                          HERON_CAMERA_F4=$(arg camera_f4_requested)
                       HERON_SIM_SONAR_RAY_TOPIC=$(arg sonar_ray_topic)
                       xacro '$(find heron_description)/urdf/heron.urdf.xacro'
                       debug:=$(arg hydro_debug) simulation:=true" />
@@ -75,7 +86,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <group unless="$(eval arg('namespace') == '')">
       <param name="robot_description"
              command="$(find heron_description)/scripts/env_run.sh $(find heron_description)/urdf/configs/$(arg config)
-                      env HERON_CAMERA_F1=1 HERON_CAMERA_F2=1 HERON_CAMERA_F3=1 HERON_CAMERA_F4=1
+                      env HERON_CAMERA_F1=$(arg camera_f1_requested)
+                          HERON_CAMERA_F2=$(arg camera_f2_requested)
+                          HERON_CAMERA_F3=$(arg camera_f3_requested)
+                          HERON_CAMERA_F4=$(arg camera_f4_requested)
                       HERON_SIM_SONAR_RAY_TOPIC=$(arg sonar_ray_topic)
                       xacro '$(find heron_description)/urdf/heron.urdf.xacro'
                       debug:=$(arg hydro_debug) simulation:=true

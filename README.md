@@ -57,6 +57,11 @@ The simulator publishes the same ROS topic surface expected from IG Handle:
 | `/sensors/camera/time` | `sensor_msgs/TimeReference` |
 | `/sensors/imu/time` | `sensor_msgs/TimeReference` |
 
+Camera spawn follows the same `disabled_sensor_ids` launch argument used by the
+integrated sensor contract. For low-load upward-camera-off tests, launch GRANDE
+with `disabled_sensor_ids:=6,7`; this removes F3/F4 from ORACLE/DEFECTOR
+inspection inputs and prevents Gazebo from spawning those camera sensors.
+
 The simulator does not fabricate Velodyne packet bytes. Packet-level fidelity
 belongs to real hardware or bag-backed tests.
 
