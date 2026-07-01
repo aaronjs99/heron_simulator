@@ -26,11 +26,15 @@ link_directories(${GAZEBO_LIBRARY_DIRS})
 add_library(RelativeForcePlugin src/RelativeForcePlugin.cpp)
 target_link_libraries(RelativeForcePlugin ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 
+add_library(PassiveDisturbancePlugin src/PassiveDisturbancePlugin.cpp)
+target_link_libraries(PassiveDisturbancePlugin ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
+
 install(DIRECTORY config launch worlds urdf models docs
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
 install(TARGETS
+  PassiveDisturbancePlugin
   RelativeForcePlugin
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
