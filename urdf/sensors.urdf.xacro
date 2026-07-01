@@ -288,12 +288,12 @@
 
     <gazebo reference="${id}">
       <sensor type="camera" name="camera_${id}_sensor">
-        <update_rate>15.0</update_rate>
+        <update_rate>10.0</update_rate>
         <camera name="${camera_name}">
           <horizontal_fov>1.60</horizontal_fov>
           <image>
-            <width>1280</width>
-            <height>1024</height>
+            <width>640</width>
+            <height>512</height>
             <format>R8G8B8</format>
           </image>
           <clip>
@@ -309,7 +309,7 @@
         </camera>
         <plugin name="camera_${id}_controller" filename="libgazebo_ros_camera.so">
           <alwaysOn>true</alwaysOn>
-          <updateRate>15.0</updateRate>
+          <updateRate>10.0</updateRate>
           <cameraName>sensors/camera/${topic_suffix}</cameraName>
           <imageTopicName>image_raw</imageTopicName>
           <cameraInfoTopicName>camera_info</cameraInfoTopicName>
