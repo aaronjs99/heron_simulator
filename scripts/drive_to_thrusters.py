@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # Software License Agreement (BSD)
 
+"""Bridge normalized Heron drive commands into Gazebo thruster wrench inputs."""
+
 from geometry_msgs.msg import Wrench
 from heron_msgs.msg import Drive
 import rospy

@@ -28,7 +28,8 @@ roslaunch heron_simulator heron_world.launch gui:=true
 Full integrated simulation:
 
 ```bash
-roslaunch grande bringup.launch mode:=sim
+cd ~/catkin_ws/heron_ws/src/grande/grande
+python3 run.py bringup --mode sim
 ```
 
 Software OpenGL fallback:
@@ -64,6 +65,11 @@ inspection inputs and prevents Gazebo from spawning those camera sensors.
 
 The simulator does not fabricate Velodyne packet bytes. Packet-level fidelity
 belongs to real hardware or bag-backed tests.
+
+Simulated sensor samples are useful for integration and contract validation,
+but they are not a substitute for field calibration. In particular, simulated
+current, thrust, timing, and water-load behavior must not be used to approve a
+real actuator model or sensor extrinsic.
 
 ## Vehicle and Sensor Geometry
 
