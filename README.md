@@ -178,6 +178,12 @@ Gazebo truth is diagnostic by default. Explicit simulator LMPC runs may select
 the private simulator control-odometry topic for feedback; mapping and real
 navigation contracts remain on the configured estimator topics.
 
+The simulator does not own the learned controller. MARINER owns model loading,
+optimization, freshness policy, and `/cmd_drive`; `heron_simulator` owns only
+the calibration-ineligible command-to-force/current proxy and simulated plant.
+GRANDE connects those contracts only for an explicit simulation profile, while
+real bringup clears the model paths and forces learned control disabled.
+
 ## Important Files
 
 | Path | Role |
