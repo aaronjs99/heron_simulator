@@ -80,6 +80,12 @@ class DriveToThrusters:
             rospy.get_param("~empirical_model_file", "")
         )
         self.empirical_model = self.load_empirical_model()
+        self.reference_current_a = (
+            float(self.empirical_model["normalization"]["reference_current_a"])
+            if self.empirical_model
+            else 0.0
+        )
+        self.synthetic_current_a = {"left": 0.0, "right": 0.0}
 
         default_left_topic = (
             f"{prefix}/thrusters/1/input" if prefix else "/thrusters/1/input"
@@ -97,6 +103,9 @@ class DriveToThrusters:
         self.p_right = rospy.Publisher(right_topic, Wrench, queue_size=1)
         self.model_status_pub = rospy.Publisher(
             "~actuator_proxy_status", String, queue_size=1, latch=True
+        )
+        self.actuator_state_pub = rospy.Publisher(
+            "~actuator_state", String, queue_size=10
         )
 
         self.sub = rospy.Subscriber(drive_topic, Drive, self.callback)
@@ -180,6 +189,7 @@ class DriveToThrusters:
 
     def drive_to_thrust(self, drive, side):
         if abs(drive) <= 1e-12:
+            self.synthetic_current_a[side] = 0.0
             self.previous_curve_magnitude[side] = 0.0
             self.previous_curve_sign[side] = 0
             self.previous_curve_sweep[side] = "rising"
@@ -197,10 +207,12 @@ class DriveToThrusters:
                 magnitude,
             )
             effort = curve_effort(table, magnitude, sweep)
+            self.synthetic_current_a[side] = effort * self.reference_current_a
             self.previous_curve_magnitude[side] = magnitude
             self.previous_curve_sign[side] = sign
             self.previous_curve_sweep[side] = sweep
             return (1.0 if drive >= 0.0 else -1.0) * effort * self.max_fwd_thrust
+        self.synthetic_current_a[side] = 0.0
         if drive >= 0.0:
             return drive * self.max_fwd_thrust
         return drive * self.max_bck_thrust
@@ -241,6 +253,26 @@ class DriveToThrusters:
         right_wrench = Wrench()
         right_wrench.force.x = self.drive_to_thrust(self.actual_right, "right")
         self.p_right.publish(right_wrench)
+        self.actuator_state_pub.publish(
+            String(
+                data=json.dumps(
+                    {
+                        "source": "synthetic_simulation",
+                        "calibration_eligible": False,
+                        "physical_telemetry": False,
+                        "current_semantics": "real_curve_current_proxy",
+                        "left_current_a": self.synthetic_current_a["left"],
+                        "right_current_a": self.synthetic_current_a["right"],
+                        "left_drive": self.actual_left,
+                        "right_drive": self.actual_right,
+                        "left_force_proxy_n": left_wrench.force.x,
+                        "right_force_proxy_n": right_wrench.force.x,
+                    },
+                    sort_keys=True,
+                    allow_nan=False,
+                )
+            )
+        )
 
 
 if __name__ == "__main__":

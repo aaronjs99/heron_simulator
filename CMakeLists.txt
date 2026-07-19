@@ -45,6 +45,7 @@ install(TARGETS
 
 catkin_install_python(PROGRAMS
   scripts/drive_to_thrusters.py
+  scripts/ground_truth_control_odometry.py
   scripts/multibeam_raw.py
   scripts/scenarios.py
   scripts/sim_sense.py
