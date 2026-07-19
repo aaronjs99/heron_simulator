@@ -39,6 +39,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="left_thruster_topic" default="/thrusters/1/input"/>
   <arg name="right_thruster_topic" default="/thrusters/0/input"/>
   <arg name="thruster_dynamics_config" default="$(find heron_simulator)/config/thruster_dynamics.yaml"/>
+  <arg name="empirical_model_enabled" default="false"/>
+  <arg name="empirical_model_file" default=""/>
   <arg name="sonar_ray_topic" default="/sim/sensors/sonar/multibeam_points"/>
   <arg name="sonar_raw_topic" default="/sensors/sonar/raw"/>
   <arg name="sonar_min_range_m" default="0.5"/>
@@ -48,14 +50,20 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="camera_time_topic" default="/sensors/camera/time"/>
   <arg name="imu_time_topic" default="/sensors/imu/time"/>
   <arg name="imu_topic" default="/sensors/imu/data"/>
+  <arg name="sense_topic" default="/sense"/>
+  <arg name="sense_rate_hz" default="10.0"/>
+  <arg name="sense_battery_v" default="16.0"/>
   <arg name="pps_rate_hz" default="1.0"/>
   <arg name="camera_time_image_topics"
        default="/sensors/camera/f1/image_raw,/sensors/camera/f2/image_raw,/sensors/camera/f3/image_raw,/sensors/camera/f4/image_raw"/>
+  <arg name="use_joint_state_fallback" default="false"/>
   <arg name="disabled_sensor_ids" default=""/>
   <arg name="use_gazebo" default="true"/>
   <arg name="gazebo_master_port" default="11345"/>
   <arg name="gazebo_extra_args" default="--lockstep"/>
   <arg name="gazebo_software_rendering" default="false"/>
+  <arg name="gazebo_headless_rendering" default="true"
+       doc="Run gzserver under Xvfb when no physical display is available so Gazebo camera sensors remain functional."/>
   <arg name="world_name" default="$(find heron_simulator)/worlds/open_water.world"/>
   <env name="GAZEBO_MASTER_URI" value="http://127.0.0.1:$(arg gazebo_master_port)"/>
 
@@ -65,7 +73,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <env name="MESA_LOG_LEVEL" value="error"/>
     <env name="MESA_LOG_FILE" value="/dev/null"/>
     <env if="$(arg gazebo_software_rendering)" name="LIBGL_ALWAYS_SOFTWARE" value="1"/>
-    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <include unless="$(arg gazebo_headless_rendering)"
+             file="$(find gazebo_ros)/launch/empty_world.launch">
       <arg name="world_name" value="$(arg world_name)"/>
       <arg name="paused" value="$(arg paused)"/>
       <arg name="use_sim_time" value="true"/>
@@ -75,6 +84,15 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <arg name="verbose" value="$(arg verbose)"/>
       <arg name="extra_gazebo_args" value="$(arg gazebo_extra_args)"/>
     </include>
+    <!-- Gazebo Classic camera sensors require an OpenGL display even without a
+         visible client. Xvfb supplies one for remote headless runs. -->
+    <param if="$(arg gazebo_headless_rendering)" name="/use_sim_time" value="true"/>
+    <node if="$(arg gazebo_headless_rendering)"
+          name="gazebo"
+          pkg="heron_simulator"
+          type="gazebo_with_xvfb.sh"
+          output="screen"
+          args="$(find gazebo_ros)/../../lib/gazebo_ros/gzserver -e ode $(arg gazebo_extra_args) $(arg world_name)"/>
   </group>
 
   <include file="$(find heron_simulator)/launch/spawn_heron.launch">
@@ -87,6 +105,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="left_thruster_topic" value="$(arg left_thruster_topic)" />
     <arg name="right_thruster_topic" value="$(arg right_thruster_topic)" />
     <arg name="thruster_dynamics_config" value="$(arg thruster_dynamics_config)" />
+    <arg name="empirical_model_enabled" value="$(arg empirical_model_enabled)" />
+    <arg name="empirical_model_file" value="$(arg empirical_model_file)" />
     <arg name="sonar_ray_topic" value="$(arg sonar_ray_topic)" />
     <arg name="sonar_raw_topic" value="$(arg sonar_raw_topic)" />
     <arg name="sonar_min_range_m" value="$(arg sonar_min_range_m)" />
@@ -96,8 +116,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="camera_time_topic" value="$(arg camera_time_topic)" />
     <arg name="imu_time_topic" value="$(arg imu_time_topic)" />
     <arg name="imu_topic" value="$(arg imu_topic)" />
+    <arg name="sense_topic" value="$(arg sense_topic)" />
+    <arg name="sense_rate_hz" value="$(arg sense_rate_hz)" />
+    <arg name="sense_battery_v" value="$(arg sense_battery_v)" />
     <arg name="pps_rate_hz" value="$(arg pps_rate_hz)" />
     <arg name="camera_time_image_topics" value="$(arg camera_time_image_topics)" />
+    <arg name="use_joint_state_fallback" value="$(arg use_joint_state_fallback)" />
     <arg name="disabled_sensor_ids" value="$(arg disabled_sensor_ids)" />
   </include>
 

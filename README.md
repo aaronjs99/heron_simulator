@@ -32,6 +32,10 @@ cd ~/catkin_ws/heron_ws/src/grande/grande
 python3 run.py bringup --mode sim
 ```
 
+Integrated simulation uses the dedicated ROS master at port `11312`. Physical
+bringup retains the Heron-facing master on port `11311`; the runner owns and
+cleans up only the simulation master it starts.
+
 Software OpenGL fallback:
 
 ```bash
@@ -57,6 +61,7 @@ The simulator publishes the same ROS topic surface expected from IG Handle:
 | `/sensors/pps/time` | `sensor_msgs/TimeReference` |
 | `/sensors/camera/time` | `sensor_msgs/TimeReference` |
 | `/sensors/imu/time` | `sensor_msgs/TimeReference` |
+| `/sense` | `heron_msgs/Sense`, synthetic contract telemetry |
 
 Camera spawn follows the same `disabled_sensor_ids` launch argument used by the
 integrated sensor contract. For low-load upward-camera-off tests, launch GRANDE
@@ -67,9 +72,33 @@ The simulator does not fabricate Velodyne packet bytes. Packet-level fidelity
 belongs to real hardware or bag-backed tests.
 
 Simulated sensor samples are useful for integration and contract validation,
-but they are not a substitute for field calibration. In particular, simulated
-current, thrust, timing, and water-load behavior must not be used to approve a
-real actuator model or sensor extrinsic.
+but they are not a substitute for field calibration. `/sense` is a synthetic
+contract message with a stable nominal battery value and zero motor currents;
+it exists so shared readiness and recording paths can run. In particular,
+simulated current, thrust, timing, and water-load behavior must not be used to
+approve a real actuator model or sensor extrinsic.
+
+## Empirical Actuator Proxy
+
+The normal simulator bridge applies the checked-in linear force model. For an
+explicit sensitivity run, `drive_to_thrusters.py` can instead load a generated
+empirical proxy derived from the canonical direct-drive electrical model:
+
+```bash
+python3 grande/run.py bringup --mode sim \
+  --launch-arg sim_empirical_thruster_model_enabled:=true \
+  --launch-arg sim_empirical_thruster_model_file:=/absolute/path/to/heron_simulator_actuator_proxy.json
+```
+
+The proxy preserves measured side, direction, and rising/falling current-shape
+asymmetry. It uses one shared forward-current reference so those asymmetries are
+not normalized away. Legacy side scaling is disabled while the proxy is active;
+transient lag and slew remain separate simulator assumptions.
+
+This is a current-shaped force proxy, not thrust calibration. Its schema marks
+it `calibration_eligible=false`, the bridge verifies its contract and hash, and
+any missing or malformed enabled proxy fails closed. `/sim_sense/source_status`
+separately identifies synthetic `/sense` and excludes it from calibration.
 
 ## Vehicle and Sensor Geometry
 

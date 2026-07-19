@@ -47,6 +47,8 @@ catkin_install_python(PROGRAMS
   scripts/drive_to_thrusters.py
   scripts/multibeam_raw.py
   scripts/scenarios.py
+  scripts/sim_sense.py
   scripts/sim_ig_timing.py
+  scripts/gazebo_with_xvfb.sh
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

@@ -43,6 +43,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="left_thruster_topic" default="/thrusters/1/input" />
   <arg name="right_thruster_topic" default="/thrusters/0/input" />
   <arg name="thruster_dynamics_config" default="$(find heron_simulator)/config/thruster_dynamics.yaml" />
+  <arg name="empirical_model_enabled" default="false" />
+  <arg name="empirical_model_file" default="" />
   <arg name="sonar_ray_topic" default="/sim/sensors/sonar/multibeam_points" />
   <arg name="sonar_raw_topic" default="/sensors/sonar/raw" />
   <arg name="sonar_min_range_m" default="0.5" />
@@ -52,9 +54,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="camera_time_topic" default="/sensors/camera/time" />
   <arg name="imu_time_topic" default="/sensors/imu/time" />
   <arg name="imu_topic" default="/sensors/imu/data" />
+  <arg name="sense_topic" default="/sense" />
+  <arg name="sense_rate_hz" default="10.0" />
+  <arg name="sense_battery_v" default="16.0" />
   <arg name="pps_rate_hz" default="1.0" />
   <arg name="camera_time_image_topics"
        default="/sensors/camera/f1/image_raw,/sensors/camera/f2/image_raw,/sensors/camera/f3/image_raw,/sensors/camera/f4/image_raw" />
+  <arg name="use_joint_state_fallback" default="false" />
   <arg name="disabled_sensor_ids" default="" />
   <arg name="camera_f1_requested"
        default="$(eval '0' if '4' in [item.strip() for item in str(arg('disabled_sensor_ids')).split(',')] else '1')" />
@@ -99,10 +105,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <!-- Publish robot state (TF) -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" />
 
-    <!-- Publish default thruster joint states so RViz always gets the full
-         robot model TF tree, even when Gazebo's joint-state plugin is absent
-         or late to connect. -->
-    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" output="screen">
+    <!-- Gazebo owns thruster joint states in normal simulation. Keep a manual
+         fallback opt-in for worlds that deliberately omit that plugin; running
+         both sources duplicates TF timestamps. -->
+    <node if="$(arg use_joint_state_fallback)"
+          name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" output="screen">
       <param name="use_gui" value="false" />
       <param name="rate" value="15" />
     </node>
@@ -117,6 +124,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <param name="drive_topic" value="$(arg drive_topic)" />
       <param name="left_thruster_topic" value="$(arg left_thruster_topic)" />
       <param name="right_thruster_topic" value="$(arg right_thruster_topic)" />
+      <param name="empirical_model_enabled" value="$(arg empirical_model_enabled)" />
+      <param name="empirical_model_file" value="$(arg empirical_model_file)" />
       <rosparam command="load" file="$(arg thruster_dynamics_config)" />
     </node>
 
@@ -126,6 +135,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <param name="min_range_m" value="$(arg sonar_min_range_m)" />
       <param name="max_range_m" value="$(arg sonar_max_range_m)" />
       <param name="max_points" value="480" />
+    </node>
+
+    <node pkg="heron_simulator" type="sim_sense.py" name="sim_sense" output="screen">
+      <param name="topic" value="$(arg sense_topic)" />
+      <param name="rate_hz" value="$(arg sense_rate_hz)" />
+      <param name="battery_v" value="$(arg sense_battery_v)" />
     </node>
 
     <node if="$(arg use_ig_timing)"
