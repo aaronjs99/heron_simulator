@@ -46,7 +46,6 @@ install(TARGETS
 
 catkin_install_python(PROGRAMS
   scripts/drive_to_thrusters.py
-  scripts/ground_truth_control_odometry.py
   scripts/multibeam_raw.py
   scripts/ping360_profile_sim.py
   scripts/validate_ping360_profile_sim.py

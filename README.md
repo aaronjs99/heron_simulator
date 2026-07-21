@@ -62,7 +62,6 @@ The simulator publishes the same ROS topic surface expected from IG Handle:
 | `/sensors/camera/time` | `sensor_msgs/TimeReference` |
 | `/sensors/imu/time` | `sensor_msgs/TimeReference` |
 | `/sense` | `heron_msgs/Sense`, explicitly synthetic contract telemetry |
-| `/state/sim_control_odometry_3dof` | `nav_msgs/Odometry`, simulator-only body-frame control feedback |
 
 Camera spawn follows the same `disabled_sensor_ids` launch argument used by the
 integrated sensor contract. For low-load upward-camera-off tests, launch GRANDE
@@ -105,20 +104,13 @@ The bridge publishes the proxy's current state and applied force on
 `/cmd_drive_to_thrusters/actuator_state`; this is simulator provenance, not
 fabricated physical telemetry.
 
-## Simulator Control Feedback
+## Ground-Truth Evaluation
 
-`ground_truth_control_odometry.py` converts `/pose_gt` world-frame velocity to
-the body-frame planar odometry contract used by the fast simulator controller:
-
-```text
-/pose_gt -> /state/sim_control_odometry_3dof
-```
-
-The topic is available only in simulation and is labelled
-`provenance=simulator_ground_truth` and `calibration_eligible=false`. It prevents
-an estimator scale error from being mistaken for actuator-model error during
-controller integration. D-LIO remains active in parallel for mapping and
-sim-to-real estimator diagnostics. Real bringup never selects this topic.
+Gazebo publishes `/pose_gt` for explicitly labelled evaluation, error analysis,
+and simulator-owned synthetic sensor generation. Navigation, the direct mixer,
+and LMPC all consume the same DLiO-derived canonical odometry used by the
+hardware runtime. Simulator ground truth must never replace that estimator
+feedback in the controller path.
 
 ## Vehicle and Sensor Geometry
 
@@ -191,7 +183,6 @@ real bringup clears the model paths and forces learned control disabled.
 | `launch/` | Gazebo world and spawn launch files |
 | `scripts/scenarios.py` | Scenario value resolver for roslaunch |
 | `scripts/drive_to_thrusters.py` | `/cmd_drive` to Gazebo wrench bridge |
-| `scripts/ground_truth_control_odometry.py` | Simulator truth to body-frame planar control odometry |
 | `scripts/multibeam_raw.py` | Simulated sonar profile to raw packet bridge |
 | `scripts/sim_ig_timing.py` | Simulated timing-reference publisher |
 | `src/` | Gazebo plugins |
