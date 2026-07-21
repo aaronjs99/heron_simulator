@@ -62,6 +62,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
        default="/sensors/camera/f1/image_raw,/sensors/camera/f2/image_raw,/sensors/camera/f3/image_raw,/sensors/camera/f4/image_raw"/>
   <arg name="use_joint_state_fallback" default="false"/>
   <arg name="disabled_sensor_ids" default=""/>
+  <arg name="lidar_update_rate_hz" default="10"/>
+  <arg name="lidar_horizontal_samples" default="1800"/>
+  <arg name="lidar_vertical_samples" default="16"/>
   <arg name="use_gazebo" default="true"/>
   <arg name="gazebo_master_port" default="11345"/>
   <arg name="gazebo_extra_args" default="--lockstep"/>
@@ -131,6 +134,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="camera_time_image_topics" value="$(arg camera_time_image_topics)" />
     <arg name="use_joint_state_fallback" value="$(arg use_joint_state_fallback)" />
     <arg name="disabled_sensor_ids" value="$(arg disabled_sensor_ids)" />
+    <arg name="lidar_update_rate_hz" value="$(arg lidar_update_rate_hz)" />
+    <arg name="lidar_horizontal_samples" value="$(arg lidar_horizontal_samples)" />
+    <arg name="lidar_vertical_samples" value="$(arg lidar_vertical_samples)" />
   </include>
 
 </launch>

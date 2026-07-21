@@ -66,6 +66,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
        default="/sensors/camera/f1/image_raw,/sensors/camera/f2/image_raw,/sensors/camera/f3/image_raw,/sensors/camera/f4/image_raw" />
   <arg name="use_joint_state_fallback" default="false" />
   <arg name="disabled_sensor_ids" default="" />
+  <arg name="lidar_update_rate_hz" default="10" />
+  <arg name="lidar_horizontal_samples" default="1800" />
+  <arg name="lidar_vertical_samples" default="16" />
   <arg name="camera_f1_requested"
        default="$(eval '0' if '4' in [item.strip() for item in str(arg('disabled_sensor_ids')).split(',')] else '1')" />
   <arg name="camera_f2_requested"
@@ -88,6 +91,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                           HERON_CAMERA_F2=$(arg camera_f2_requested)
                           HERON_CAMERA_F3=$(arg camera_f3_requested)
                           HERON_CAMERA_F4=$(arg camera_f4_requested)
+                          HERON_SIM_LIDAR_UPDATE_RATE_HZ=$(arg lidar_update_rate_hz)
+                          HERON_SIM_LIDAR_HORIZONTAL_SAMPLES=$(arg lidar_horizontal_samples)
+                          HERON_SIM_LIDAR_VERTICAL_SAMPLES=$(arg lidar_vertical_samples)
                       HERON_SIM_SONAR_RAY_TOPIC=$(arg sonar_ray_topic)
                       HERON_SIM_PING360_RAY_TOPIC=$(arg ping360_ray_topic)
                       xacro '$(find heron_description)/urdf/heron.urdf.xacro'
@@ -101,6 +107,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                           HERON_CAMERA_F2=$(arg camera_f2_requested)
                           HERON_CAMERA_F3=$(arg camera_f3_requested)
                           HERON_CAMERA_F4=$(arg camera_f4_requested)
+                          HERON_SIM_LIDAR_UPDATE_RATE_HZ=$(arg lidar_update_rate_hz)
+                          HERON_SIM_LIDAR_HORIZONTAL_SAMPLES=$(arg lidar_horizontal_samples)
+                          HERON_SIM_LIDAR_VERTICAL_SAMPLES=$(arg lidar_vertical_samples)
                       HERON_SIM_SONAR_RAY_TOPIC=$(arg sonar_ray_topic)
                       HERON_SIM_PING360_RAY_TOPIC=$(arg ping360_ray_topic)
                       xacro '$(find heron_description)/urdf/heron.urdf.xacro'

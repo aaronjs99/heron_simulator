@@ -62,17 +62,17 @@
     <sensor type="ray" name="lidar_h_sensor">
       <pose>0 0 0 0 0 0</pose>
       <visualize>false</visualize>
-      <update_rate>10</update_rate>
+      <update_rate>$(optenv HERON_SIM_LIDAR_UPDATE_RATE_HZ 10)</update_rate>
       <ray>
         <scan>
           <horizontal>
-            <samples>1800</samples>
+            <samples>$(optenv HERON_SIM_LIDAR_HORIZONTAL_SAMPLES 1800)</samples>
             <resolution>1</resolution>
             <min_angle>-3.14159</min_angle>
             <max_angle>3.14159</max_angle>
           </horizontal>
           <vertical>
-            <samples>16</samples>
+            <samples>$(optenv HERON_SIM_LIDAR_VERTICAL_SAMPLES 16)</samples>
             <resolution>1</resolution>
             <min_angle>-0.261799</min_angle> <!-- -15 deg -->
             <max_angle>0.261799</max_angle>  <!-- +15 deg -->
@@ -143,17 +143,17 @@
     <sensor type="ray" name="lidar_v_sensor">
       <pose>0 0 0 0 0 0</pose>
       <visualize>false</visualize>
-      <update_rate>10</update_rate>
+      <update_rate>$(optenv HERON_SIM_LIDAR_UPDATE_RATE_HZ 10)</update_rate>
       <ray>
         <scan>
           <horizontal>
-            <samples>1800</samples>
+            <samples>$(optenv HERON_SIM_LIDAR_HORIZONTAL_SAMPLES 1800)</samples>
             <resolution>1</resolution>
             <min_angle>-3.14159</min_angle>
             <max_angle>3.14159</max_angle>
           </horizontal>
           <vertical>
-            <samples>16</samples>
+            <samples>$(optenv HERON_SIM_LIDAR_VERTICAL_SAMPLES 16)</samples>
             <resolution>1</resolution>
             <min_angle>-0.261799</min_angle> <!-- -15 deg -->
             <max_angle>0.261799</max_angle>  <!-- +15 deg -->
