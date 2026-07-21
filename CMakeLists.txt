@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(heron_simulator)
 
 find_package(catkin REQUIRED COMPONENTS
+  ig_handle
   rospy
   roscpp
   geometry_msgs
@@ -47,9 +48,15 @@ catkin_install_python(PROGRAMS
   scripts/drive_to_thrusters.py
   scripts/ground_truth_control_odometry.py
   scripts/multibeam_raw.py
+  scripts/ping360_profile_sim.py
+  scripts/validate_ping360_profile_sim.py
   scripts/scenarios.py
   scripts/sim_sense.py
   scripts/sim_ig_timing.py
   scripts/gazebo_with_xvfb.sh
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(FILES scripts/ping360_profile_model.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

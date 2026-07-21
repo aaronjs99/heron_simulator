@@ -47,6 +47,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="empirical_model_file" default="" />
   <arg name="sonar_ray_topic" default="/sim/sensors/sonar/multibeam_points" />
   <arg name="sonar_raw_topic" default="/sensors/sonar/raw" />
+  <arg name="ping360_ray_topic" default="/sim/sensors/sonar/ping360_points" />
+  <arg name="sonar_profile_topic" default="/sensors/sonar/imaging/profile" />
+  <arg name="simulate_ping360" default="true" />
   <arg name="sonar_min_range_m" default="0.5" />
   <arg name="sonar_max_range_m" default="100.0" />
   <arg name="use_ig_timing" default="true" />
@@ -85,6 +88,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                           HERON_CAMERA_F3=$(arg camera_f3_requested)
                           HERON_CAMERA_F4=$(arg camera_f4_requested)
                       HERON_SIM_SONAR_RAY_TOPIC=$(arg sonar_ray_topic)
+                      HERON_SIM_PING360_RAY_TOPIC=$(arg ping360_ray_topic)
                       xacro '$(find heron_description)/urdf/heron.urdf.xacro'
                       debug:=$(arg hydro_debug) simulation:=true" />
     </group>
@@ -97,6 +101,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                           HERON_CAMERA_F3=$(arg camera_f3_requested)
                           HERON_CAMERA_F4=$(arg camera_f4_requested)
                       HERON_SIM_SONAR_RAY_TOPIC=$(arg sonar_ray_topic)
+                      HERON_SIM_PING360_RAY_TOPIC=$(arg ping360_ray_topic)
                       xacro '$(find heron_description)/urdf/heron.urdf.xacro'
                       debug:=$(arg hydro_debug) simulation:=true
                       namespace:=$(arg namespace) suffix_ns:=$(arg namespace)/" />
@@ -135,6 +140,15 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <param name="min_range_m" value="$(arg sonar_min_range_m)" />
       <param name="max_range_m" value="$(arg sonar_max_range_m)" />
       <param name="max_points" value="480" />
+    </node>
+
+    <node if="$(arg simulate_ping360)"
+          pkg="heron_simulator" type="ping360_profile_sim.py"
+          name="ping360_profile_sim" output="screen">
+      <param name="input_topic" value="$(arg ping360_ray_topic)" />
+      <param name="profile_topic" value="$(arg sonar_profile_topic)" />
+      <param name="min_range_m" value="$(arg sonar_min_range_m)" />
+      <param name="max_range_m" value="$(arg sonar_max_range_m)" />
     </node>
 
     <node pkg="heron_simulator" type="sim_sense.py" name="sim_sense" output="screen">
