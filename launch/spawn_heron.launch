@@ -50,6 +50,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="ping360_ray_topic" default="/sim/sensors/sonar/ping360_points" />
   <arg name="sonar_profile_topic" default="/sensors/sonar/imaging/profile" />
   <arg name="simulate_ping360" default="true" />
+  <arg name="simulate_multibeam_raw" default="true" />
   <arg name="sonar_min_range_m" default="0.5" />
   <arg name="sonar_max_range_m" default="100.0" />
   <arg name="use_ig_timing" default="true" />
@@ -134,7 +135,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <rosparam command="load" file="$(arg thruster_dynamics_config)" />
     </node>
 
-    <node pkg="heron_simulator" type="multibeam_raw.py" name="multibeam_raw" output="screen">
+    <node if="$(arg simulate_multibeam_raw)"
+          pkg="heron_simulator" type="multibeam_raw.py" name="multibeam_raw" output="screen">
       <param name="input_topic" value="$(arg sonar_ray_topic)" />
       <param name="raw_topic" value="$(arg sonar_raw_topic)" />
       <param name="min_range_m" value="$(arg sonar_min_range_m)" />

@@ -60,3 +60,14 @@ catkin_install_python(PROGRAMS
 install(FILES scripts/ping360_profile_model.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+file(MAKE_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_BIN_DESTINATION})
+set(PING360_PROFILE_MODEL_DEVEL
+    ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_BIN_DESTINATION}/ping360_profile_model.py)
+add_custom_target(ping360_profile_model_devel ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          ${CMAKE_CURRENT_SOURCE_DIR}/scripts/ping360_profile_model.py
+          ${PING360_PROFILE_MODEL_DEVEL}
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/scripts/ping360_profile_model.py
+  VERBATIM
+)

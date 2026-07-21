@@ -5,13 +5,19 @@ from __future__ import annotations
 
 import hashlib
 import struct
+import sys
+from pathlib import Path
 
 import rospy
 import sensor_msgs.point_cloud2 as pc2
 from ig_handle.msg import SonarProfile
 from sensor_msgs.msg import PointCloud2
 
-from ping360_profile_model import MechanicalSweep, profile_from_points
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from ping360_profile_model import MechanicalSweep, profile_from_points  # noqa: E402
 
 
 class Ping360ProfileSimulator:
