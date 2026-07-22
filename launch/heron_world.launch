@@ -41,6 +41,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="thruster_dynamics_config" default="$(find heron_simulator)/config/thruster_dynamics.yaml"/>
   <arg name="empirical_model_enabled" default="false"/>
   <arg name="empirical_model_file" default=""/>
+  <arg name="hydrodynamics_override_enabled" default="false"/>
+  <arg name="base_mass_kg" default="28.0"/>
+  <arg name="fluid_density_kg_m3" default="997.7735"/>
+  <arg name="linear_damping_x" default="-25.0"/>
+  <arg name="quadratic_damping_x" default="-5.0"/>
   <arg name="sonar_ray_topic" default="/sim/sensors/sonar/multibeam_points"/>
   <arg name="sonar_raw_topic" default="/sensors/sonar/raw"/>
   <arg name="ping360_ray_topic" default="/sim/sensors/sonar/ping360_points"/>
@@ -114,6 +119,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="thruster_dynamics_config" value="$(arg thruster_dynamics_config)" />
     <arg name="empirical_model_enabled" value="$(arg empirical_model_enabled)" />
     <arg name="empirical_model_file" value="$(arg empirical_model_file)" />
+    <arg name="base_mass_kg" value="$(arg base_mass_kg)" />
+    <arg name="hydrodynamics_override_enabled" value="$(arg hydrodynamics_override_enabled)" />
+    <arg name="fluid_density_kg_m3" value="$(arg fluid_density_kg_m3)" />
+    <arg name="linear_damping_x" value="$(arg linear_damping_x)" />
+    <arg name="quadratic_damping_x" value="$(arg quadratic_damping_x)" />
     <arg name="sonar_ray_topic" value="$(arg sonar_ray_topic)" />
     <arg name="sonar_raw_topic" value="$(arg sonar_raw_topic)" />
     <arg name="ping360_ray_topic" value="$(arg ping360_ray_topic)" />

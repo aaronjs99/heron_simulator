@@ -1,0 +1,17 @@
+# Session 4 navigation-response proxy, not a healthy-thruster calibration.
+# The forward scale matches the RC-clear 2026-07-08 12:58 navigation bag near
+# cmd_drive=0.30 when used with the current-shaped actuator proxy. Reverse force
+# is zero because that bag recorded sustained reverse commands with essentially
+# zero measured motor current on both sides. Do not use this file to predict a
+# repaired controller or healthy reverse performance.
+rate: 30.0
+cmd_timeout: 0.35
+max_fwd_thrust: 3.22
+max_bck_thrust: 0.0
+# This replay also preserves the recorded electrical non-actuation in reverse.
+forward_current_scale: 1.0
+reverse_current_scale: 0.0
+left_scale: 1.0
+right_scale: 1.0
+response_time_constant_sec: 0.45
+max_drive_delta_per_sec: 1.25

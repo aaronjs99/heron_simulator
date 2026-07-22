@@ -49,11 +49,18 @@ catkin_install_python(PROGRAMS
   scripts/multibeam_raw.py
   scripts/ping360_profile_sim.py
   scripts/validate_ping360_profile_sim.py
+  scripts/validate_drive_to_thrusters.py
+  scripts/validate_hydrodynamics_launch.py
   scripts/validate_lidar_fidelity_profiles.py
   scripts/scenarios.py
   scripts/sim_sense.py
   scripts/sim_ig_timing.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(PROGRAMS
   scripts/gazebo_with_xvfb.sh
+  scripts/profile_env_run.sh
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

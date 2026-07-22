@@ -94,7 +94,9 @@ python3 grande/run.py bringup --mode sim \
 The proxy preserves measured side, direction, and rising/falling current-shape
 asymmetry. It uses one shared forward-current reference so those asymmetries are
 not normalized away. Legacy side scaling is disabled while the proxy is active;
-transient lag and slew remain separate simulator assumptions.
+the configured forward and reverse force and synthetic-current scales are
+applied to their respective directions. Transient lag and slew remain separate
+simulator assumptions.
 
 This is a current-shaped force proxy, not thrust calibration. Its schema marks
 it `calibration_eligible=false`, the bridge verifies its contract and hash, and
@@ -103,6 +105,14 @@ separately identifies synthetic `/sense` and excludes it from calibration.
 The bridge publishes the proxy's current state and applied force on
 `/cmd_drive_to_thrusters/actuator_state`; this is simulator provenance, not
 fabricated physical telemetry.
+
+`config/thruster_dynamics_session4_proxy.yaml` is a separate replay condition
+derived from one RC-clear July 8 navigation bag. It combines the current shape
+with one forward force anchor and zero reverse force/current because the recorded
+reverse commands produced essentially zero measured current. It must not be
+used as a healthy-thruster model. GRANDE's controlled comparison runbook pairs
+it with the bag-derived surge coast fit and keeps that same plant fixed while
+the controller changes.
 
 ## Ground-Truth Evaluation
 

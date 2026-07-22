@@ -15,9 +15,7 @@ from std_msgs.msg import String
 
 # Catkin wraps executable scripts in the devel space. Load the pure helper from
 # the package source directory so validators and runtime share one contract.
-sys.path.insert(
-    0, str(Path(rospkg.RosPack().get_path("heron_simulator")) / "scripts")
-)
+sys.path.insert(0, str(Path(rospkg.RosPack().get_path("heron_simulator")) / "scripts"))
 from empirical_actuator_proxy import (
     curve_effort,
     payload_sha256,
@@ -76,14 +74,18 @@ class DriveToThrusters:
         self.empirical_model_enabled = bool(
             rospy.get_param("~empirical_model_enabled", False)
         )
-        self.empirical_model_file = str(
-            rospy.get_param("~empirical_model_file", "")
-        )
+        self.empirical_model_file = str(rospy.get_param("~empirical_model_file", ""))
         self.empirical_model = self.load_empirical_model()
         self.reference_current_a = (
             float(self.empirical_model["normalization"]["reference_current_a"])
             if self.empirical_model
             else 0.0
+        )
+        self.forward_current_scale = max(
+            0.0, float(rospy.get_param("~forward_current_scale", 1.0))
+        )
+        self.reverse_current_scale = max(
+            0.0, float(rospy.get_param("~reverse_current_scale", 1.0))
         )
         self.synthetic_current_a = {"left": 0.0, "right": 0.0}
 
@@ -207,18 +209,42 @@ class DriveToThrusters:
                 magnitude,
             )
             effort = curve_effort(table, magnitude, sweep)
-            self.synthetic_current_a[side] = effort * self.reference_current_a
+            current_scale = (
+                self.forward_current_scale
+                if drive >= 0.0
+                else self.reverse_current_scale
+            )
+            self.synthetic_current_a[side] = (
+                effort * self.reference_current_a * current_scale
+            )
             self.previous_curve_magnitude[side] = magnitude
             self.previous_curve_sign[side] = sign
             self.previous_curve_sweep[side] = sweep
-            return (1.0 if drive >= 0.0 else -1.0) * effort * self.max_fwd_thrust
+            force_scale = self.max_fwd_thrust if drive >= 0.0 else self.max_bck_thrust
+            return (1.0 if drive >= 0.0 else -1.0) * effort * force_scale
         self.synthetic_current_a[side] = 0.0
         if drive >= 0.0:
             return drive * self.max_fwd_thrust
         return drive * self.max_bck_thrust
 
+    def reset_actuator_epoch(self, now):
+        """Clear all command, lag, current, and hysteresis state on time reset."""
+        self.target_left = 0.0
+        self.target_right = 0.0
+        self.actual_left = 0.0
+        self.actual_right = 0.0
+        self.synthetic_current_a = {"left": 0.0, "right": 0.0}
+        self.previous_curve_magnitude = {"left": 0.0, "right": 0.0}
+        self.previous_curve_sign = {"left": 0, "right": 0}
+        self.previous_curve_sweep = {"left": "rising", "right": "rising"}
+        self.last_cmd_time = now
+        self.last_update_time = now
+
     def update(self, _event):
         now = rospy.Time.now()
+        if now < self.last_update_time or now < self.last_cmd_time:
+            rospy.logwarn("Simulation time rolled back; clearing thruster state")
+            self.reset_actuator_epoch(now)
         dt = max(0.0, (now - self.last_update_time).to_sec())
         self.last_update_time = now
         if (now - self.last_cmd_time).to_sec() > self.cmd_timeout:

@@ -45,6 +45,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="thruster_dynamics_config" default="$(find heron_simulator)/config/thruster_dynamics.yaml" />
   <arg name="empirical_model_enabled" default="false" />
   <arg name="empirical_model_file" default="" />
+  <arg name="hydrodynamics_override_enabled" default="false" />
+  <arg name="base_mass_kg" default="28.0" />
+  <arg name="fluid_density_kg_m3" default="997.7735" />
+  <arg name="linear_damping_x" default="-25.0" />
+  <arg name="quadratic_damping_x" default="-5.0" />
   <arg name="sonar_ray_topic" default="/sim/sensors/sonar/multibeam_points" />
   <arg name="sonar_raw_topic" default="/sensors/sonar/raw" />
   <arg name="ping360_ray_topic" default="/sim/sensors/sonar/ping360_points" />
@@ -86,7 +91,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
          without changing the shared hardware benchmark config. -->
     <group if="$(eval arg('namespace') == '')">
       <param name="robot_description"
-             command="$(find heron_description)/scripts/env_run.sh $(find heron_description)/urdf/configs/$(arg config)
+             command="$(find heron_simulator)/scripts/profile_env_run.sh $(find heron_description)/urdf/configs/$(arg config)
+                      $(arg hydrodynamics_override_enabled) $(arg base_mass_kg) $(arg fluid_density_kg_m3) $(arg linear_damping_x) $(arg quadratic_damping_x)
                       env HERON_CAMERA_F1=$(arg camera_f1_requested)
                           HERON_CAMERA_F2=$(arg camera_f2_requested)
                           HERON_CAMERA_F3=$(arg camera_f3_requested)
@@ -102,7 +108,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
     <group unless="$(eval arg('namespace') == '')">
       <param name="robot_description"
-             command="$(find heron_description)/scripts/env_run.sh $(find heron_description)/urdf/configs/$(arg config)
+             command="$(find heron_simulator)/scripts/profile_env_run.sh $(find heron_description)/urdf/configs/$(arg config)
+                      $(arg hydrodynamics_override_enabled) $(arg base_mass_kg) $(arg fluid_density_kg_m3) $(arg linear_damping_x) $(arg quadratic_damping_x)
                       env HERON_CAMERA_F1=$(arg camera_f1_requested)
                           HERON_CAMERA_F2=$(arg camera_f2_requested)
                           HERON_CAMERA_F3=$(arg camera_f3_requested)
