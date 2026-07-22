@@ -11,6 +11,7 @@ import sys
 
 import rospy
 import rospkg
+import yaml
 
 ROOT = Path(rospkg.RosPack().get_path("heron_simulator"))
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -28,19 +29,25 @@ def load_bridge_class():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--actuator-proxy", type=Path, required=True)
+    parser.add_argument(
+        "--dynamics-config",
+        type=Path,
+        default=ROOT / "config/thruster_dynamics_session4_proxy.yaml",
+    )
     args = parser.parse_args()
 
     payload = validate_proxy(
         json.loads(args.actuator_proxy.read_text(encoding="utf-8"))
     )
+    dynamics = yaml.safe_load(args.dynamics_config.read_text(encoding="utf-8"))
     bridge_class = load_bridge_class()
     bridge = bridge_class.__new__(bridge_class)
     bridge.empirical_model = payload
     bridge.reference_current_a = float(payload["normalization"]["reference_current_a"])
-    bridge.max_fwd_thrust = 3.22
-    bridge.max_bck_thrust = 0.0
-    bridge.forward_current_scale = 1.0
-    bridge.reverse_current_scale = 0.0
+    bridge.max_fwd_thrust = float(dynamics["max_fwd_thrust"])
+    bridge.max_bck_thrust = float(dynamics["max_bck_thrust"])
+    bridge.forward_current_scale = float(dynamics["forward_current_scale"])
+    bridge.reverse_current_scale = float(dynamics["reverse_current_scale"])
     bridge.synthetic_current_a = {"left": 0.0, "right": 0.0}
     bridge.previous_curve_magnitude = {"left": 0.0, "right": 0.0}
     bridge.previous_curve_sign = {"left": 0, "right": 0}
@@ -50,8 +57,10 @@ def main():
     reverse_current = bridge.synthetic_current_a["left"]
     forward_force = bridge.drive_to_thrust(0.30, "left")
     forward_current = bridge.synthetic_current_a["left"]
-    if reverse_force != 0.0 or reverse_current != 0.0:
-        raise SystemExit("Session 4 reverse replay must produce zero force and current")
+    if not (reverse_force < 0.0 and reverse_current > 0.0):
+        raise SystemExit(
+            "reverse sensitivity must produce negative force and positive current"
+        )
     if not (forward_force > 0.0 and forward_current > 0.0):
         raise SystemExit("Session 4 forward replay must produce positive force/current")
 
@@ -82,7 +91,7 @@ def main():
     print(
         json.dumps(
             {
-                "reverse_zero_force_current": True,
+                "reverse_negative_force_positive_current": True,
                 "forward_positive_force_current": True,
                 "time_rollback_clears_state": True,
             },
