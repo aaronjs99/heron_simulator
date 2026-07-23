@@ -197,3 +197,12 @@ real bringup clears the model paths and forces learned control disabled.
 | `scripts/sim_ig_timing.py` | Simulated timing-reference publisher |
 | `src/` | Gazebo plugins |
 | `tests/` | Simulation launch and behavior regressions |
+
+## File Structure
+
+| File | Relevance | Dependencies | Used by |
+| --- | --- | --- | --- |
+| .gitattributes | Defines repository text and binary path handling. | Git | Repository contributors |
+| .gitignore | Excludes generated simulator build and runtime artifacts. | Git | Repository contributors |
+| CMakeLists.txt | Declares simulator plugins, scripts, and catkin installation rules. | catkin, Gazebo, ROS Noetic | catkin build |
+| package.xml | Declares simulator ROS and Gazebo dependencies. | ROS Noetic, Gazebo | catkin and rosdep |
