@@ -71,6 +71,36 @@ class DriveToThrusters:
         self.max_drive_delta_per_sec = max(
             0.0, float(rospy.get_param("~max_drive_delta_per_sec", 0.0))
         )
+        self.nominal_voltage_v = max(
+            1e-6, float(rospy.get_param("~nominal_voltage_v", 16.0))
+        )
+        self.simulated_voltage_v = max(
+            1e-6, float(rospy.get_param("~simulated_voltage_v", 16.0))
+        )
+        self.direction_change_blank_sec = max(
+            0.0, float(rospy.get_param("~direction_change_blank_sec", 0.25))
+        )
+        self.regimes = {}
+        for side in ("left", "right"):
+            for direction in ("forward", "reverse"):
+                key = "{}_{}".format(side, direction)
+                self.regimes[key] = {
+                    "deadband": float(
+                        rospy.get_param("~regimes/{}/deadband".format(key), 0.1)
+                    ),
+                    "force_exponent": float(
+                        rospy.get_param("~regimes/{}/force_exponent".format(key), 1.25)
+                    ),
+                    "max_current_a": float(
+                        rospy.get_param(
+                            "~regimes/{}/max_current_a".format(key),
+                            6.0 if direction == "forward" else 1.2,
+                        )
+                    ),
+                    "max_rpm": float(
+                        rospy.get_param("~regimes/{}/max_rpm".format(key), 5500.0)
+                    ),
+                }
         self.empirical_model_enabled = bool(
             rospy.get_param("~empirical_model_enabled", False)
         )
@@ -88,6 +118,13 @@ class DriveToThrusters:
             0.0, float(rospy.get_param("~reverse_current_scale", 1.0))
         )
         self.synthetic_current_a = {"left": 0.0, "right": 0.0}
+        self.synthetic_rpm = {"left": 0.0, "right": 0.0}
+        self.synthetic_pwm_us = {"left": 1500.0, "right": 1500.0}
+        self.direction_sign = {"left": 0, "right": 0}
+        self.direction_blank_until = {
+            "left": rospy.Time(0),
+            "right": rospy.Time(0),
+        }
 
         default_left_topic = (
             f"{prefix}/thrusters/1/input" if prefix else "/thrusters/1/input"
@@ -223,9 +260,25 @@ class DriveToThrusters:
             force_scale = self.max_fwd_thrust if drive >= 0.0 else self.max_bck_thrust
             return (1.0 if drive >= 0.0 else -1.0) * effort * force_scale
         self.synthetic_current_a[side] = 0.0
-        if drive >= 0.0:
-            return drive * self.max_fwd_thrust
-        return drive * self.max_bck_thrust
+        direction = "forward" if drive >= 0.0 else "reverse"
+        regime = self.regimes["{}_{}".format(side, direction)]
+        magnitude = abs(float(drive))
+        deadband = clamp(regime["deadband"], 0.0, 0.95)
+        if magnitude <= deadband:
+            effort = 0.0
+        else:
+            effort = ((magnitude - deadband) / (1.0 - deadband)) ** max(
+                0.1, regime["force_exponent"]
+            )
+        voltage_scale = (self.simulated_voltage_v / self.nominal_voltage_v) ** 2
+        maximum_force = (
+            self.max_fwd_thrust if direction == "forward" else self.max_bck_thrust
+        )
+        sign = 1.0 if direction == "forward" else -1.0
+        self.synthetic_current_a[side] = effort * regime["max_current_a"]
+        self.synthetic_rpm[side] = sign * effort**0.5 * regime["max_rpm"]
+        self.synthetic_pwm_us[side] = 1500.0 + sign * 500.0 * magnitude
+        return sign * effort * maximum_force * voltage_scale
 
     def reset_actuator_epoch(self, now):
         """Clear all command, lag, current, and hysteresis state on time reset."""
@@ -234,6 +287,10 @@ class DriveToThrusters:
         self.actual_left = 0.0
         self.actual_right = 0.0
         self.synthetic_current_a = {"left": 0.0, "right": 0.0}
+        self.synthetic_rpm = {"left": 0.0, "right": 0.0}
+        self.synthetic_pwm_us = {"left": 1500.0, "right": 1500.0}
+        self.direction_sign = {"left": 0, "right": 0}
+        self.direction_blank_until = {"left": now, "right": now}
         self.previous_curve_magnitude = {"left": 0.0, "right": 0.0}
         self.previous_curve_sign = {"left": 0, "right": 0}
         self.previous_curve_sweep = {"left": "rising", "right": "rising"}
@@ -272,12 +329,36 @@ class DriveToThrusters:
         if abs(self.target_right) <= 1e-12:
             self.actual_right = 0.0
 
+        for side, drive in (
+            ("left", self.actual_left),
+            ("right", self.actual_right),
+        ):
+            sign = 1 if drive > 0.0 else -1 if drive < 0.0 else 0
+            if sign and self.direction_sign[side] and sign != self.direction_sign[side]:
+                self.direction_blank_until[side] = now + rospy.Duration(
+                    self.direction_change_blank_sec
+                )
+            if sign:
+                self.direction_sign[side] = sign
+
         left_wrench = Wrench()
-        left_wrench.force.x = self.drive_to_thrust(self.actual_left, "left")
+        if now < self.direction_blank_until["left"]:
+            left_wrench.force.x = 0.0
+            self.synthetic_current_a["left"] = 0.0
+            self.synthetic_rpm["left"] = 0.0
+            self.synthetic_pwm_us["left"] = 1500.0
+        else:
+            left_wrench.force.x = self.drive_to_thrust(self.actual_left, "left")
         self.p_left.publish(left_wrench)
 
         right_wrench = Wrench()
-        right_wrench.force.x = self.drive_to_thrust(self.actual_right, "right")
+        if now < self.direction_blank_until["right"]:
+            right_wrench.force.x = 0.0
+            self.synthetic_current_a["right"] = 0.0
+            self.synthetic_rpm["right"] = 0.0
+            self.synthetic_pwm_us["right"] = 1500.0
+        else:
+            right_wrench.force.x = self.drive_to_thrust(self.actual_right, "right")
         self.p_right.publish(right_wrench)
         self.actuator_state_pub.publish(
             String(
@@ -286,9 +367,16 @@ class DriveToThrusters:
                         "source": "synthetic_simulation",
                         "calibration_eligible": False,
                         "physical_telemetry": False,
-                        "current_semantics": "real_curve_current_proxy",
+                        "model_version": "provisional-four-regime-v1",
+                        "evidence_status": "provisional_simulation_only",
+                        "current_semantics": "synthetic_battery_side_current",
                         "left_current_a": self.synthetic_current_a["left"],
                         "right_current_a": self.synthetic_current_a["right"],
+                        "left_rpm": self.synthetic_rpm["left"],
+                        "right_rpm": self.synthetic_rpm["right"],
+                        "left_pwm_us": self.synthetic_pwm_us["left"],
+                        "right_pwm_us": self.synthetic_pwm_us["right"],
+                        "battery_voltage_v": self.simulated_voltage_v,
                         "left_drive": self.actual_left,
                         "right_drive": self.actual_right,
                         "left_force_proxy_n": left_wrench.force.x,

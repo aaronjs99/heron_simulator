@@ -48,7 +48,7 @@ class SimSense:
                         "source": "synthetic_simulation",
                         "calibration_eligible": False,
                         "physical_telemetry": False,
-                        "current_semantics": "real_curve_current_proxy_when_fresh",
+                        "current_semantics": "synthetic_battery_side_current_when_fresh",
                         "actuator_state_topic": self.actuator_state_topic,
                     },
                     sort_keys=True,
