@@ -9,7 +9,7 @@
 | ping360_profile_model.py | Pure deterministic model for canonical Ping360 simulation profiles. | math, typing | heron_simulator/CMakeLists.txt |
 | ping360_profile_sim.py | Publish canonical Ping360 profiles from a full-circle Gazebo ray cloud. | hashlib, struct, sys, pathlib | grande/grande/tests/tools/validate_ping360_contract.py, heron_simulator/CMakeLists.txt, heron_simulator/launch/spawn_heron.launch |
 | profile_env_run.sh | Runs the profile env run shell workflow. | None | heron_simulator/CMakeLists.txt, heron_simulator/launch/spawn_heron.launch |
-| scenarios.py | Resolve simulator scenario values for integration launch files. | pathlib, typing, yaml | heron_simulator/CMakeLists.txt |
+| scenarios.py | Resolves simulator scenario values and returns costmap files only for explicit scenario overrides of MARINER's canonical navigation module. | pathlib, typing, yaml | heron_simulator/CMakeLists.txt |
 | sim_ig_timing.py | Publish IG Handle-style timing topics from simulated sensor timestamps. | typing, rospy, sensor_msgs | heron_simulator/CMakeLists.txt, heron_simulator/launch/spawn_heron.launch |
 | sim_sense.py | Publish an explicitly synthetic Heron `/sense` contract whose battery-side current and voltage agree with the provisional actuator state. | time, rospy, heron_msgs, std_msgs | heron_simulator/CMakeLists.txt, heron_simulator/launch/spawn_heron.launch |
 | validate_drive_to_thrusters.py | Focused simulator actuator direction and time-epoch regression checks. | argparse, importlib, json, pathlib | heron_simulator/CMakeLists.txt |

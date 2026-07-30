@@ -10,8 +10,11 @@ import yaml
 
 PACKAGE_DIR = Path(__file__).resolve().parents[1]
 SCENARIO_INDEX_PATH = PACKAGE_DIR / "config" / "scenarios.yaml"
-DEFAULT_GLOBAL_COSTMAP_CONFIG = "mariner/config/global_costmap.yaml"
-DEFAULT_LOCAL_COSTMAP_CONFIG = "mariner/config/local_costmap.yaml"
+# The canonical global/local costmap trees live in
+# mariner/config/navigation.yaml. Scenario files only return a path when they
+# intentionally replace part of that baseline.
+DEFAULT_GLOBAL_COSTMAP_CONFIG = ""
+DEFAULT_LOCAL_COSTMAP_CONFIG = ""
 
 LAUNCH_ARG_KEYS = {
     "max_generated_goals": "exploration_max_generated_goals",
