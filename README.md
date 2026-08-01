@@ -204,5 +204,5 @@ real bringup clears the model paths and forces learned control disabled.
 | --- | --- | --- | --- |
 | .gitattributes | Defines repository text and binary path handling. | Git | Repository contributors |
 | .gitignore | Excludes generated simulator build and runtime artifacts. | Git | Repository contributors |
-| CMakeLists.txt | Declares simulator plugins, scripts, and catkin installation rules. | catkin, Gazebo, ROS Noetic | catkin build |
-| package.xml | Declares simulator ROS and Gazebo dependencies. | ROS Noetic, Gazebo | catkin and rosdep |
+| CMakeLists.txt | Declares simulator plugins, scripts, catkin installation rules, and the shared pure four-regime propulsion helper. | catkin, Gazebo, ROS Noetic | catkin build |
+| package.xml | Declares simulator ROS, Gazebo, simulated Velodyne, and headless Xvfb runtime dependencies. | ROS Noetic, Gazebo, velodyne_gazebo_plugins, Xvfb | catkin and rosdep |

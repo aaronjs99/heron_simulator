@@ -26,6 +26,8 @@
   <!-- Core Gazebo -->
   <exec_depend>gazebo_ros</exec_depend>
   <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>velodyne_gazebo_plugins</exec_depend>
+  <exec_depend>xvfb</exec_depend>
 
   <!-- Heron packages (Clearpath) -->
   <exec_depend>heron_description</exec_depend>

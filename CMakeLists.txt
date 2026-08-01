@@ -30,6 +30,9 @@ target_link_libraries(RelativeForcePlugin ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES
 add_library(PassiveDisturbancePlugin src/PassiveDisturbancePlugin.cpp)
 target_link_libraries(PassiveDisturbancePlugin ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 
+add_library(SurfaceHydrodynamicsPlugin src/SurfaceHydrodynamicsPlugin.cpp)
+target_link_libraries(SurfaceHydrodynamicsPlugin ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
+
 install(DIRECTORY config launch worlds urdf models docs
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
@@ -37,6 +40,7 @@ install(DIRECTORY config launch worlds urdf models docs
 install(TARGETS
   PassiveDisturbancePlugin
   RelativeForcePlugin
+  SurfaceHydrodynamicsPlugin
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 
@@ -64,7 +68,9 @@ install(PROGRAMS
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(FILES scripts/ping360_profile_model.py
+install(FILES
+  scripts/four_regime_propulsion.py
+  scripts/ping360_profile_model.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
@@ -76,5 +82,15 @@ add_custom_target(ping360_profile_model_devel ALL
           ${CMAKE_CURRENT_SOURCE_DIR}/scripts/ping360_profile_model.py
           ${PING360_PROFILE_MODEL_DEVEL}
   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/scripts/ping360_profile_model.py
+  VERBATIM
+)
+
+set(FOUR_REGIME_PROPULSION_DEVEL
+    ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_BIN_DESTINATION}/four_regime_propulsion.py)
+add_custom_target(four_regime_propulsion_devel ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          ${CMAKE_CURRENT_SOURCE_DIR}/scripts/four_regime_propulsion.py
+          ${FOUR_REGIME_PROPULSION_DEVEL}
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/scripts/four_regime_propulsion.py
   VERBATIM
 )

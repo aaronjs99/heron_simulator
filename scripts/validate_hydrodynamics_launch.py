@@ -10,7 +10,6 @@ import xml.etree.ElementTree as ET
 
 import yaml
 
-
 COMMON = [
     "roslaunch",
     "--dump-params",
@@ -33,14 +32,13 @@ def resolved(extra=()):
     # The generated model may namespace the base link. It is emitted first by
     # the Heron xacro, so the first inertial mass is the rigid hull mass.
     mass = float(root.find(".//mass").attrib["value"])
-    density = float(root.find(".//fluid_density").text)
-    linear = [float(value) for value in root.find(".//linear_damping").text.split()]
-    quadratic = [
-        float(value) for value in root.find(".//quadratic_damping").text.split()
-    ]
+    plugin = root.find(".//plugin[@name='surface_hydrodynamics']")
+    if plugin is None:
+        raise ValueError("surface_hydrodynamics plugin missing")
+    linear = [float(value) for value in plugin.find("linearDamping").text.split()]
+    quadratic = [float(value) for value in plugin.find("quadraticDamping").text.split()]
     return {
         "mass_kg": mass,
-        "fluid_density_kg_m3": density,
         "linear_damping_x": linear[0],
         "quadratic_damping_x": quadratic[0],
     }
@@ -64,15 +62,13 @@ def main():
     )
     expected_default = {
         "mass_kg": 42.0,
-        "fluid_density_kg_m3": 1025.0,
-        "linear_damping_x": -30.0,
-        "quadratic_damping_x": -15.0,
+        "linear_damping_x": 30.0,
+        "quadratic_damping_x": 15.0,
     }
     expected_override = {
         "mass_kg": 19.50445,
-        "fluid_density_kg_m3": 1025.0,
-        "linear_damping_x": -0.539515,
-        "quadratic_damping_x": -4.314220,
+        "linear_damping_x": 0.539515,
+        "quadratic_damping_x": 4.314220,
     }
     for name, expected in expected_default.items():
         require_close(default[name], expected, f"default {name}")

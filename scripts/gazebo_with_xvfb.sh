@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import os
 import signal
+import socket
+import stat
 import subprocess
 import sys
 import time
@@ -13,13 +15,22 @@ from pathlib import Path
 
 def start_xvfb() -> tuple[str, subprocess.Popen]:
     """Claim the first display whose X socket becomes ready."""
+    socket_directory = Path("/tmp/.X11-unix")
+    unix_transport_available = bool(
+        socket_directory.exists() and socket_directory.stat().st_mode & stat.S_ISVTX
+    )
     for number in range(99, 110):
         socket_path = Path(f"/tmp/.X11-unix/X{number}")
         if socket_path.exists():
             continue
-        display = f":{number}"
+        display = f":{number}" if unix_transport_available else f"127.0.0.1:{number}"
+        transport_args = (
+            ["-nolisten", "tcp"]
+            if unix_transport_available
+            else ["-nolisten", "unix", "-listen", "tcp", "-ac"]
+        )
         process = subprocess.Popen(
-            ["Xvfb", display, "-screen", "0", "1280x1024x24", "-nolisten", "tcp"],
+            ["Xvfb", f":{number}", "-screen", "0", "1280x1024x24"] + transport_args,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             start_new_session=True,
@@ -28,8 +39,13 @@ def start_xvfb() -> tuple[str, subprocess.Popen]:
         while time.monotonic() < deadline:
             if process.poll() is not None:
                 break
-            if socket_path.exists():
+            if unix_transport_available and socket_path.exists():
                 return display, process
+            if not unix_transport_available:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+                    probe.settimeout(0.05)
+                    if probe.connect_ex(("127.0.0.1", 6000 + number)) == 0:
+                        return display, process
             time.sleep(0.05)
         if process.poll() is None:
             try:

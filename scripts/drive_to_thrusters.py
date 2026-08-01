@@ -22,6 +22,7 @@ from empirical_actuator_proxy import (
     select_hysteresis_sweep,
     validate_proxy,
 )
+from four_regime_propulsion import propulsion_output
 
 
 def clamp(value, lo, hi):
@@ -40,13 +41,14 @@ class DriveToThrusters:
     Active sim path:
       /cmd_drive -> /thrusters/{1,0}/input
 
-    This node mirrors the HERON controller-level thrust model:
+    The default simulation plant applies four independent static propulsion
+    regimes (left/right by forward/reverse):
     - clamp cmd_drive to [-1, 1]
     - optional per-side scaling
     - optional first-order actuator lag and drive-space slew limiting
-    - piecewise linear thrust mapping:
-        cmd >= 0: thrust = cmd * max_fwd_thrust
-        cmd < 0 : thrust = cmd * max_bck_thrust
+    - regime-specific deadband and nonlinear force exponent
+    - direction-specific maximum force with squared voltage scaling
+    - synthetic current/RPM telemetry that is never calibration evidence
     - timeout to zero
     It should not invent actuator behavior not present in repo-truth controller
     logic; novelty belongs upstream from /cmd_drive.
@@ -96,6 +98,25 @@ class DriveToThrusters:
                             "~regimes/{}/max_current_a".format(key),
                             6.0 if direction == "forward" else 1.2,
                         )
+                    ),
+                    "max_force_n": float(
+                        rospy.get_param(
+                            "~regimes/{}/max_force_n".format(key),
+                            (
+                                self.max_fwd_thrust
+                                if direction == "forward"
+                                else self.max_bck_thrust
+                            ),
+                        )
+                    ),
+                    "nominal_voltage_v": float(
+                        rospy.get_param(
+                            "~regimes/{}/nominal_voltage_v".format(key),
+                            self.nominal_voltage_v,
+                        )
+                    ),
+                    "voltage_exponent": float(
+                        rospy.get_param("~regimes/{}/voltage_exponent".format(key), 2.0)
                     ),
                     "max_rpm": float(
                         rospy.get_param("~regimes/{}/max_rpm".format(key), 5500.0)
@@ -262,23 +283,11 @@ class DriveToThrusters:
         self.synthetic_current_a[side] = 0.0
         direction = "forward" if drive >= 0.0 else "reverse"
         regime = self.regimes["{}_{}".format(side, direction)]
-        magnitude = abs(float(drive))
-        deadband = clamp(regime["deadband"], 0.0, 0.95)
-        if magnitude <= deadband:
-            effort = 0.0
-        else:
-            effort = ((magnitude - deadband) / (1.0 - deadband)) ** max(
-                0.1, regime["force_exponent"]
-            )
-        voltage_scale = (self.simulated_voltage_v / self.nominal_voltage_v) ** 2
-        maximum_force = (
-            self.max_fwd_thrust if direction == "forward" else self.max_bck_thrust
-        )
-        sign = 1.0 if direction == "forward" else -1.0
-        self.synthetic_current_a[side] = effort * regime["max_current_a"]
-        self.synthetic_rpm[side] = sign * effort**0.5 * regime["max_rpm"]
-        self.synthetic_pwm_us[side] = 1500.0 + sign * 500.0 * magnitude
-        return sign * effort * maximum_force * voltage_scale
+        values = propulsion_output(drive, regime, self.simulated_voltage_v)
+        self.synthetic_current_a[side] = values["current_a"]
+        self.synthetic_rpm[side] = values["rpm"]
+        self.synthetic_pwm_us[side] = values["pwm_us"]
+        return values["force_n"]
 
     def reset_actuator_epoch(self, now):
         """Clear all command, lag, current, and hysteresis state on time reset."""

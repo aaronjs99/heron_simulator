@@ -4,7 +4,8 @@
 | --- | --- | --- | --- |
 | drive_to_thrusters.py | Runs the internally consistent provisional four-regime actuator plant, including deadband, voltage scaling, lag, slew, reversal blanking, and synthetic PWM/RPM/current/thrust telemetry, then applies its signed forces to Gazebo. | json, pathlib, sys, geometry_msgs | heron_simulator/CMakeLists.txt, heron_simulator/config/thruster_dynamics.yaml, heron_simulator/launch/spawn_heron.launch |
 | empirical_actuator_proxy.py | Pure validation and interpolation for the simulator actuator proxy. | hashlib, json, math, bisect | None |
-| gazebo_with_xvfb.sh | Runs the gazebo with xvfb shell workflow. | None | heron_simulator/CMakeLists.txt, heron_simulator/launch/heron_world.launch |
+| four_regime_propulsion.py | Defines the pure nonlinear side-by-direction propulsion plant shared by simulator runtime and cross-model validation. | math | drive_to_thrusters.py, grande/tests/tools/validate_cascaded_control.py |
+| gazebo_with_xvfb.sh | Runs gzserver on an owned headless display, with loopback TCP fallback for WSLg's non-sticky read-only X socket directory. | Python 3, Xvfb | heron_simulator/CMakeLists.txt, heron_simulator/launch/heron_world.launch |
 | multibeam_raw.py | Publish raw multibeam echosounder profile packets from Gazebo rays. | math, struct, typing, rospy | heron_simulator/CMakeLists.txt, heron_simulator/launch/spawn_heron.launch |
 | ping360_profile_model.py | Pure deterministic model for canonical Ping360 simulation profiles. | math, typing | heron_simulator/CMakeLists.txt |
 | ping360_profile_sim.py | Publish canonical Ping360 profiles from a full-circle Gazebo ray cloud. | hashlib, struct, sys, pathlib | grande/grande/tests/tools/validate_ping360_contract.py, heron_simulator/CMakeLists.txt, heron_simulator/launch/spawn_heron.launch |
