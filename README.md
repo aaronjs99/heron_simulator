@@ -196,7 +196,6 @@ real bringup clears the model paths and forces learned control disabled.
 | `scripts/multibeam_raw.py` | Simulated sonar profile to raw packet bridge |
 | `scripts/sim_ig_timing.py` | Simulated timing-reference publisher |
 | `src/` | Gazebo plugins |
-| `tests/` | Simulation launch and behavior regressions |
 
 ## File Structure
 

@@ -2,4 +2,4 @@
 
 | File | Relevance | Dependencies | Used by |
 | --- | --- | --- | --- |
-| sensors.urdf.xacro | Defines reusable sensors.urdf robot-description XML. | None | heron_simulator/scripts/validate_lidar_fidelity_profiles.py |
+| sensors.urdf.xacro | Defines the simulator sensor links, joints, and Gazebo sensor plugins. | xacro, Gazebo sensor plugins | heron_simulator/launch/spawn_heron.launch |
