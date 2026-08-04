@@ -64,19 +64,19 @@
          detailed geometry lives in included Gazebo models. -->
     <include>
       <uri>model://tank</uri>
-      <pose>0 0 0 0 0 0</pose>
+      <pose>-6.42 0 0 0 0 0</pose>
     </include>
 
     <!-- Generic visual water surface. Scenario semantics stay outside Gazebo model names. -->
     <include>
       <uri>model://water_surface</uri>
-      <pose>6.42 0.0 0.0 0 0 0</pose>
+      <pose>0.0 0.0 0.0 0 0 0</pose>
     </include>
 
     <!-- Artificial SLAM landmarks plus static floor, sonar, and wall targets. -->
     <include>
       <uri>model://tank_targets</uri>
-      <pose>0 0 0 0 0 0</pose>
+      <pose>-6.42 0 0 0 0 0</pose>
     </include>
 
   </world>

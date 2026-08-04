@@ -73,7 +73,9 @@ interfaces match physical acquisition.
 Scenarios bind a Gazebo environment, initial vehicle state, semantic entities,
 and integration settings into a reproducible configuration.
 
-The tank world uses local tank, water-surface, and target models. The harbor
+The tank world centers its tank, water-surface, and target models on the
+spawn/map origin so symmetric positive and negative navigation coordinates stay
+inside the controlled water volume. The harbor
 profile supports mapping, navigation, exploration, and inspection. Open water
 references external `ned_frame` and `sand_heightmap` models.
 
