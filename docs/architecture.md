@@ -79,6 +79,14 @@ inside the controlled water volume. The harbor
 profile supports mapping, navigation, exploration, and inspection. Open water
 references external `ned_frame` and `sand_heightmap` models.
 
+The exploration arena is a synthetic, logically bounded, reduced-load frontier
+integration scenario. It uses two finite static walls to provide observable
+planar geometry while ORACLE discovers frontiers from a fresh live map. Its
+entity YAML remains simulator/evaluation reference truth in mapless runs rather
+than a planner-visible semantic prior. Success in this arena exercises software
+interfaces and the configured simulator plant; it does not validate physical
+sensor error, hydrodynamics, or vehicle performance.
+
 Scenario YAML supplies initial pose, entities, world selection, and allowed
 overrides. `scripts/scenarios.py` returns costmap files only when a scenario
 explicitly overrides MARINER defaults.

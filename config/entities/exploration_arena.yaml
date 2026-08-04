@@ -1,0 +1,45 @@
+schema_version: 2
+frame: map
+units: {pos: m, angles: rad}
+return_entity_id: home
+
+zones:
+  - id: EXPLORATION_ARENA
+    description: bounded open-water frontier integration arena
+    bounds: {x_min: -8.0, x_max: 8.0, y_min: -8.0, y_max: 8.0}
+    priority: 10
+    pad_m: 0.5
+
+entities:
+  - id: home
+    class: HOME
+    virtual: true
+    zone: EXPLORATION_ARENA
+    aliases: [start, base, reference]
+    affordances: [NAV, RETURN]
+    description: origin and return reference
+    pose:
+      position: {x: 0.0, y: 0.0, z: 0.2}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+
+  - id: exploration_wall
+    class: WALL
+    zone: EXPLORATION_ARENA
+    aliases: [wall, obstacle]
+    affordances: [AVOID]
+    description: finite wall that creates observed free space and an unknown frontier
+    pose:
+      position: {x: 4.0, y: 0.0, z: 0.55}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [0.5, 5.0, 1.2]
+
+  - id: exploration_return_wall
+    class: WALL
+    zone: EXPLORATION_ARENA
+    aliases: [return wall, breakwater return]
+    affordances: [AVOID]
+    description: perpendicular return that makes the live-LiDAR arena observable without enclosing the boat
+    pose:
+      position: {x: 2.0, y: 2.5, z: 0.35}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [4.0, 0.5, 0.8]

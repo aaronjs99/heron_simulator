@@ -1,0 +1,44 @@
+scenario_name: exploration_arena
+sonar_profile: pool
+world_file: heron_simulator/worlds/exploration_arena.world
+entity_file: heron_simulator/config/entities/exploration_arena.yaml
+map_bounds:
+  x_min: -8.0
+  x_max: 8.0
+  y_min: -8.0
+  y_max: 8.0
+known_free_area_estimate_m2: 64.0
+spawn_pose:
+  x: 0.0
+  y: 0.0
+  yaw_rad: 0.0
+world_offset:
+  x: 0.0
+  y: 0.0
+max_navigation_distance_m: 8.0
+exploration:
+  max_generated_goals: 8
+  spacing_m: 2.0
+  bound_m: 6.0
+  min_frontier_progress_m: 0.5
+  min_total_exploration_radius_m: 2.0
+  required_extent_m: 2.0
+  goal_current_pose_tolerance_m: 0.25
+  goal_min_displacement_m: 2.0
+  goal_min_frontier_standoff_m: 0.75
+  goal_preferred_frontier_standoff_m: 1.25
+  goal_map_bounds_margin_m: 0.5
+  goal_standoff_projection_enabled: true
+  goal_standoff_projection_step_m: 0.2
+  goal_standoff_projection_max_m: 3.0
+  map_expansion_min_free_cells: 25
+  map_expansion_min_unknown_reduction: 25
+  radius_initial_m: 3.0
+  radius_growth_m: 1.0
+  radius_growth_mode: linear
+  frontier_unknown_support_radius_m: 0.5
+  frontier_region_connectivity: 8
+  frontier_region_min_candidate_count: 1
+  feasibility_mode: balanced
+  make_plan_tolerance_m: 0.5
+  navigation_goal_max_cost: 50

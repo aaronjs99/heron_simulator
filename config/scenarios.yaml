@@ -2,5 +2,6 @@ schema_version: 1
 default_scenario: harbor
 
 scenarios:
+  exploration_arena: config/scenarios/exploration_arena.yaml
   harbor: config/scenarios/harbor.yaml
   pool: config/scenarios/pool.yaml
