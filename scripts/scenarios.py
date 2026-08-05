@@ -20,18 +20,17 @@ LAUNCH_ARG_KEYS = {
     "max_generated_goals": "exploration_max_generated_goals",
     "spacing_m": "exploration_spacing",
     "bound_m": "exploration_bound_m",
-    "min_frontier_progress_m": "exploration_min_frontier_progress_m",
     "min_total_exploration_radius_m": "exploration_min_total_exploration_radius_m",
+    "required_extent_m": "exploration_required_extent_m",
     "goal_current_pose_tolerance_m": "exploration_goal_current_pose_tolerance_m",
     "goal_min_displacement_m": "exploration_goal_min_displacement_m",
+    "goal_exclusion_radius_m": "exploration_goal_exclusion_radius_m",
     "goal_min_frontier_standoff_m": "exploration_goal_min_frontier_standoff_m",
     "goal_preferred_frontier_standoff_m": "exploration_goal_preferred_frontier_standoff_m",
     "goal_map_bounds_margin_m": "exploration_goal_map_bounds_margin_m",
     "goal_standoff_projection_enabled": "exploration_goal_standoff_projection_enabled",
     "goal_standoff_projection_step_m": "exploration_goal_standoff_projection_step_m",
     "goal_standoff_projection_max_m": "exploration_goal_standoff_projection_max_m",
-    "map_expansion_min_free_cells": "exploration_map_expansion_min_free_cells",
-    "map_expansion_min_unknown_reduction": "exploration_map_expansion_min_unknown_reduction",
     "radius_initial_m": "exploration_radius_initial_m",
     "radius_growth_m": "exploration_radius_growth_m",
     "radius_growth_mode": "exploration_radius_growth_mode",
@@ -120,6 +119,14 @@ def _launch_values(
                 values[launch_key] = "true" if value else "false"
             else:
                 values[launch_key] = str(value)
+    values.setdefault(
+        "exploration_required_extent_m",
+        values["exploration_min_total_exploration_radius_m"],
+    )
+    values.setdefault(
+        "exploration_goal_exclusion_radius_m",
+        values["exploration_goal_min_displacement_m"],
+    )
     return values
 
 

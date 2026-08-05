@@ -80,12 +80,14 @@ profile supports mapping, navigation, exploration, and inspection. Open water
 references external `ned_frame` and `sand_heightmap` models.
 
 The exploration arena is a synthetic, logically bounded, reduced-load frontier
-integration scenario. It uses two finite static walls to provide observable
-planar geometry while ORACLE discovers frontiers from a fresh live map. Its
-entity YAML remains simulator/evaluation reference truth in mapless runs rather
-than a planner-visible semantic prior. Success in this arena exercises software
-interfaces and the configured simulator plant; it does not validate physical
-sensor error, hydrodynamics, or vehicle performance.
+integration scenario. It uses three finite static structures:
+`exploration_wall`, `exploration_return_wall`, and
+`exploration_south_breakwater`. They provide observable planar geometry and a
+bounded but non-corridor-like search area while ORACLE discovers frontiers from
+a fresh live map. Entity YAML remains simulator/evaluation reference truth in
+mapless runs rather than a planner-visible semantic prior. Success in this arena
+exercises software interfaces and the configured simulator plant; it does not
+validate physical sensor error, hydrodynamics, or vehicle performance.
 
 Scenario YAML supplies initial pose, entities, world selection, and allowed
 overrides. `scripts/scenarios.py` returns costmap files only when a scenario
@@ -110,6 +112,13 @@ scaling, lag, slew, and reversal blanking and publishes synthetic PWM, RPM,
 current, voltage, thrust, and status. `sim_sense.py` uses the same plant state so
 electrical surfaces remain internally consistent.
 
+The retained S4.8 and S4.9 qualifications used the standard
+`config/thruster_dynamics.yaml` plant with the optional empirical actuator proxy
+disabled. Both selected MARINER's force-domain cascade and identity current
+stage. The four-regime inverse upstream and the simulator plant downstream are
+separate models: agreement within this loop is software behavior, not an
+independent force measurement.
+
 Vehicle mass, inertia, fluid density, damping, and thruster placement determine
 motion response. Overlays are part of recorded simulator configuration and do
 not change the real Heron path.
@@ -119,3 +128,10 @@ use. Those fail-closed checks are runtime safety. Command-to-current,
 current-to-thrust, thrust-to-motion, and closed-loop control remain separate
 relationships. Simulation can expose asymmetry, reversal, saturation, timing,
 and fallback but cannot establish the physical force law.
+
+The defensible description is **physics-based simulation with provisional,
+partly data-informed actuator parameterization**. Historical data informed some
+electrical/asymmetry choices, but mass, inertia, damping, absolute force, and
+water-relative disturbance are not jointly identified or physically validated.
+Accordingly, this simulator is the most integrated maintained software plant,
+not an identified data-based model of the real Heron.

@@ -22,7 +22,6 @@ exploration:
   max_generated_goals: 24
   spacing_m: 6.0
   bound_m: 30.0
-  min_frontier_progress_m: 1.0
   min_total_exploration_radius_m: 3.0
   required_extent_m: 3.0
   goal_current_pose_tolerance_m: 0.35
@@ -33,8 +32,6 @@ exploration:
   goal_standoff_projection_enabled: true
   goal_standoff_projection_step_m: 0.25
   goal_standoff_projection_max_m: 3.0
-  map_expansion_min_free_cells: 25
-  map_expansion_min_unknown_reduction: 25
   final_approach_min_free_ratio: 0.60
   weak_frontier_gain_threshold: 0.08
   long_plan_threshold_m: 8.0

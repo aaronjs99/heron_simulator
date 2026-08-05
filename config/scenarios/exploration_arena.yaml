@@ -20,23 +20,21 @@ exploration:
   max_generated_goals: 8
   spacing_m: 2.0
   bound_m: 6.0
-  min_frontier_progress_m: 0.5
   min_total_exploration_radius_m: 2.0
   required_extent_m: 2.0
-  goal_current_pose_tolerance_m: 0.25
-  goal_min_displacement_m: 2.0
+  goal_current_pose_tolerance_m: 0.20
+  goal_min_displacement_m: 0.50
+  goal_exclusion_radius_m: 0.30
   goal_min_frontier_standoff_m: 0.75
   goal_preferred_frontier_standoff_m: 1.25
   goal_map_bounds_margin_m: 0.5
   goal_standoff_projection_enabled: true
   goal_standoff_projection_step_m: 0.2
-  goal_standoff_projection_max_m: 3.0
-  map_expansion_min_free_cells: 25
-  map_expansion_min_unknown_reduction: 25
+  goal_standoff_projection_max_m: 4.0
   radius_initial_m: 3.0
   radius_growth_m: 1.0
   radius_growth_mode: linear
-  frontier_unknown_support_radius_m: 0.5
+  frontier_unknown_support_radius_m: 1.0
   frontier_region_connectivity: 8
   frontier_region_min_candidate_count: 1
   feasibility_mode: balanced

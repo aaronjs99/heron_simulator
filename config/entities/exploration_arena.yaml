@@ -43,3 +43,14 @@ entities:
       position: {x: 2.0, y: 2.5, z: 0.35}
       orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
     extent: [4.0, 0.5, 0.8]
+
+  - id: exploration_south_breakwater
+    class: WALL
+    zone: EXPLORATION_ARENA
+    aliases: [south breakwater]
+    affordances: [AVOID]
+    description: range-limited breakwater that provides staged frontier expansion
+    pose:
+      position: {x: -2.5, y: -4.0, z: 0.55}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [7.0, 0.5, 1.2]
