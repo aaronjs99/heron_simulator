@@ -20,7 +20,6 @@ exploration:
   max_generated_goals: 8
   spacing_m: 2.0
   bound_m: 6.0
-  min_frontier_progress_m: 0.5
   min_total_exploration_radius_m: 2.0
   required_extent_m: 2.0
   goal_current_pose_tolerance_m: 0.25
@@ -31,8 +30,6 @@ exploration:
   goal_standoff_projection_enabled: true
   goal_standoff_projection_step_m: 0.2
   goal_standoff_projection_max_m: 3.0
-  map_expansion_min_free_cells: 25
-  map_expansion_min_unknown_reduction: 25
   radius_initial_m: 3.0
   radius_growth_m: 1.0
   radius_growth_mode: linear
