@@ -21,8 +21,10 @@ LAUNCH_ARG_KEYS = {
     "spacing_m": "exploration_spacing",
     "bound_m": "exploration_bound_m",
     "min_total_exploration_radius_m": "exploration_min_total_exploration_radius_m",
+    "required_extent_m": "exploration_required_extent_m",
     "goal_current_pose_tolerance_m": "exploration_goal_current_pose_tolerance_m",
     "goal_min_displacement_m": "exploration_goal_min_displacement_m",
+    "goal_exclusion_radius_m": "exploration_goal_exclusion_radius_m",
     "goal_min_frontier_standoff_m": "exploration_goal_min_frontier_standoff_m",
     "goal_preferred_frontier_standoff_m": "exploration_goal_preferred_frontier_standoff_m",
     "goal_map_bounds_margin_m": "exploration_goal_map_bounds_margin_m",
@@ -117,6 +119,14 @@ def _launch_values(
                 values[launch_key] = "true" if value else "false"
             else:
                 values[launch_key] = str(value)
+    values.setdefault(
+        "exploration_required_extent_m",
+        values["exploration_min_total_exploration_radius_m"],
+    )
+    values.setdefault(
+        "exploration_goal_exclusion_radius_m",
+        values["exploration_goal_min_displacement_m"],
+    )
     return values
 
 

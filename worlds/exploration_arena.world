@@ -41,5 +41,21 @@
         </visual>
       </link>
     </model>
+    <model name="exploration_south_breakwater">
+      <pose>-2.5 -4.0 0.55 0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>7.0 0.5 1.2</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>7.0 0.5 1.2</size></box></geometry>
+          <material>
+            <ambient>0.66 0.68 0.70 1</ambient>
+            <diffuse>0.76 0.78 0.80 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
   </world>
 </sdf>
