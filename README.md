@@ -1,6 +1,6 @@
-# HERON Simulator
+# Heron Simulator
 
-HERON Simulator owns Gazebo vehicle physics, scenarios, synthetic sensors,
+Heron Simulator owns Gazebo vehicle physics, scenarios, synthetic sensors,
 simulated timing, and the simulator-only drive-to-thruster plant. GRANDE selects
 the scenario, MARINER consumes canonical surfaces, and ORACLE owns mission
 meaning.

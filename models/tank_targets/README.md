@@ -2,5 +2,5 @@
 
 | File | Relevance | Dependencies | Used by |
 | --- | --- | --- | --- |
-| model.config | Declares Gazebo model metadata for this model. | None | None |
-| model.sdf | Defines this Gazebo model's geometry, links, and plugins. | None | heron_simulator/models/tank/model.config, heron_simulator/models/tank_targets/model.config, heron_simulator/models/water_surface/model.config |
+| model.config | Declares the tank-target model name, version, author, and SDF entrypoint for Gazebo discovery. | model.sdf | Gazebo model discovery, heron_simulator/worlds/tank.world |
+| model.sdf | Defines the static submerged target geometry used by the tank scenario. | Gazebo SDF | heron_simulator/worlds/tank.world through model://tank_targets |

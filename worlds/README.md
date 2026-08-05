@@ -2,7 +2,7 @@
 
 | File | Relevance | Dependencies | Used by |
 | --- | --- | --- | --- |
-| exploration_arena.world | Defines the open-water exploration arena with two finite static wall obstacles that constrain planar LiDAR registration. | water_surface model | heron_simulator/config/scenarios/exploration_arena.yaml |
-| harbor.world | Defines the harbor Gazebo world. | None | heron_simulator/config/scenarios/harbor.yaml |
-| open_water.world | Defines the open water Gazebo world. | None | heron_simulator/launch/heron_world.launch, heron_simulator/worlds/tank.world |
-| tank.world | Defines the tank Gazebo world. | None | heron_simulator/config/entities/pool.yaml, heron_simulator/config/scenarios/pool.yaml |
+| exploration_arena.world | Defines the open-water exploration arena with three finite static structures for planar LiDAR registration. | water_surface model | heron_simulator/config/scenarios/exploration_arena.yaml |
+| harbor.world | Defines the structured harbor environment, launch area, wharves, pilings, targets, and seafloor geometry. | water_surface model | heron_simulator/config/scenarios/harbor.yaml |
+| open_water.world | Defines the default open-water Gazebo environment. | ned_frame, water_surface, sand_heightmap models | heron_simulator/launch/heron_world.launch |
+| tank.world | Defines the controlled tank environment and includes its tank, target, and water-surface models. | tank, tank_targets, water_surface models | heron_simulator/config/scenarios/pool.yaml |

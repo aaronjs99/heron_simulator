@@ -1,4 +1,4 @@
-# HERON Simulator Architecture
+# Heron Simulator Architecture
 
 The simulator owns Gazebo worlds, Heron spawn configuration, synthetic sensor
 providers, scenario entities, timing adapters, the drive plant, and hydrodynamic
@@ -17,7 +17,7 @@ Scenario entity YAML and Gazebo geometry duplicate parts of the same scene, and
 no generator proves parity. Evaluation manifests identify both inputs so a
 mismatch remains an authoring defect rather than hidden uncertainty.
 
-## HERON Simulator Operation
+## Heron Simulator Operation
 
 The simulator normally starts through GRANDE:
 
@@ -44,7 +44,7 @@ the isolated master it started.
 Runtime output retains scenario, configuration, commit, and synthetic-source
 provenance.
 
-## HERON Simulator Sensors
+## Heron Simulator Sensors
 
 The simulator publishes device-like observations for GRANDE sensor classes. The
 goal is interface and timing fidelity within a declared synthetic model, not a
@@ -68,7 +68,7 @@ Ground truth drives synthetic providers, but navigation consumes MARINER's
 estimator surface. Synthetic provenance remains attached even when downstream
 interfaces match physical acquisition.
 
-## HERON Simulator Scenarios
+## Heron Simulator Scenarios
 
 Scenarios bind a Gazebo environment, initial vehicle state, semantic entities,
 and integration settings into a reproducible configuration.
@@ -83,7 +83,7 @@ The exploration arena is a synthetic, logically bounded, reduced-load frontier
 integration scenario. It uses three finite static structures:
 `exploration_wall`, `exploration_return_wall`, and
 `exploration_south_breakwater`. They provide observable planar geometry and a
-bounded but non-corridor-like search area while ORACLE discovers frontiers from
+bounded search area while ORACLE discovers frontiers from
 a fresh live map. Entity YAML remains simulator/evaluation reference truth in
 mapless runs rather than a planner-visible semantic prior. Success in this arena
 exercises software interfaces and the configured simulator plant; it does not
@@ -101,7 +101,7 @@ Some scenario settings flow to ORACLE, but semantic policy is not simulator
 physics. A result is meaningful only with its world, vehicle profile, sensor
 configuration, initialization, controller, and repository state.
 
-## HERON Simulator Propulsion
+## Heron Simulator Propulsion
 
 The propulsion path converts MARINER's normalized left/right drive request into
 Gazebo forces and synthetic actuator telemetry. It is a simulator plant, not a
