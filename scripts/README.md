@@ -10,6 +10,6 @@
 | ping360_profile_model.py | Pure deterministic model for canonical Ping360 simulation profiles. | math, typing | heron_simulator/CMakeLists.txt |
 | ping360_profile_sim.py | Publishes canonical Ping360 profiles from a full-circle Gazebo ray cloud. | hashlib, struct, sys, pathlib | heron_simulator/CMakeLists.txt, heron_simulator/launch/spawn_heron.launch |
 | profile_env_run.sh | Runs the profile env run shell workflow. | None | heron_simulator/CMakeLists.txt, heron_simulator/launch/spawn_heron.launch |
-| scenarios.py | Resolves simulator scenario values and returns costmap files only for explicit scenario overrides of MARINER's canonical navigation module. | pathlib, typing, yaml | heron_simulator/CMakeLists.txt |
+| scenarios.py | Resolves simulator world, entity, spawn, and offset values while leaving mission and navigation policy to GRANDE profiles. | pathlib, typing, yaml | heron_simulator/CMakeLists.txt, grande/launch/bringup.launch |
 | sim_ig_timing.py | Publish IG Handle-style timing topics from simulated sensor timestamps. | typing, rospy, sensor_msgs | heron_simulator/CMakeLists.txt, heron_simulator/launch/spawn_heron.launch |
 | sim_sense.py | Publish an explicitly synthetic Heron `/sense` contract whose battery-side current and voltage agree with the provisional actuator state. | time, rospy, heron_msgs, std_msgs | heron_simulator/CMakeLists.txt, heron_simulator/launch/spawn_heron.launch |

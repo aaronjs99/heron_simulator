@@ -10,37 +10,6 @@ import yaml
 
 PACKAGE_DIR = Path(__file__).resolve().parents[1]
 SCENARIO_INDEX_PATH = PACKAGE_DIR / "config" / "scenarios.yaml"
-# The canonical global/local costmap trees live in
-# mariner/config/navigation.yaml. Scenario files only return a path when they
-# intentionally replace part of that baseline.
-DEFAULT_GLOBAL_COSTMAP_CONFIG = ""
-DEFAULT_LOCAL_COSTMAP_CONFIG = ""
-
-LAUNCH_ARG_KEYS = {
-    "max_generated_goals": "exploration_max_generated_goals",
-    "spacing_m": "exploration_spacing",
-    "bound_m": "exploration_bound_m",
-    "min_total_exploration_radius_m": "exploration_min_total_exploration_radius_m",
-    "required_extent_m": "exploration_required_extent_m",
-    "goal_current_pose_tolerance_m": "exploration_goal_current_pose_tolerance_m",
-    "goal_min_displacement_m": "exploration_goal_min_displacement_m",
-    "goal_exclusion_radius_m": "exploration_goal_exclusion_radius_m",
-    "goal_min_frontier_standoff_m": "exploration_goal_min_frontier_standoff_m",
-    "goal_preferred_frontier_standoff_m": "exploration_goal_preferred_frontier_standoff_m",
-    "goal_map_bounds_margin_m": "exploration_goal_map_bounds_margin_m",
-    "goal_standoff_projection_enabled": "exploration_goal_standoff_projection_enabled",
-    "goal_standoff_projection_step_m": "exploration_goal_standoff_projection_step_m",
-    "goal_standoff_projection_max_m": "exploration_goal_standoff_projection_max_m",
-    "radius_initial_m": "exploration_radius_initial_m",
-    "radius_growth_m": "exploration_radius_growth_m",
-    "radius_growth_mode": "exploration_radius_growth_mode",
-    "frontier_unknown_support_radius_m": "frontier_unknown_support_radius_m",
-    "frontier_region_connectivity": "frontier_region_connectivity",
-    "frontier_region_min_candidate_count": "frontier_region_min_candidate_count",
-    "feasibility_mode": "exploration_feasibility_mode",
-    "make_plan_tolerance_m": "exploration_make_plan_tolerance_m",
-    "navigation_goal_max_cost": "exploration_navigation_goal_max_cost",
-}
 
 
 def _load_yaml(path: Path) -> Dict[str, Any]:
@@ -79,54 +48,16 @@ def _launch_values(
 ) -> Dict[str, str]:
     spawn = dict(scenario.get("spawn_pose", {}) or {})
     offset = dict(scenario.get("world_offset", {}) or {})
-    costmap = dict(scenario.get("costmap_config", {}) or {})
-    exploration = dict(scenario.get("exploration", {}) or {})
     values = {
         "scenario_config_file": str(scenario_file),
-        "sonar_profile": str(
-            scenario.get("sonar_profile") or scenario.get("scenario_name") or "harbor"
-        ),
         "sim_world_file": _resolve_path(root, scenario.get("world_file", "")),
         "map_entities_file": _resolve_path(root, scenario.get("entity_file", "")),
         "sim_world_offset_x": str(float(offset.get("x", 0.0) or 0.0)),
         "sim_world_offset_y": str(float(offset.get("y", 0.0) or 0.0)),
-        "global_costmap_config": _resolve_path(
-            root, costmap.get("global", DEFAULT_GLOBAL_COSTMAP_CONFIG)
-        ),
-        "local_costmap_config": _resolve_path(
-            root, costmap.get("local", DEFAULT_LOCAL_COSTMAP_CONFIG)
-        ),
-        "global_costmap_overlay_config": _resolve_path(
-            root, costmap.get("global_overlay", "")
-        ),
-        "local_costmap_overlay_config": _resolve_path(
-            root, costmap.get("local_overlay", "")
-        ),
-        "teb_local_planner_overlay_config": _resolve_path(
-            root, costmap.get("teb_overlay", "")
-        ),
-        "move_base_overlay_config": _resolve_path(
-            root, costmap.get("move_base_overlay", "")
-        ),
         "x": str(float(spawn.get("x", 0.0) or 0.0)),
         "y": str(float(spawn.get("y", 0.0) or 0.0)),
         "yaw": str(float(spawn.get("yaw_rad", 0.0) or 0.0)),
     }
-    for source_key, launch_key in LAUNCH_ARG_KEYS.items():
-        if source_key in exploration and exploration[source_key] is not None:
-            value = exploration[source_key]
-            if isinstance(value, bool):
-                values[launch_key] = "true" if value else "false"
-            else:
-                values[launch_key] = str(value)
-    values.setdefault(
-        "exploration_required_extent_m",
-        values["exploration_min_total_exploration_radius_m"],
-    )
-    values.setdefault(
-        "exploration_goal_exclusion_radius_m",
-        values["exploration_goal_min_displacement_m"],
-    )
     return values
 
 

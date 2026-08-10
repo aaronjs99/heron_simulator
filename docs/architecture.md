@@ -9,7 +9,7 @@ Gazebo ground truth supports sensor generation and labelled evaluation. It is
 not substituted for MARINER estimator feedback in navigation or control.
 Synthetic topics identify source and calibration eligibility.
 
-Scenario YAML currently carries environment facts and some exploration settings
+Scenario YAML carries simulator world, spawn, entity, and map-bound facts
 consumed by ORACLE through GRANDE. That is integration convenience, not
 simulator ownership of mission policy.
 
@@ -89,17 +89,17 @@ mapless runs rather than a planner-visible semantic prior. Success in this arena
 exercises software interfaces and the configured simulator plant; it does not
 validate physical sensor error, hydrodynamics, or vehicle performance.
 
-Scenario YAML supplies initial pose, entities, world selection, and allowed
-overrides. `scripts/scenarios.py` returns costmap files only when a scenario
-explicitly overrides MARINER defaults.
+Scenario YAML supplies initial pose, entities, world selection, offsets, and
+environmental map bounds. Mission and navigation policy comes from named
+GRANDE runtime profiles rather than simulator configuration.
 
 Semantic records describe what ORACLE may discover; Gazebo files describe
 collision/visual geometry. No generator currently guarantees parity. Recorded
 runs identify both scenario and world inputs.
 
-Some scenario settings flow to ORACLE, but semantic policy is not simulator
-physics. A result is meaningful only with its world, vehicle profile, sensor
-configuration, initialization, controller, and repository state.
+Scenario map bounds flow to ORACLE as environmental input. A result is
+meaningful only with its world, vehicle profile, sensor configuration,
+initialization, controller, mission profile, and repository state.
 
 ## Heron Simulator Propulsion
 
