@@ -142,6 +142,7 @@ class Ping360ProfileSimulator:
         msg.provider = self.provider
         msg.model = self.model
         msg.extrinsic_revision = self.extrinsic_revision
+        msg.synthetic = True
         msg.raw_packet_id = ""
         msg.sequence = self.sequence
         msg.valid = not invalid

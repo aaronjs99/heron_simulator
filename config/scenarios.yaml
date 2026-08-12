@@ -2,6 +2,7 @@ schema_version: 1
 default_scenario: harbor
 
 scenarios:
+  collision_avoidance_arena: config/scenarios/collision_avoidance_arena.yaml
   exploration_arena: config/scenarios/exploration_arena.yaml
   harbor: config/scenarios/harbor.yaml
   pool: config/scenarios/pool.yaml

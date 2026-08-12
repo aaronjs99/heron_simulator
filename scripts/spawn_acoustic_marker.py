@@ -51,6 +51,13 @@ def _number(value: Any, label: str) -> float:
     return result
 
 
+def _boolean_param(name: str, default: bool) -> bool:
+    value = rospy.get_param(name, default)
+    if not isinstance(value, bool):
+        raise MarkerInstanceError(f"{name} must be a boolean")
+    return value
+
+
 def _xyz(value: Any, label: str) -> Tuple[float, float, float]:
     mapping = _mapping(value, label)
     missing = {axis for axis in ("x", "y", "z") if axis not in mapping}
@@ -77,7 +84,8 @@ def load_instance(path: Path) -> Mapping[str, Any]:
     with Path(path).open("r", encoding="utf-8") as handle:
         document = yaml.safe_load(handle) or {}
     root = _mapping(document, "instance document")
-    if root.get("schema_version") != 1:
+    schema_version = root.get("schema_version")
+    if isinstance(schema_version, bool) or schema_version != 1:
         raise MarkerInstanceError("marker instance schema_version must equal 1")
     instance = _mapping(root.get("instance"), "instance")
     _token(instance.get("id"), "instance.id")
@@ -115,7 +123,7 @@ def main() -> None:
         _token(rospy.get_param("~descriptor_path", ""), "descriptor_path")
     )
     model_name = _token(rospy.get_param("~model_name", ""), "model_name")
-    allow_provisional = bool(rospy.get_param("~allow_provisional_descriptor", False))
+    allow_provisional = _boolean_param("~allow_provisional_descriptor", False)
     service_name = str(rospy.get_param("~spawn_service", "/gazebo/spawn_sdf_model"))
     reference_frame = _token(
         rospy.get_param("~gazebo_reference_frame", "world"),

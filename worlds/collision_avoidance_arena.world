@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <world name="collision_avoidance_arena">
+    <physics type="ode">
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
+    </physics>
+    <gravity>0 0 -9.80665</gravity>
+    <include><uri>model://sun</uri></include>
+    <include><uri>model://water_surface</uri></include>
+
+    <!-- The campaign's direct start-goal chord crosses this exact cylinder. -->
+    <model name="center_post">
+      <pose>2.75 0 0.55 0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.40</radius><length>1.50</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.40</radius><length>1.50</length></cylinder></geometry>
+          <material>
+            <ambient>0.95 0.40 0.05 1</ambient>
+            <diffuse>1.00 0.50 0.08 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Nonblocking structures keep the lidar odometry problem observable. -->
+    <model name="north_reference_wall">
+      <pose>2.5 4.0 0.55 0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>8.0 0.4 1.2</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>8.0 0.4 1.2</size></box></geometry></visual>
+      </link>
+    </model>
+    <model name="south_reference_wall">
+      <pose>2.5 -4.0 0.55 0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>8.0 0.4 1.2</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>8.0 0.4 1.2</size></box></geometry></visual>
+      </link>
+    </model>
+    <model name="west_reference_wall">
+      <pose>-2.0 0 0.55 0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <collision name="collision"><geometry><box><size>0.4 5.0 1.2</size></box></geometry></collision>
+        <visual name="visual"><geometry><box><size>0.4 5.0 1.2</size></box></geometry></visual>
+      </link>
+    </model>
+  </world>
+</sdf>

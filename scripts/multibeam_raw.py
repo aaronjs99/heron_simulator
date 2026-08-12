@@ -22,6 +22,13 @@ HIGH_RESOLUTION_MAX_SAMPLE = 4999
 LATENCY_UNIT_SEC = 1.0e-4
 
 
+def _boolean_param(name: str, default: bool) -> bool:
+    value = rospy.get_param(name, default)
+    if not isinstance(value, bool):
+        raise ValueError("{} must be a boolean".format(name))
+    return value
+
+
 def _u16(value: int, field_name: str) -> int:
     value = int(value)
     if not 0 <= value <= 0xFFFF:
@@ -285,7 +292,7 @@ class MultibeamRawNode:
             rospy.get_param("~center_ping_offset_units", 0),
             "center_ping_offset_units",
         )
-        self.include_intensity = bool(rospy.get_param("~include_intensity", True))
+        self.include_intensity = _boolean_param("~include_intensity", True)
         self.sequence = 0
 
         self.publisher = rospy.Publisher(

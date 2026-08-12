@@ -70,8 +70,10 @@ Each provider rejects a Gazebo cloud whose source frame differs from its
 configured frame. The strict 83P packet and normalized Ping360 profile carry
 the matching revision, and the Ping360 profile identity hash also binds the
 provider, model, frame, and revision. Provider and model values match the
-hardware-facing contracts; `gazebo://dt100` and
-`validity_reason=gazebo_ray_profile` retain synthetic-source provenance.
+hardware-facing contracts. `gazebo://dt100` plus the DT100 launch contract and
+the Ping360 profile's explicit `synthetic=true` field retain synthetic-source
+provenance; downstream consumers do not infer it from provider names or free-
+form validity text.
 
 Ground truth drives synthetic providers, but navigation consumes MARINER's
 estimator surface. Synthetic provenance remains attached even when downstream
