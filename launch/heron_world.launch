@@ -52,6 +52,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="sonar_profile_topic" default="/sensors/sonar/imaging/profile"/>
   <arg name="simulate_ping360" default="true"/>
   <arg name="simulate_multibeam_raw" default="true"/>
+  <arg name="dt100_extrinsic_revision" default="dt100-seed-2026-08-11-v1"/>
+  <arg name="ping360_extrinsic_revision" default="ping360-seed-2026-08-11-v1"/>
   <arg name="sonar_min_range_m" default="0.5"/>
   <arg name="sonar_max_range_m" default="100.0"/>
   <arg name="use_ig_timing" default="true"/>
@@ -77,6 +79,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="gazebo_headless_rendering" default="true"
        doc="Run gzserver under Xvfb when no physical display is available so Gazebo camera sensors remain functional."/>
   <arg name="world_name" default="$(find heron_simulator)/worlds/open_water.world"/>
+  <arg name="spawn_acoustic_marker" default="false"/>
+  <arg name="acoustic_marker_instance_file"
+       default="$(find range_aid)/config/markers/orion_planetary_instance.yaml"/>
+  <arg name="acoustic_marker_descriptor_file"
+       default="$(find range_aid)/config/markers/orion_planetary.yaml"/>
+  <arg name="acoustic_marker_model_name" default="orion_planetary_marker"/>
+  <arg name="allow_provisional_acoustic_marker" default="true"/>
   <env name="GAZEBO_MASTER_URI" value="http://127.0.0.1:$(arg gazebo_master_port)"/>
 
   <group if="$(arg use_gazebo)">
@@ -130,6 +139,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="sonar_profile_topic" value="$(arg sonar_profile_topic)" />
     <arg name="simulate_ping360" value="$(arg simulate_ping360)" />
     <arg name="simulate_multibeam_raw" value="$(arg simulate_multibeam_raw)" />
+    <arg name="dt100_extrinsic_revision" value="$(arg dt100_extrinsic_revision)" />
+    <arg name="ping360_extrinsic_revision" value="$(arg ping360_extrinsic_revision)" />
     <arg name="sonar_min_range_m" value="$(arg sonar_min_range_m)" />
     <arg name="sonar_max_range_m" value="$(arg sonar_max_range_m)" />
     <arg name="use_ig_timing" value="$(arg use_ig_timing)" />
@@ -147,6 +158,15 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="lidar_update_rate_hz" value="$(arg lidar_update_rate_hz)" />
     <arg name="lidar_horizontal_samples" value="$(arg lidar_horizontal_samples)" />
     <arg name="lidar_vertical_samples" value="$(arg lidar_vertical_samples)" />
+  </include>
+
+  <include if="$(arg spawn_acoustic_marker)"
+           file="$(find heron_simulator)/launch/spawn_acoustic_marker.launch">
+    <arg name="instance_file" value="$(arg acoustic_marker_instance_file)"/>
+    <arg name="descriptor_file" value="$(arg acoustic_marker_descriptor_file)"/>
+    <arg name="model_name" value="$(arg acoustic_marker_model_name)"/>
+    <arg name="allow_provisional_descriptor"
+         value="$(arg allow_provisional_acoustic_marker)"/>
   </include>
 
 </launch>

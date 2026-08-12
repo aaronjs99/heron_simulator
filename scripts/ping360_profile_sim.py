@@ -28,7 +28,22 @@ class Ping360ProfileSimulator:
         self.profile_topic = str(
             rospy.get_param("~profile_topic", "/sensors/sonar/imaging/profile")
         )
-        self.frame_id = str(rospy.get_param("~frame_id", "sonar_link"))
+        self.frame_id = (
+            str(rospy.get_param("~frame_id", "ping360_link")).strip().lstrip("/")
+        )
+        self.extrinsic_revision = str(
+            rospy.get_param("~extrinsic_revision", "") or ""
+        ).strip()
+        if not self.extrinsic_revision:
+            raise ValueError("~extrinsic_revision is required")
+        if not self.frame_id:
+            raise ValueError("~frame_id is required")
+        self.provider = str(
+            rospy.get_param("~provider", "blue_robotics_ping360")
+        ).strip()
+        self.model = str(rospy.get_param("~model", "Ping360")).strip()
+        if not self.provider or not self.model:
+            raise ValueError("~provider and ~model are required")
         self.sound_speed_mps = float(rospy.get_param("~sound_speed_mps", 1480.0))
         self.number_of_samples = int(rospy.get_param("~number_of_samples", 1200))
         self.min_range_m = float(rospy.get_param("~min_range_m", 0.5))
@@ -58,8 +73,25 @@ class Ping360ProfileSimulator:
         self.subscriber = rospy.Subscriber(
             self.input_topic, PointCloud2, self._cloud_callback, queue_size=2
         )
+        rospy.loginfo(
+            "ping360_profile_sim input=%s profile=%s frame=%s revision=%s",
+            self.input_topic,
+            self.profile_topic,
+            self.frame_id,
+            self.extrinsic_revision,
+        )
 
     def _cloud_callback(self, cloud):
+        source_frame = str(cloud.header.frame_id or "").lstrip("/")
+        expected_frame = self.frame_id.lstrip("/")
+        if source_frame != expected_frame:
+            rospy.logwarn_throttle(
+                5.0,
+                "ping360_profile_sim dropped profile: source frame '%s' != '%s'",
+                source_frame or "(empty)",
+                expected_frame,
+            )
+            return
         self.sequence += 1
         angle_grad = self.sweep.advance()
         if self.drop_every_n and self.sequence % self.drop_every_n == 0:
@@ -84,7 +116,15 @@ class Ping360ProfileSimulator:
             self.invalid_every_n and self.sequence % self.invalid_every_n == 0
         )
         identity = (
-            struct.pack(
+            self.provider.encode("utf-8")
+            + b"\0"
+            + self.model.encode("utf-8")
+            + b"\0"
+            + self.frame_id.encode("utf-8")
+            + b"\0"
+            + self.extrinsic_revision.encode("utf-8")
+            + b"\0"
+            + struct.pack(
                 "<IdHHHH",
                 self.sequence,
                 cloud.header.stamp.to_sec(),
@@ -99,8 +139,10 @@ class Ping360ProfileSimulator:
         msg.header = cloud.header
         msg.header.frame_id = self.frame_id
         msg.profile_id = hashlib.sha256(identity).hexdigest()
-        msg.provider = "simulated_ping360"
-        msg.model = "Ping360_canonical_sim"
+        msg.provider = self.provider
+        msg.model = self.model
+        msg.extrinsic_revision = self.extrinsic_revision
+        msg.raw_packet_id = ""
         msg.sequence = self.sequence
         msg.valid = not invalid
         msg.validity_reason = (
@@ -118,7 +160,10 @@ class Ping360ProfileSimulator:
         msg.transmit_frequency_khz = self.transmit_frequency_khz
         msg.sound_speed_mps = self.sound_speed_mps
         msg.sample_interval_m = self.sample_interval_m
-        msg.min_range_m = self.min_range_m
+        # Ping Protocol bins start at zero range. ``min_range_m`` above is only
+        # a simulator return gate; publishing it as a bin origin would add a
+        # systematic offset to every reconstructed return.
+        msg.min_range_m = 0.0
         msg.max_range_m = self.max_range_m
         msg.intensities = [] if invalid else list(intensities)
         self.publisher.publish(msg)

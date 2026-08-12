@@ -57,6 +57,16 @@ def _launch_values(
         "x": str(float(spawn.get("x", 0.0) or 0.0)),
         "y": str(float(spawn.get("y", 0.0) or 0.0)),
         "yaw": str(float(spawn.get("yaw_rad", 0.0) or 0.0)),
+        "spawn_acoustic_marker": str(
+            bool(scenario.get("spawn_acoustic_marker", False))
+        ).lower(),
+        "acoustic_marker_instance_file": _resolve_path(
+            root, scenario.get("marker_instance_file", "")
+        ),
+        "acoustic_marker_descriptor_file": _resolve_path(
+            root, scenario.get("marker_descriptor_file", "")
+        ),
+        "acoustic_marker_model_name": str(scenario.get("marker_model_name", "") or ""),
     }
     return values
 

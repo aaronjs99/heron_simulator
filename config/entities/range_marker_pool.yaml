@@ -1,0 +1,27 @@
+schema_version: 2
+frame: map
+units: {pos: m, angles: rad}
+return_entity_id: home
+
+zones:
+  - id: RANGE_MARKER_POOL
+    description: controlled tank without legacy inspection targets
+    bounds: {x_min: -7.62, x_max: 7.62, y_min: -3.81, y_max: 3.81}
+    priority: 10
+    pad_m: 0.5
+
+entities:
+  - id: home
+    class: HOME
+    virtual: true
+    zone: RANGE_MARKER_POOL
+    aliases: [start, base, reference]
+    affordances: [NAV, RETURN]
+    description: Reference start for synthetic marker characterization
+    pose:
+      position: {x: 0.0, y: 0.0, z: 0.2}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+
+# Marker geometry and placement are intentionally not repeated here. The
+# scenario points to the canonical RANGE_AID descriptor and its matching
+# instance record.

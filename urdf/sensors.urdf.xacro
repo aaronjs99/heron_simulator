@@ -190,7 +190,7 @@
   <!-- beam width is a footprint property, not extra profile beams, so Gazebo emits -->
   <!-- one profile slice per ping. -->
   <!-- ====================================================================== -->
-  <link name="sonar_link">
+  <link name="dt100_link">
     <visual>
       <geometry><cylinder radius="0.03" length="0.05"/></geometry>
       <material name="sensor_blue"/>
@@ -200,14 +200,14 @@
       <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
     </inertial>
   </link>
-  <joint name="sonar_joint" type="fixed">
+  <joint name="dt100_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="sonar_link"/>
-    <origin xyz="$(optenv HERON_SONAR_XYZ)" rpy="$(optenv HERON_SONAR_RPY)"/>
+    <child link="dt100_link"/>
+    <origin xyz="$(optenv HERON_DT100_XYZ)" rpy="$(optenv HERON_DT100_RPY)"/>
   </joint>
 
-  <gazebo reference="sonar_link">
-    <sensor type="ray" name="sonar">
+  <gazebo reference="dt100_link">
+    <sensor type="ray" name="dt100">
       <update_rate>20</update_rate>
       <ray>
          <scan>
@@ -215,7 +215,8 @@
                <samples>480</samples>
                <resolution>1</resolution>
                <min_angle>-1.047198</min_angle>
-               <max_angle>1.047198</max_angle>
+               <!-- 480 documented 0.25-degree 83P beam centers: -60 to +59.75 deg. -->
+               <max_angle>1.042834</max_angle>
             </horizontal>
             <vertical>
                <samples>1</samples>
@@ -232,7 +233,7 @@
       </ray>
       <plugin name="sonar_plugin" filename="libgazebo_ros_velodyne_laser.so">
         <topicName>$(optenv HERON_SIM_SONAR_RAY_TOPIC /sim/sensors/sonar/multibeam_points)</topicName>
-        <frameName>sonar_link</frameName>
+        <frameName>dt100_link</frameName>
         <min_range>0.5</min_range>
         <max_range>100.0</max_range>
         <gaussianNoise>0.003</gaussianNoise>
@@ -240,6 +241,25 @@
         <min_intensity>0.0</min_intensity>
       </plugin>
     </sensor>
+  </gazebo>
+
+  <link name="ping360_link">
+    <visual>
+      <geometry><cylinder radius="0.03" length="0.05"/></geometry>
+      <material name="sensor_blue"/>
+    </visual>
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+  </link>
+  <joint name="ping360_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="ping360_link"/>
+    <origin xyz="$(optenv HERON_PING360_XYZ)" rpy="$(optenv HERON_PING360_RPY)"/>
+  </joint>
+
+  <gazebo reference="ping360_link">
     <!-- Separate full-circle environment sampler for the canonical Ping360
          simulator. It does not fabricate vendor wire packets: the simulator
          publishes normalized profiles one mechanical angle at a time. -->
@@ -268,7 +288,7 @@
       </ray>
       <plugin name="ping360_environment_plugin" filename="libgazebo_ros_velodyne_laser.so">
         <topicName>$(optenv HERON_SIM_PING360_RAY_TOPIC /sim/sensors/sonar/ping360_points)</topicName>
-        <frameName>sonar_link</frameName>
+        <frameName>ping360_link</frameName>
         <min_range>0.5</min_range>
         <max_range>100.0</max_range>
         <gaussianNoise>0.003</gaussianNoise>

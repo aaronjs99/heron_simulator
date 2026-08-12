@@ -26,6 +26,7 @@
   <!-- Core Gazebo -->
   <exec_depend>gazebo_ros</exec_depend>
   <exec_depend>gazebo_plugins</exec_depend>
+  <depend>gazebo_msgs</depend>
   <exec_depend>velodyne_gazebo_plugins</exec_depend>
   <exec_depend>xvfb</exec_depend>
 
@@ -42,6 +43,7 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
+  <depend>range_aid</depend>
   <depend>ig_handle</depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>

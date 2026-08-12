@@ -56,6 +56,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="sonar_profile_topic" default="/sensors/sonar/imaging/profile" />
   <arg name="simulate_ping360" default="true" />
   <arg name="simulate_multibeam_raw" default="true" />
+  <arg name="dt100_extrinsic_revision" default="dt100-seed-2026-08-11-v1" />
+  <arg name="ping360_extrinsic_revision" default="ping360-seed-2026-08-11-v1" />
   <arg name="sonar_min_range_m" default="0.5" />
   <arg name="sonar_max_range_m" default="100.0" />
   <arg name="use_ig_timing" default="true" />
@@ -155,9 +157,19 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
           pkg="heron_simulator" type="multibeam_raw.py" name="multibeam_raw" output="screen">
       <param name="input_topic" value="$(arg sonar_ray_topic)" />
       <param name="raw_topic" value="$(arg sonar_raw_topic)" />
+      <param name="frame_id" value="dt100_link" />
+      <param name="extrinsic_revision" value="$(arg dt100_extrinsic_revision)" />
       <param name="min_range_m" value="$(arg sonar_min_range_m)" />
       <param name="max_range_m" value="$(arg sonar_max_range_m)" />
-      <param name="max_points" value="480" />
+      <param name="beam_count" value="480" />
+      <param name="sector_size_deg" value="120.0" />
+      <param name="start_angle_deg" value="-60.0" />
+      <param name="angle_increment_deg" value="0.25" />
+      <!-- DT100 83P high-resolution output is 0.02% of declared range. -->
+      <param name="range_resolution_mm"
+             value="$(eval int(round(float(arg('sonar_max_range_m')) * 0.2)))" />
+      <param name="acoustic_frequency_khz" value="240" />
+      <param name="sound_speed_m_s" value="1500.0" />
     </node>
 
     <node if="$(arg simulate_ping360)"
@@ -165,6 +177,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
           name="ping360_profile_sim" output="screen">
       <param name="input_topic" value="$(arg ping360_ray_topic)" />
       <param name="profile_topic" value="$(arg sonar_profile_topic)" />
+      <param name="frame_id" value="ping360_link" />
+      <param name="extrinsic_revision" value="$(arg ping360_extrinsic_revision)" />
       <param name="min_range_m" value="$(arg sonar_min_range_m)" />
       <param name="max_range_m" value="$(arg sonar_max_range_m)" />
     </node>

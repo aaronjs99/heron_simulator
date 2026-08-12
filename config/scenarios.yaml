@@ -5,3 +5,4 @@ scenarios:
   exploration_arena: config/scenarios/exploration_arena.yaml
   harbor: config/scenarios/harbor.yaml
   pool: config/scenarios/pool.yaml
+  range_marker_pool: config/scenarios/range_marker_pool.yaml

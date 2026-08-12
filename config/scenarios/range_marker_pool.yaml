@@ -1,0 +1,24 @@
+scenario_name: range_marker_pool
+world_file: heron_simulator/worlds/range_marker_pool.world
+entity_file: heron_simulator/config/entities/range_marker_pool.yaml
+marker_descriptor_file: range_aid/config/markers/orion_planetary.yaml
+# The referenced provisional instance is map/world aligned at (0, 0, -1.50) m.
+# This is a DT100 multi-view scenario; the planar Ping360 proxy is a negative
+# control and is not expected to return the deep marker.
+marker_instance_file: range_aid/config/markers/orion_planetary_instance.yaml
+marker_model_name: orion_planetary_marker
+spawn_acoustic_marker: true
+map_bounds:
+  x_min: -7.62
+  x_max: 7.62
+  y_min: -3.81
+  y_max: 3.81
+spawn_pose:
+  # Keep simulator world and the estimator's startup map frame coincident.
+  # Campaign 0.9 first moves west, then arms and sweeps east across the marker.
+  x: 0.0
+  y: 0.0
+  yaw_rad: 0.0
+world_offset:
+  x: 0.0
+  y: 0.0

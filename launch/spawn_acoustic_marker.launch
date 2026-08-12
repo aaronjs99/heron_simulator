@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="instance_file"
+       default="$(find range_aid)/config/markers/orion_planetary_instance.yaml"/>
+  <arg name="descriptor_file"
+       default="$(find range_aid)/config/markers/orion_planetary.yaml"/>
+  <arg name="model_name" default="orion_planetary_marker"/>
+  <arg name="allow_provisional_descriptor" default="true"/>
+  <arg name="spawn_service" default="/gazebo/spawn_sdf_model"/>
+  <arg name="gazebo_reference_frame" default="world"/>
+  <arg name="expected_instance_frame" default="map"/>
+
+  <node pkg="heron_simulator"
+        type="spawn_acoustic_marker.py"
+        name="spawn_acoustic_marker"
+        output="screen"
+        required="true">
+    <param name="instance_path" value="$(arg instance_file)"/>
+    <param name="descriptor_path" value="$(arg descriptor_file)"/>
+    <param name="model_name" value="$(arg model_name)"/>
+    <param name="allow_provisional_descriptor"
+           value="$(arg allow_provisional_descriptor)"/>
+    <param name="spawn_service" value="$(arg spawn_service)"/>
+    <param name="gazebo_reference_frame" value="$(arg gazebo_reference_frame)"/>
+    <param name="expected_instance_frame" value="$(arg expected_instance_frame)"/>
+  </node>
+</launch>

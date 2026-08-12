@@ -3,6 +3,8 @@ project(heron_simulator)
 
 find_package(catkin REQUIRED COMPONENTS
   ig_handle
+  range_aid
+  gazebo_msgs
   rospy
   roscpp
   geometry_msgs
@@ -12,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(gazebo REQUIRED)
 
-catkin_package()
+catkin_package(CATKIN_DEPENDS ig_handle range_aid)
 
 #############################################################################
 # Install directories (config, launch, worlds, urdf, models, docs)
@@ -49,12 +51,14 @@ install(TARGETS
 #############################################################################
 
 catkin_install_python(PROGRAMS
+  scripts/acoustic_marker_model.py
   scripts/drive_to_thrusters.py
   scripts/multibeam_raw.py
   scripts/ping360_profile_sim.py
   scripts/scenarios.py
   scripts/sim_sense.py
   scripts/sim_ig_timing.py
+  scripts/spawn_acoustic_marker.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
