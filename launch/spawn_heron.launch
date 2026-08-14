@@ -68,6 +68,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="sense_topic" default="/sense" />
   <arg name="sense_rate_hz" default="10.0" />
   <arg name="sense_battery_v" default="16.0" />
+  <arg name="status_topic" default="/status" />
+  <arg name="status_rate_hz" default="1.0" />
   <arg name="pps_rate_hz" default="1.0" />
   <arg name="camera_time_image_topics"
        default="/sensors/camera/f1/image_raw,/sensors/camera/f2/image_raw,/sensors/camera/f3/image_raw,/sensors/camera/f4/image_raw" />
@@ -187,6 +189,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <param name="topic" value="$(arg sense_topic)" />
       <param name="rate_hz" value="$(arg sense_rate_hz)" />
       <param name="battery_v" value="$(arg sense_battery_v)" />
+      <param name="status_topic" value="$(arg status_topic)" />
+      <param name="status_rate_hz" value="$(arg status_rate_hz)" />
     </node>
 
     <node if="$(arg use_ig_timing)"

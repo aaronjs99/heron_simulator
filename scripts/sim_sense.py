@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish an explicitly synthetic Heron ``/sense`` contract for simulation.
+"""Publish explicitly synthetic Heron ``/sense`` and ``/status`` contracts.
 
 The real MCU owns this topic on hardware.  Gazebo has no battery monitor or
 motor-current sensor. When the empirical actuator proxy is active, this bridge
@@ -9,12 +9,12 @@ non-calibration provenance.
 
 from __future__ import annotations
 
+import json
 import time
 
 import rospy
-from heron_msgs.msg import Sense
+from heron_msgs.msg import Sense, Status
 from std_msgs.msg import String
-import json
 
 
 class SimSense:
@@ -23,7 +23,9 @@ class SimSense:
     def __init__(self) -> None:
         rospy.init_node("sim_sense")
         self.topic = str(rospy.get_param("~topic", "/sense"))
+        self.status_topic = str(rospy.get_param("~status_topic", "/status"))
         self.rate_hz = max(0.1, float(rospy.get_param("~rate_hz", 10.0)))
+        self.status_rate_hz = max(0.1, float(rospy.get_param("~status_rate_hz", 1.0)))
         self.battery_v = float(rospy.get_param("~battery_v", 16.0))
         self.actuator_state_topic = str(
             rospy.get_param(
@@ -37,7 +39,12 @@ class SimSense:
         self.current_left_a = 0.0
         self.current_right_a = 0.0
         self.actuator_state_receipt_sec = -float("inf")
+        self.started_ros_sec = None
+        self.last_status_ros_sec = None
+        self.next_status_wall_sec = time.monotonic()
+        self.motor_power_consumed_wh = 0.0
         self.publisher = rospy.Publisher(self.topic, Sense, queue_size=10)
+        self.status_publisher = rospy.Publisher(self.status_topic, Status, queue_size=2)
         self.source_status_publisher = rospy.Publisher(
             "~source_status", String, queue_size=1, latch=True
         )
@@ -56,9 +63,12 @@ class SimSense:
             )
         )
         rospy.loginfo(
-            "sim_sense topic=%s rate=%.1fHz battery=%.2fV current_source=%s",
+            "sim_sense topic=%s rate=%.1fHz status_topic=%s status_rate=%.1fHz "
+            "battery=%.2fV current_source=%s",
             self.topic,
             self.rate_hz,
+            self.status_topic,
+            self.status_rate_hz,
             self.battery_v,
             self.actuator_state_topic,
         )
@@ -100,6 +110,33 @@ class SimSense:
             message.rc_rotation = 0
             message.rc_enable = 0
             self.publisher.publish(message)
+            now_wall_sec = time.monotonic()
+            if now_wall_sec >= self.next_status_wall_sec:
+                stamp_sec = message.header.stamp.to_sec()
+                if self.started_ros_sec is None:
+                    self.started_ros_sec = stamp_sec
+                if self.last_status_ros_sec is not None:
+                    elapsed_sec = max(0.0, stamp_sec - self.last_status_ros_sec)
+                    self.motor_power_consumed_wh += (
+                        self.battery_v
+                        * (message.current_left + message.current_right)
+                        * elapsed_sec
+                        / 3600.0
+                    )
+                self.last_status_ros_sec = stamp_sec
+                status = Status()
+                status.header.stamp = message.header.stamp
+                status.hardware_id = "synthetic_simulation"
+                uptime_sec = max(0.0, stamp_sec - self.started_ros_sec)
+                status.mcu_uptime = rospy.Duration.from_sec(uptime_sec)
+                status.connection_uptime = rospy.Duration.from_sec(uptime_sec)
+                status.pcb_temperature = 0.0
+                status.user_current = message.current_left + message.current_right
+                status.user_power_consumed = 0.0
+                status.motor_power_consumed = self.motor_power_consumed_wh
+                status.total_power_consumed = self.motor_power_consumed_wh
+                self.status_publisher.publish(status)
+                self.next_status_wall_sec = now_wall_sec + 1.0 / self.status_rate_hz
             # Gazebo publishes /clock after this node starts. Wall sleep keeps
             # the contract live during that brief bootstrap without warnings.
             time.sleep(period_sec)
