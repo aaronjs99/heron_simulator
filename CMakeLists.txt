@@ -1,40 +1,40 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.13)
 project(heron_simulator)
 
 find_package(catkin REQUIRED COMPONENTS
-  ig_handle
-  range_aid
-  rospy
-  roscpp
   geometry_msgs
-  sensor_msgs
+  roscpp
   std_msgs
 )
 
-find_package(gazebo REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GAZEBO REQUIRED IMPORTED_TARGET gazebo)
 
-catkin_package(CATKIN_DEPENDS ig_handle range_aid)
+catkin_package(CATKIN_DEPENDS geometry_msgs roscpp std_msgs)
 
 #############################################################################
 # Install directories (config, launch, worlds, urdf, models, docs)
 #############################################################################
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-  ${GAZEBO_INCLUDE_DIRS}
-)
-
-link_directories(${GAZEBO_LIBRARY_DIRS})
-
 add_library(RelativeForcePlugin src/RelativeForcePlugin.cpp)
-target_link_libraries(RelativeForcePlugin ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
-
 add_library(PassiveDisturbancePlugin src/PassiveDisturbancePlugin.cpp)
-target_link_libraries(PassiveDisturbancePlugin ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
-
 add_library(SurfaceHydrodynamicsPlugin src/SurfaceHydrodynamicsPlugin.cpp)
-target_link_libraries(SurfaceHydrodynamicsPlugin ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 
-install(DIRECTORY config launch worlds urdf models docs
+set(HERON_SIMULATOR_PLUGINS
+  RelativeForcePlugin
+  PassiveDisturbancePlugin
+  SurfaceHydrodynamicsPlugin
+)
+foreach(HERON_SIMULATOR_PLUGIN ${HERON_SIMULATOR_PLUGINS})
+  target_include_directories(${HERON_SIMULATOR_PLUGIN} PRIVATE
+    ${catkin_INCLUDE_DIRS}
+  )
+  target_link_libraries(${HERON_SIMULATOR_PLUGIN}
+    PkgConfig::GAZEBO
+    ${catkin_LIBRARIES}
+  )
+endforeach()
+
+install(DIRECTORY config docs launch models urdf worlds
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
