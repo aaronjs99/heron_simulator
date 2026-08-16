@@ -131,7 +131,8 @@ class SimIgTimingBridge:
         self.last_camera_stamp = key
         frame_id = msg.header.frame_id or self.default_camera_frame_id
         self._safe_publish(
-            self.camera_pub, self._time_reference(stamp, frame_id, "sim_camera:" + topic)
+            self.camera_pub,
+            self._time_reference(stamp, frame_id, "sim_camera:" + topic),
         )
 
     def _imu_cb(self, msg: Imu) -> None:

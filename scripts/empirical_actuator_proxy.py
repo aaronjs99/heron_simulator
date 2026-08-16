@@ -12,9 +12,7 @@ PROXY_KIND = "current_shape_not_thrust_calibration"
 
 
 def payload_sha256(payload):
-    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode(
-        "utf-8"
-    )
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()
 
 
@@ -28,7 +26,9 @@ def _finite_vector(values, label):
 def _validate_curve(side, direction, curve):
     command = _finite_vector(curve.get("command", []), "command")
     if len(command) < 2:
-        raise ValueError("{} {} curve needs at least two anchors".format(side, direction))
+        raise ValueError(
+            "{} {} curve needs at least two anchors".format(side, direction)
+        )
     if command[0] != 0.0 or command[-1] > 1.0:
         raise ValueError("{} {} command domain is invalid".format(side, direction))
     if any(a >= b for a, b in zip(command, command[1:])):
@@ -45,13 +45,17 @@ def _validate_curve(side, direction, curve):
                 )
             )
         if any(a > b for a, b in zip(effort, effort[1:])):
-            raise ValueError("{} {} {} must be nondecreasing".format(side, direction, field))
+            raise ValueError(
+                "{} {} {} must be nondecreasing".format(side, direction, field)
+            )
     for field in (
         "rising_relative_current_mad",
         "falling_relative_current_mad",
     ):
         uncertainty = _finite_vector(curve.get(field, []), field)
-        if len(command) != len(uncertainty) or any(value < 0.0 for value in uncertainty):
+        if len(command) != len(uncertainty) or any(
+            value < 0.0 for value in uncertainty
+        ):
             raise ValueError("{} {} {} is invalid".format(side, direction, field))
 
 
