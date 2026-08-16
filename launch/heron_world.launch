@@ -111,7 +111,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <node if="$(arg gazebo_headless_rendering)"
           name="gazebo"
           pkg="heron_simulator"
-          type="gazebo_with_xvfb.sh"
+          type="gazebo_with_xvfb.py"
           output="screen"
           args="$(find gazebo_ros)/../../lib/gazebo_ros/gzserver -e ode $(arg gazebo_extra_args) $(arg world_name)"/>
   </group>

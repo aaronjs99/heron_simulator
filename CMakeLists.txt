@@ -4,7 +4,6 @@ project(heron_simulator)
 find_package(catkin REQUIRED COMPONENTS
   ig_handle
   range_aid
-  gazebo_msgs
   rospy
   roscpp
   geometry_msgs
@@ -63,7 +62,7 @@ catkin_install_python(PROGRAMS
 )
 
 install(PROGRAMS
-  scripts/gazebo_with_xvfb.sh
+  scripts/gazebo_with_xvfb.py
   scripts/profile_env_run.sh
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
