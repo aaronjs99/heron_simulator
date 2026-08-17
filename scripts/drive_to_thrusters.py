@@ -18,6 +18,7 @@ from heron_simulator_runtime.empirical_actuator_proxy import (
     validate_proxy,
 )
 from heron_simulator_runtime.four_regime_propulsion import propulsion_output
+from heron_simulator_runtime.parameters import strict_bool
 
 
 def clamp(value, lo, hi):
@@ -117,8 +118,9 @@ class DriveToThrusters:
                         rospy.get_param("~regimes/{}/max_rpm".format(key), 5500.0)
                     ),
                 }
-        self.empirical_model_enabled = bool(
-            rospy.get_param("~empirical_model_enabled", False)
+        self.empirical_model_enabled = strict_bool(
+            rospy.get_param("~empirical_model_enabled", False),
+            name="~empirical_model_enabled",
         )
         self.empirical_model_file = str(rospy.get_param("~empirical_model_file", ""))
         self.empirical_model = self.load_empirical_model()

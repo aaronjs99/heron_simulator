@@ -14,19 +14,14 @@ from ig_handle.msg import SonarRawPacket as SonarRawPacketMessage
 from rospy.exceptions import ROSException
 from sensor_msgs.msg import PointCloud2
 
+from heron_simulator_runtime.parameters import strict_bool
+
 PointRecord = Tuple[float, float, float, int]
 HEADER_BYTES = 256
 PACKET_KIND = b"83P"
 PACKET_VERSION = 10
 HIGH_RESOLUTION_MAX_SAMPLE = 4999
 LATENCY_UNIT_SEC = 1.0e-4
-
-
-def _boolean_param(name: str, default: bool) -> bool:
-    value = rospy.get_param(name, default)
-    if not isinstance(value, bool):
-        raise ValueError("{} must be a boolean".format(name))
-    return value
 
 
 def _u16(value: int, field_name: str) -> int:
@@ -292,7 +287,9 @@ class MultibeamRawNode:
             rospy.get_param("~center_ping_offset_units", 0),
             "center_ping_offset_units",
         )
-        self.include_intensity = _boolean_param("~include_intensity", True)
+        self.include_intensity = strict_bool(
+            rospy.get_param("~include_intensity", True), name="~include_intensity"
+        )
         self.sequence = 0
 
         self.publisher = rospy.Publisher(

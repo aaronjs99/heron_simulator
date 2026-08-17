@@ -17,6 +17,7 @@ from heron_simulator_runtime.acoustic_marker_model import (
     load_descriptor,
     render_sdf,
 )
+from heron_simulator_runtime.parameters import strict_bool
 
 
 class MarkerInstanceError(ValueError):
@@ -44,13 +45,6 @@ def _number(value: Any, label: str) -> float:
     if not math.isfinite(result):
         raise MarkerInstanceError(f"{label} must be finite")
     return result
-
-
-def _boolean_param(name: str, default: bool) -> bool:
-    value = rospy.get_param(name, default)
-    if not isinstance(value, bool):
-        raise MarkerInstanceError(f"{name} must be a boolean")
-    return value
 
 
 def _xyz(value: Any, label: str) -> Tuple[float, float, float]:
@@ -118,7 +112,10 @@ def main() -> None:
         _token(rospy.get_param("~descriptor_path", ""), "descriptor_path")
     )
     model_name = _token(rospy.get_param("~model_name", ""), "model_name")
-    allow_provisional = _boolean_param("~allow_provisional_descriptor", False)
+    allow_provisional = strict_bool(
+        rospy.get_param("~allow_provisional_descriptor", False),
+        name="~allow_provisional_descriptor",
+    )
     service_name = str(rospy.get_param("~spawn_service", "/gazebo/spawn_sdf_model"))
     reference_frame = _token(
         rospy.get_param("~gazebo_reference_frame", "world"),

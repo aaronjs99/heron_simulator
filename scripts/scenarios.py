@@ -9,6 +9,8 @@ from typing import Any, Dict, Mapping
 import rospkg
 import yaml
 
+from heron_simulator_runtime.parameters import strict_bool
+
 ROS_PACK = rospkg.RosPack()
 
 
@@ -69,7 +71,10 @@ def _launch_values(scenario: Mapping[str, Any], scenario_file: Path) -> Dict[str
         "y": str(float(spawn.get("y", 0.0) or 0.0)),
         "yaw": str(float(spawn.get("yaw_rad", 0.0) or 0.0)),
         "spawn_acoustic_marker": str(
-            bool(scenario.get("spawn_acoustic_marker", False))
+            strict_bool(
+                scenario.get("spawn_acoustic_marker", False),
+                name="scenario.spawn_acoustic_marker",
+            )
         ).lower(),
         "acoustic_marker_instance_file": _resolve_path(
             scenario.get("marker_instance_file", "")

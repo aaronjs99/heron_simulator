@@ -9,6 +9,8 @@ import rospy
 from rospy.exceptions import ROSException
 from sensor_msgs.msg import Image, Imu, TimeReference
 
+from heron_simulator_runtime.parameters import strict_bool
+
 
 def topic_list(value: object) -> list[str]:
     """Normalize ROS params that may be YAML lists or comma-separated strings."""
@@ -64,7 +66,10 @@ class SimIgTimingBridge:
             "~default_camera_frame_id", "sim_camera_trigger"
         )
         self.default_imu_frame_id = rospy.get_param("~default_imu_frame_id", "imu_link")
-        self.dedupe_camera_stamps = bool(rospy.get_param("~dedupe_camera_stamps", True))
+        self.dedupe_camera_stamps = strict_bool(
+            rospy.get_param("~dedupe_camera_stamps", True),
+            name="~dedupe_camera_stamps",
+        )
 
         self.pps_pub = rospy.Publisher(self.pps_topic, TimeReference, queue_size=10)
         self.camera_pub = rospy.Publisher(
