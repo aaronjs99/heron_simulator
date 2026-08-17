@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pure validation and interpolation for the simulator actuator proxy."""
+"""Validate and interpolate the simulator-only actuator proxy."""
 
 import hashlib
 import json

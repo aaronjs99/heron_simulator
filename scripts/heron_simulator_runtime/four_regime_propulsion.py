@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pure four-regime propulsion plant used by runtime and validation."""
+"""Pure four-regime propulsion plant shared by runtime and validation."""
 
 import math
 

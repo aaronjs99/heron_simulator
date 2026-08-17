@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pure deterministic model for canonical Ping360 simulation profiles."""
+"""Pure deterministic model shared by Ping360 simulation profiles."""
 
 from __future__ import annotations
 

@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import math
-import sys
 from pathlib import Path
 from typing import Any, Mapping, Tuple
 
@@ -13,11 +12,7 @@ import yaml
 from gazebo_msgs.srv import SpawnModel
 from geometry_msgs.msg import Pose
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
-
-from acoustic_marker_model import (  # noqa: E402
+from heron_simulator_runtime.acoustic_marker_model import (
     MarkerDescriptorError,
     load_descriptor,
     render_sdf,

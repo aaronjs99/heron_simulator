@@ -42,6 +42,7 @@ control here. Full marker-pose evidence still requires multiple DT100 views.
 | --- | --- | --- | --- |
 | .gitattributes | Defines simulator text and binary path handling. | Git | Contributors |
 | .gitignore | Excludes generated Gazebo and simulator artifacts. | Git | Contributors |
-| CMakeLists.txt | Defines the catkin build, target-scoped Gazebo plugin linkage, installed worlds, models, launch files, executable scripts and their sibling pure-Python modules, launch-time scenario resolver, and configuration. | CMake 3.13+, catkin, pkg-config, ROS Noetic, Gazebo | catkin build and install spaces |
+| CMakeLists.txt | Defines the catkin build, target-scoped Gazebo plugin linkage, installed worlds, models, launch files, executable scripts, reusable runtime package, launch-time scenario resolver, and configuration. | CMake 3.13+, catkin, pkg-config, ROS Noetic, Gazebo, setup.py | catkin build and install spaces |
 | LICENSE | Provides the BSD-3-Clause terms for retained Clearpath code and MIT terms for GRANDE-specific extensions. | None | Repository users and redistributors |
 | package.xml | Separates Gazebo/C++ build dependencies from simulator-only runtime integrations, including active-package scenario resolution through rospkg. | ROS Noetic, Gazebo, rospkg | catkin, rosdep |
+| setup.py | Installs `heron_simulator_runtime` through the standard source/devel/install Python path. | catkin_pkg, scripts/heron_simulator_runtime | CMakeLists.txt, simulator entrypoints, offline checks |

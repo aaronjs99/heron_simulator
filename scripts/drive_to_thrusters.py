@@ -11,13 +11,13 @@ from heron_msgs.msg import Drive
 import rospy
 from std_msgs.msg import String
 
-from empirical_actuator_proxy import (
+from heron_simulator_runtime.empirical_actuator_proxy import (
     curve_effort,
     payload_sha256,
     select_hysteresis_sweep,
     validate_proxy,
 )
-from four_regime_propulsion import propulsion_output
+from heron_simulator_runtime.four_regime_propulsion import propulsion_output
 
 
 def clamp(value, lo, hi):
