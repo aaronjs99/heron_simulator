@@ -67,9 +67,14 @@ install(PROGRAMS
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(FILES
+set(HERON_SIMULATOR_PYTHON_MODULES
+  scripts/empirical_actuator_proxy.py
   scripts/four_regime_propulsion.py
   scripts/ping360_profile_model.py
+)
+
+install(FILES
+  ${HERON_SIMULATOR_PYTHON_MODULES}
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
@@ -78,22 +83,18 @@ install(FILES scripts/scenarios.py
 )
 
 file(MAKE_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_BIN_DESTINATION})
-set(PING360_PROFILE_MODEL_DEVEL
-    ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_BIN_DESTINATION}/ping360_profile_model.py)
-add_custom_target(ping360_profile_model_devel ALL
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          ${CMAKE_CURRENT_SOURCE_DIR}/scripts/ping360_profile_model.py
-          ${PING360_PROFILE_MODEL_DEVEL}
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/scripts/ping360_profile_model.py
-  VERBATIM
-)
-
-set(FOUR_REGIME_PROPULSION_DEVEL
-    ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_BIN_DESTINATION}/four_regime_propulsion.py)
-add_custom_target(four_regime_propulsion_devel ALL
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          ${CMAKE_CURRENT_SOURCE_DIR}/scripts/four_regime_propulsion.py
-          ${FOUR_REGIME_PROPULSION_DEVEL}
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/scripts/four_regime_propulsion.py
-  VERBATIM
-)
+foreach(HERON_SIMULATOR_PYTHON_MODULE ${HERON_SIMULATOR_PYTHON_MODULES})
+  get_filename_component(HERON_SIMULATOR_PYTHON_MODULE_FILE
+                         ${HERON_SIMULATOR_PYTHON_MODULE} NAME)
+  get_filename_component(HERON_SIMULATOR_PYTHON_MODULE_NAME
+                         ${HERON_SIMULATOR_PYTHON_MODULE} NAME_WE)
+  set(HERON_SIMULATOR_PYTHON_MODULE_DEVEL
+      ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_BIN_DESTINATION}/${HERON_SIMULATOR_PYTHON_MODULE_FILE})
+  add_custom_target(${HERON_SIMULATOR_PYTHON_MODULE_NAME}_devel ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CMAKE_CURRENT_SOURCE_DIR}/${HERON_SIMULATOR_PYTHON_MODULE}
+            ${HERON_SIMULATOR_PYTHON_MODULE_DEVEL}
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${HERON_SIMULATOR_PYTHON_MODULE}
+    VERBATIM
+  )
+endforeach()

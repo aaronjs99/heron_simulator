@@ -5,17 +5,12 @@
 
 import json
 from pathlib import Path
-import sys
 
 from geometry_msgs.msg import Wrench
 from heron_msgs.msg import Drive
 import rospy
-import rospkg
 from std_msgs.msg import String
 
-# Catkin wraps executable scripts in the devel space. Load the pure helper from
-# the package source directory so validators and runtime share one contract.
-sys.path.insert(0, str(Path(rospkg.RosPack().get_path("heron_simulator")) / "scripts"))
 from empirical_actuator_proxy import (
     curve_effort,
     payload_sha256,
