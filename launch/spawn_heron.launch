@@ -95,7 +95,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
          without changing the shared hardware benchmark config. -->
     <group if="$(eval arg('namespace') == '')">
       <param name="robot_description"
-             command="$(find heron_simulator)/scripts/profile_env_run.sh $(find heron_description)/urdf/configs/$(arg config)
+             command="rosrun heron_simulator profile_env_run.sh $(find heron_description)/urdf/configs/$(arg config)
                       $(arg hydrodynamics_override_enabled) $(arg base_mass_kg) $(arg fluid_density_kg_m3) $(arg linear_damping_x) $(arg quadratic_damping_x)
                       env HERON_CAMERA_F1=$(arg camera_f1_requested)
                           HERON_CAMERA_F2=$(arg camera_f2_requested)
@@ -112,7 +112,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
     <group unless="$(eval arg('namespace') == '')">
       <param name="robot_description"
-             command="$(find heron_simulator)/scripts/profile_env_run.sh $(find heron_description)/urdf/configs/$(arg config)
+             command="rosrun heron_simulator profile_env_run.sh $(find heron_description)/urdf/configs/$(arg config)
                       $(arg hydrodynamics_override_enabled) $(arg base_mass_kg) $(arg fluid_density_kg_m3) $(arg linear_damping_x) $(arg quadratic_damping_x)
                       env HERON_CAMERA_F1=$(arg camera_f1_requested)
                           HERON_CAMERA_F2=$(arg camera_f2_requested)

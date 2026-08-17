@@ -42,6 +42,6 @@ control here. Full marker-pose evidence still requires multiple DT100 views.
 | --- | --- | --- | --- |
 | .gitattributes | Defines simulator text and binary path handling. | Git | Contributors |
 | .gitignore | Excludes generated Gazebo and simulator artifacts. | Git | Contributors |
-| CMakeLists.txt | Defines the catkin build, target-scoped Gazebo plugin linkage, and installed worlds, models, launch files, scripts, and configuration. | CMake 3.13+, catkin, pkg-config, ROS Noetic, Gazebo | catkin build |
+| CMakeLists.txt | Defines the catkin build, target-scoped Gazebo plugin linkage, and installed worlds, models, launch files, executable scripts, launch-time scenario resolver, and configuration. | CMake 3.13+, catkin, pkg-config, ROS Noetic, Gazebo | catkin build |
 | LICENSE | Provides the BSD-3-Clause terms for retained Clearpath code and MIT terms for GRANDE-specific extensions. | None | Repository users and redistributors |
-| package.xml | Separates Gazebo/C++ build dependencies from simulator-only runtime integrations. | ROS Noetic, Gazebo | catkin, rosdep |
+| package.xml | Separates Gazebo/C++ build dependencies from simulator-only runtime integrations, including active-package scenario resolution through rospkg. | ROS Noetic, Gazebo, rospkg | catkin, rosdep |
