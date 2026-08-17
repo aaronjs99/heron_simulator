@@ -3,7 +3,7 @@
 
   <!-- ====================================================================== -->
   <!-- IG Handle simulator sensor add-on. All sensor frame and mount poses
-       come from ig_handle/config/sensors/sensor_frames.yaml through
+       come from the launch-selected sensor-frame YAML through
        ig_handle/scripts/frames/export.py and HERON_* environment variables. -->
   <!-- ====================================================================== -->
 
@@ -20,7 +20,7 @@
 
   <!-- ====================================================================== -->
   <!-- Lidar H (Horizontal) -->
-  <!-- Sensor origins come from ig_handle/config/sensors/sensor_frames.yaml
+  <!-- Sensor origins come from the launch-selected sensor-frame YAML
        via HERON_* environment variables exported by ig_handle_benchmark. -->
   <!-- Horizontal VLP-16: +X starboard, +Y bow, +Z up. -->
   <!-- Velodyne VLP-16 model: 16 channels, 360 degree sweep, 10 Hz at 600 RPM. -->
