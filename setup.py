@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install Heron Simulator's reusable pure-Python models through catkin."""
+"""Install Heron Simulator's reusable pure-Python plant models through catkin."""
 
 import os
 import sys
@@ -19,7 +19,7 @@ from catkin_pkg.python_setup import generate_distutils_setup
 
 
 setup_args = generate_distutils_setup(
-    packages=["heron_simulator_runtime"],
+    packages=["models"],
     package_dir={"": "scripts"},
 )
 setup(**setup_args)

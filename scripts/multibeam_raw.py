@@ -14,7 +14,7 @@ from ig_handle.msg import SonarRawPacket as SonarRawPacketMessage
 from rospy.exceptions import ROSException
 from sensor_msgs.msg import PointCloud2
 
-from heron_simulator_runtime.parameters import strict_bool
+from models.parameters import strict_bool
 
 PointRecord = Tuple[float, float, float, int]
 HEADER_BYTES = 256

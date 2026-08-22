@@ -9,7 +9,7 @@ import rospy
 from rospy.exceptions import ROSException
 from sensor_msgs.msg import Image, Imu, TimeReference
 
-from heron_simulator_runtime.parameters import strict_bool
+from models.parameters import strict_bool
 
 
 def topic_list(value: object) -> list[str]:

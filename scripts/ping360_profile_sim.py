@@ -11,7 +11,7 @@ import sensor_msgs.point_cloud2 as pc2
 from ig_handle.msg import SonarProfile
 from sensor_msgs.msg import PointCloud2
 
-from heron_simulator_runtime.ping360_profile_model import (
+from models.ping360_profile_model import (
     MechanicalSweep,
     profile_from_points,
 )

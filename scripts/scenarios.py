@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Resolve simulator scenario values for integration launch files."""
+"""Load validated simulator scenario configuration bundles."""
 
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, Mapping
+from typing import Any, Dict, Mapping, Tuple
 
 import rospkg
 import yaml
 
-from heron_simulator_runtime.parameters import strict_bool
+from models.parameters import strict_bool
 
 ROS_PACK = rospkg.RosPack()
 
@@ -87,11 +87,44 @@ def _launch_values(scenario: Mapping[str, Any], scenario_file: Path) -> Dict[str
     return values
 
 
-def resolved_launch_value(*, scenario: str, key: str) -> str:
+def scenario_names() -> Tuple[str, ...]:
+    """Return every configured scenario name in deterministic order."""
+    index = _load_yaml(SCENARIO_INDEX_PATH)
+    scenarios = dict(index.get("scenarios", {}) or {})
+    if not scenarios:
+        raise ValueError(f"scenario index is empty: {SCENARIO_INDEX_PATH}")
+    return tuple(sorted(str(name) for name in scenarios))
+
+
+def scenario_launch_values(scenario: str) -> Dict[str, str]:
+    """Resolve one coherent, validated launch bundle for ``scenario``."""
     index = _load_yaml(SCENARIO_INDEX_PATH)
     scenario_file = _scenario_file(index, scenario)
+    if not scenario_file.is_file():
+        raise FileNotFoundError(f"scenario configuration is missing: {scenario_file}")
     values = _launch_values(_load_yaml(scenario_file), scenario_file)
-    token = str(key or "").strip()
-    if token not in values:
-        raise KeyError(f"scenario has no launch value for '{token}'")
-    return values[token]
+    required_files = {
+        "sim_world_file": values["sim_world_file"],
+        "map_entities_file": values["map_entities_file"],
+    }
+    if values["spawn_acoustic_marker"] == "true":
+        required_files.update(
+            {
+                "acoustic_marker_instance_file": values[
+                    "acoustic_marker_instance_file"
+                ],
+                "acoustic_marker_descriptor_file": values[
+                    "acoustic_marker_descriptor_file"
+                ],
+            }
+        )
+        if not values["acoustic_marker_model_name"].strip():
+            raise ValueError(
+                f"scenario {scenario!r} enables a marker without a model name"
+            )
+    for field, raw_path in required_files.items():
+        if not raw_path or not Path(raw_path).is_file():
+            raise FileNotFoundError(
+                f"scenario {scenario!r} has missing {field}: {raw_path or '<empty>'}"
+            )
+    return values

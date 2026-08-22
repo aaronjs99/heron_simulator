@@ -4,21 +4,13 @@
 """Bridge normalized Heron drive commands into Gazebo thruster wrench inputs."""
 
 import json
-from pathlib import Path
 
 from geometry_msgs.msg import Wrench
 from heron_msgs.msg import Drive
 import rospy
 from std_msgs.msg import String
 
-from heron_simulator_runtime.empirical_actuator_proxy import (
-    curve_effort,
-    payload_sha256,
-    select_hysteresis_sweep,
-    validate_proxy,
-)
-from heron_simulator_runtime.four_regime_propulsion import propulsion_output
-from heron_simulator_runtime.parameters import strict_bool
+from models.four_regime_propulsion import propulsion_output
 
 
 def clamp(value, lo, hi):
@@ -118,23 +110,6 @@ class DriveToThrusters:
                         rospy.get_param("~regimes/{}/max_rpm".format(key), 5500.0)
                     ),
                 }
-        self.empirical_model_enabled = strict_bool(
-            rospy.get_param("~empirical_model_enabled", False),
-            name="~empirical_model_enabled",
-        )
-        self.empirical_model_file = str(rospy.get_param("~empirical_model_file", ""))
-        self.empirical_model = self.load_empirical_model()
-        self.reference_current_a = (
-            float(self.empirical_model["normalization"]["reference_current_a"])
-            if self.empirical_model
-            else 0.0
-        )
-        self.forward_current_scale = max(
-            0.0, float(rospy.get_param("~forward_current_scale", 1.0))
-        )
-        self.reverse_current_scale = max(
-            0.0, float(rospy.get_param("~reverse_current_scale", 1.0))
-        )
         self.synthetic_current_a = {"left": 0.0, "right": 0.0}
         self.synthetic_rpm = {"left": 0.0, "right": 0.0}
         self.synthetic_pwm_us = {"left": 1500.0, "right": 1500.0}
@@ -158,9 +133,6 @@ class DriveToThrusters:
 
         self.p_left = rospy.Publisher(left_topic, Wrench, queue_size=1)
         self.p_right = rospy.Publisher(right_topic, Wrench, queue_size=1)
-        self.model_status_pub = rospy.Publisher(
-            "~actuator_proxy_status", String, queue_size=1, latch=True
-        )
         self.actuator_state_pub = rospy.Publisher(
             "~actuator_state", String, queue_size=10
         )
@@ -170,15 +142,11 @@ class DriveToThrusters:
         self.target_right = 0.0
         self.actual_left = 0.0
         self.actual_right = 0.0
-        self.previous_curve_magnitude = {"left": 0.0, "right": 0.0}
-        self.previous_curve_sign = {"left": 0, "right": 0}
-        self.previous_curve_sweep = {"left": "rising", "right": "rising"}
         self.last_cmd_time = rospy.Time.now()
         self.last_update_time = rospy.Time.now()
         self.timer = rospy.Timer(rospy.Duration(1.0 / self.rate_hz), self.update)
-        self.publish_model_status()
         rospy.loginfo(
-            "Drive-to-thrusters bridge initialized for namespace: %s drive=%s left=%s right=%s left_scale=%.3f right_scale=%.3f tau=%.3fs max_delta=%.3f/s empirical_model=%s",
+            "Drive-to-thrusters bridge initialized for namespace: %s drive=%s left=%s right=%s left_scale=%.3f right_scale=%.3f tau=%.3fs max_delta=%.3f/s",
             namespace,
             drive_topic,
             left_topic,
@@ -187,57 +155,11 @@ class DriveToThrusters:
             self.right_scale,
             self.response_time_constant_sec,
             self.max_drive_delta_per_sec,
-            "enabled" if self.empirical_model else "disabled",
         )
 
-    def load_empirical_model(self):
-        if not self.empirical_model_enabled:
-            return None
-        path = Path(self.empirical_model_file).expanduser()
-        if not path.is_file():
-            raise rospy.ROSInitException(
-                "empirical simulator model enabled but unavailable: {}".format(path)
-            )
-        try:
-            payload = json.loads(path.read_text(encoding="utf-8"))
-            return validate_proxy(payload)
-        except (OSError, ValueError, json.JSONDecodeError) as error:
-            raise rospy.ROSInitException(
-                "failed to load empirical simulator model {}: {}".format(path, error)
-            )
-
-    def publish_model_status(self):
-        status = {
-            "enabled": self.empirical_model_enabled,
-            "loaded": self.empirical_model is not None,
-            "schema": "",
-            "sha256": "",
-            "proxy_kind": "",
-        }
-        if self.empirical_model is not None:
-            status.update(
-                {
-                    "schema": self.empirical_model["schema"],
-                    "sha256": payload_sha256(self.empirical_model),
-                    "proxy_kind": self.empirical_model["proxy_kind"],
-                    "source_model_sha256": self.empirical_model["source_model"].get(
-                        "source_sha256", ""
-                    ),
-                    "source_model_artifact_sha256": self.empirical_model[
-                        "source_model"
-                    ].get("artifact_sha256", ""),
-                    "path": str(Path(self.empirical_model_file).expanduser()),
-                }
-            )
-        self.model_status_pub.publish(String(data=json.dumps(status, sort_keys=True)))
-
     def callback(self, msg):
-        # The side-specific empirical curves already own steady-state
-        # asymmetry. Legacy scaling remains active only for the linear plant.
-        left_scale = 1.0 if self.empirical_model else self.left_scale
-        right_scale = 1.0 if self.empirical_model else self.right_scale
-        self.target_left = self.shape_drive(msg.left, left_scale)
-        self.target_right = self.shape_drive(msg.right, right_scale)
+        self.target_left = self.shape_drive(msg.left, self.left_scale)
+        self.target_right = self.shape_drive(msg.right, self.right_scale)
         self.last_cmd_time = rospy.Time.now()
 
     def shape_drive(self, cmd, scale):
@@ -247,37 +169,9 @@ class DriveToThrusters:
     def drive_to_thrust(self, drive, side):
         if abs(drive) <= 1e-12:
             self.synthetic_current_a[side] = 0.0
-            self.previous_curve_magnitude[side] = 0.0
-            self.previous_curve_sign[side] = 0
-            self.previous_curve_sweep[side] = "rising"
+            self.synthetic_rpm[side] = 0.0
+            self.synthetic_pwm_us[side] = 1500.0
             return 0.0
-        if self.empirical_model:
-            direction = "forward" if drive >= 0.0 else "reverse"
-            table = self.empirical_model["sides"][side]["directions"][direction]
-            magnitude = abs(drive)
-            sign = 1 if drive > 0.0 else -1
-            sweep = select_hysteresis_sweep(
-                self.previous_curve_sign[side],
-                self.previous_curve_magnitude[side],
-                self.previous_curve_sweep[side],
-                sign,
-                magnitude,
-            )
-            effort = curve_effort(table, magnitude, sweep)
-            current_scale = (
-                self.forward_current_scale
-                if drive >= 0.0
-                else self.reverse_current_scale
-            )
-            self.synthetic_current_a[side] = (
-                effort * self.reference_current_a * current_scale
-            )
-            self.previous_curve_magnitude[side] = magnitude
-            self.previous_curve_sign[side] = sign
-            self.previous_curve_sweep[side] = sweep
-            force_scale = self.max_fwd_thrust if drive >= 0.0 else self.max_bck_thrust
-            return (1.0 if drive >= 0.0 else -1.0) * effort * force_scale
-        self.synthetic_current_a[side] = 0.0
         direction = "forward" if drive >= 0.0 else "reverse"
         regime = self.regimes["{}_{}".format(side, direction)]
         values = propulsion_output(drive, regime, self.simulated_voltage_v)
@@ -287,7 +181,7 @@ class DriveToThrusters:
         return values["force_n"]
 
     def reset_actuator_epoch(self, now):
-        """Clear all command, lag, current, and hysteresis state on time reset."""
+        """Clear all command, lag, and telemetry state on time reset."""
         self.target_left = 0.0
         self.target_right = 0.0
         self.actual_left = 0.0
@@ -297,9 +191,6 @@ class DriveToThrusters:
         self.synthetic_pwm_us = {"left": 1500.0, "right": 1500.0}
         self.direction_sign = {"left": 0, "right": 0}
         self.direction_blank_until = {"left": now, "right": now}
-        self.previous_curve_magnitude = {"left": 0.0, "right": 0.0}
-        self.previous_curve_sign = {"left": 0, "right": 0}
-        self.previous_curve_sweep = {"left": "rising", "right": "rising"}
         self.last_cmd_time = now
         self.last_update_time = now
 

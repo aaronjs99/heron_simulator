@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Publish explicitly synthetic Heron ``/sense`` and ``/status`` contracts.
 
-The real MCU owns this topic on hardware.  Gazebo has no battery monitor or
-motor-current sensor. When the empirical actuator proxy is active, this bridge
-reports its current-shaped state while retaining non-physical,
-non-calibration provenance.
+The real MCU owns this topic on hardware. Gazebo has no battery monitor or
+motor-current sensor, so this bridge reports the canonical simulator plant's
+synthetic actuator state with explicit non-physical, non-calibration provenance.
 """
 
 from __future__ import annotations

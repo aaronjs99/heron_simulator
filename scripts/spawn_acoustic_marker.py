@@ -12,12 +12,12 @@ import yaml
 from gazebo_msgs.srv import SpawnModel
 from geometry_msgs.msg import Pose
 
-from heron_simulator_runtime.acoustic_marker_model import (
+from models.acoustic_marker_model import (
     MarkerDescriptorError,
     load_descriptor,
     render_sdf,
 )
-from heron_simulator_runtime.parameters import strict_bool
+from models.parameters import strict_bool
 
 
 class MarkerInstanceError(ValueError):

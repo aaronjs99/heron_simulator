@@ -97,8 +97,8 @@ underwater material response.
 
 `range_marker_pool.world` includes the tank and visual water surface but omits
 the legacy `tank_targets` model. Its scenario points to exactly one RANGE_AID
-descriptor and provisional instance at map/world position
-$(0,0,-1.50)\ \mathrm{m}$ with $160^\circ$ yaw. Ground truth is available for
+descriptor and provisional instance at map/world position `(0, 0, -1.50) m`
+with 160 degrees yaw. Ground truth is available for
 synthetic scoring only; it is not fed to marker detection or estimation.
 
 The DT100 proxy provides one vertical cross-track slice per ping, and the
@@ -155,18 +155,9 @@ scaling, lag, slew, and reversal blanking and publishes synthetic PWM, RPM,
 current, voltage, thrust, and status. `sim_sense.py` uses the same plant state so
 electrical surfaces remain internally consistent.
 
-The retained S4.8 and S4.9 qualifications used the then-standard
-`config/thruster_dynamics.yaml` plant at their recorded repository revisions,
-with the optional empirical actuator proxy disabled. Both selected MARINER's
-force-domain cascade and identity current stage. Those results remain evidence
-for their frozen configurations; they are not retroactively reinterpreted
-under a later force scale. The four-regime inverse upstream and the simulator
-plant downstream are separate models: agreement within this loop is software
-behavior, not an independent force measurement.
-
 The standard plant's full-command scale uses the legacy Heron simulator's
 [trial-run thrust table](https://github.com/heron/heron_simulator#thrust-forces):
-$33.6\ \mathrm{N}$ forward and $19.88\ \mathrm{N}$ reverse per thruster. The
+33.6 N forward and 19.88 N reverse per thruster. The
 local July 20 electrical profile informs side- and direction-specific onset and
 current proxies, not force. Payload, inflow, RPM, thrust, and hydrodynamic
 coefficients were not jointly identified, so these remain provisional
@@ -176,11 +167,9 @@ Vehicle mass, inertia, fluid density, damping, and thruster placement determine
 motion response. Overlays are part of recorded simulator configuration and do
 not change the real Heron path.
 
-The empirical proxy module validates/interpolates an optional proxy before plant
-use. Those fail-closed checks are runtime safety. Command-to-current,
-current-to-thrust, thrust-to-motion, and closed-loop control remain separate
-relationships. Simulation can expose asymmetry, reversal, saturation, timing,
-and fallback but cannot establish the physical force law.
+Command-to-current, current-to-thrust, thrust-to-motion, and closed-loop control
+remain separate relationships. Simulation can expose asymmetry, reversal,
+saturation, and timing but cannot establish the physical force law.
 
 The defensible description is **physics-based simulation with provisional,
 partly data-informed actuator parameterization**. Historical data informed some
