@@ -3,6 +3,8 @@ project(heron_simulator)
 
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  nav_msgs
+  oracle
   roscpp
   std_msgs
 )
@@ -11,7 +13,7 @@ catkin_python_setup()
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GAZEBO REQUIRED IMPORTED_TARGET gazebo)
 
-catkin_package(CATKIN_DEPENDS geometry_msgs roscpp std_msgs)
+catkin_package(CATKIN_DEPENDS geometry_msgs nav_msgs oracle roscpp std_msgs)
 
 #############################################################################
 # Install directories (config, launch, worlds, urdf, models, docs)
@@ -56,8 +58,10 @@ catkin_install_python(PROGRAMS
   scripts/multibeam_raw.py
   scripts/ping360_profile_sim.py
   scripts/scenarios.py
+  scripts/sim_grounding_evidence_assessor.py
   scripts/sim_sense.py
   scripts/sim_ig_timing.py
+  scripts/simulated_navigation_state.py
   scripts/spawn_acoustic_marker.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

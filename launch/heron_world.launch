@@ -63,6 +63,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="sense_topic" default="/sense"/>
   <arg name="sense_rate_hz" default="10.0"/>
   <arg name="sense_battery_v" default="16.0"/>
+  <arg name="vehicle_battery_topic" default="/battery/heron_state"/>
+  <arg name="payload_battery_topic" default="/sense_ighandle"/>
+  <arg name="grounding_evidence_models_file" default="$(find heron_simulator)/config/grounding_evidence_models.yaml"/>
+  <arg name="grounding_evidence_assess_service" default="/oracle/grounding_evidence/assess"/>
+  <arg name="grounding_evidence_max_age_sec" default="30.0"/>
+  <arg name="grounding_evidence_future_skew_sec" default="0.25"/>
   <arg name="pps_rate_hz" default="1.0"/>
   <arg name="camera_time_image_topics"
        default="/sensors/camera/f1/image_raw,/sensors/camera/f2/image_raw,/sensors/camera/f3/image_raw,/sensors/camera/f4/image_raw"/>
@@ -149,6 +155,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="sense_topic" value="$(arg sense_topic)" />
     <arg name="sense_rate_hz" value="$(arg sense_rate_hz)" />
     <arg name="sense_battery_v" value="$(arg sense_battery_v)" />
+    <arg name="vehicle_battery_topic" value="$(arg vehicle_battery_topic)" />
+    <arg name="payload_battery_topic" value="$(arg payload_battery_topic)" />
     <arg name="pps_rate_hz" value="$(arg pps_rate_hz)" />
     <arg name="camera_time_image_topics" value="$(arg camera_time_image_topics)" />
     <arg name="use_joint_state_fallback" value="$(arg use_joint_state_fallback)" />
@@ -166,5 +174,16 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="allow_provisional_descriptor"
          value="$(arg allow_provisional_acoustic_marker)"/>
   </include>
+
+  <node pkg="heron_simulator"
+        type="sim_grounding_evidence_assessor.py"
+        name="grounding_evidence_assessor"
+        output="screen">
+    <param name="models_file" value="$(arg grounding_evidence_models_file)"/>
+    <param name="service_name" value="$(arg grounding_evidence_assess_service)"/>
+    <param name="allowed_caller" value="/manager"/>
+    <param name="max_evidence_age_sec" value="$(arg grounding_evidence_max_age_sec)"/>
+    <param name="future_skew_sec" value="$(arg grounding_evidence_future_skew_sec)"/>
+  </node>
 
 </launch>

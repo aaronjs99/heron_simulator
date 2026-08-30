@@ -13,6 +13,7 @@ import time
 
 import rospy
 from heron_msgs.msg import Sense, Status
+from sensor_msgs.msg import BatteryState
 from std_msgs.msg import String
 
 
@@ -26,6 +27,12 @@ class SimSense:
         self.rate_hz = max(0.1, float(rospy.get_param("~rate_hz", 10.0)))
         self.status_rate_hz = max(0.1, float(rospy.get_param("~status_rate_hz", 1.0)))
         self.battery_v = float(rospy.get_param("~battery_v", 16.0))
+        self.vehicle_battery_fraction = float(
+            rospy.get_param("~vehicle_battery_fraction", 1.0)
+        )
+        self.payload_battery_fraction = float(
+            rospy.get_param("~payload_battery_fraction", 1.0)
+        )
         self.actuator_state_topic = str(
             rospy.get_param(
                 "~actuator_state_topic",
@@ -44,6 +51,16 @@ class SimSense:
         self.motor_power_consumed_wh = 0.0
         self.publisher = rospy.Publisher(self.topic, Sense, queue_size=10)
         self.status_publisher = rospy.Publisher(self.status_topic, Status, queue_size=2)
+        self.vehicle_battery_publisher = rospy.Publisher(
+            str(rospy.get_param("~vehicle_battery_topic", "/battery/heron_state")),
+            BatteryState,
+            queue_size=2,
+        )
+        self.payload_battery_publisher = rospy.Publisher(
+            str(rospy.get_param("~payload_battery_topic", "/sense_ighandle")),
+            BatteryState,
+            queue_size=2,
+        )
         self.source_status_publisher = rospy.Publisher(
             "~source_status", String, queue_size=1, latch=True
         )
@@ -78,6 +95,20 @@ class SimSense:
             queue_size=10,
         )
 
+    def _battery_state(self, stamp, fraction: float, location: str) -> BatteryState:
+        """Build explicitly synthetic, fresh battery telemetry for simulation."""
+        state = BatteryState()
+        state.header.stamp = stamp
+        state.voltage = self.battery_v
+        state.percentage = min(1.0, max(0.0, float(fraction)))
+        state.present = True
+        state.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_UNKNOWN
+        state.power_supply_health = BatteryState.POWER_SUPPLY_HEALTH_GOOD
+        state.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_UNKNOWN
+        state.location = location
+        state.serial_number = "synthetic_simulation"
+        return state
+
     def _actuator_state_cb(self, message) -> None:
         try:
             payload = json.loads(message.data)
@@ -109,6 +140,20 @@ class SimSense:
             message.rc_rotation = 0
             message.rc_enable = 0
             self.publisher.publish(message)
+            self.vehicle_battery_publisher.publish(
+                self._battery_state(
+                    message.header.stamp,
+                    self.vehicle_battery_fraction,
+                    "simulated_vehicle",
+                )
+            )
+            self.payload_battery_publisher.publish(
+                self._battery_state(
+                    message.header.stamp,
+                    self.payload_battery_fraction,
+                    "simulated_payload",
+                )
+            )
             now_wall_sec = time.monotonic()
             if now_wall_sec >= self.next_status_wall_sec:
                 stamp_sec = message.header.stamp.to_sec()

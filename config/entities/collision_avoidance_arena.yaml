@@ -6,7 +6,7 @@ return_entity_id: home
 zones:
   - id: COLLISION_AVOIDANCE_ARENA
     description: bounded simulator arena for independent static-obstacle clearance evidence
-    bounds: {x_min: -3.0, x_max: 7.0, y_min: -5.0, y_max: 5.0}
+    bounds: {x_min: -4.5, x_max: 9.5, y_min: -6.0, y_max: 6.0}
     priority: 10
     pad_m: 0.5
 
@@ -40,9 +40,9 @@ entities:
     zone: COLLISION_AVOIDANCE_ARENA
     affordances: [AVOID]
     pose:
-      position: {x: 2.5, y: 4.0, z: 0.55}
+      position: {x: 2.5, y: 5.0, z: 0.55}
       orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
-    extent: [8.0, 0.4, 1.2]
+    extent: [12.0, 0.4, 1.2]
 
   - id: south_reference_wall
     class: WALL
@@ -50,9 +50,9 @@ entities:
     zone: COLLISION_AVOIDANCE_ARENA
     affordances: [AVOID]
     pose:
-      position: {x: 2.5, y: -4.0, z: 0.55}
+      position: {x: 2.5, y: -5.0, z: 0.55}
       orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
-    extent: [8.0, 0.4, 1.2]
+    extent: [12.0, 0.4, 1.2]
 
   - id: west_reference_wall
     class: WALL
@@ -60,6 +60,16 @@ entities:
     zone: COLLISION_AVOIDANCE_ARENA
     affordances: [AVOID]
     pose:
-      position: {x: -2.0, y: 0.0, z: 0.55}
+      position: {x: -3.5, y: 0.0, z: 0.55}
       orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
-    extent: [0.4, 5.0, 1.2]
+    extent: [0.4, 10.0, 1.2]
+
+  - id: east_reference_wall
+    class: WALL
+    static: true
+    zone: COLLISION_AVOIDANCE_ARENA
+    affordances: [AVOID]
+    pose:
+      position: {x: 8.5, y: 0.0, z: 0.55}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [0.4, 10.0, 1.2]

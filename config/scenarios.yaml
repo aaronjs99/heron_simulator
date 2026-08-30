@@ -3,6 +3,7 @@ default_scenario: harbor
 
 scenarios:
   collision_avoidance_arena: config/scenarios/collision_avoidance_arena.yaml
+  collision_avoidance_arena_westbound: config/scenarios/collision_avoidance_arena_westbound.yaml
   exploration_arena: config/scenarios/exploration_arena.yaml
   harbor: config/scenarios/harbor.yaml
   pool: config/scenarios/pool.yaml
