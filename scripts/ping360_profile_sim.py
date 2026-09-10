@@ -6,8 +6,9 @@ from __future__ import annotations
 import hashlib
 import struct
 
-import rospy
-import sensor_msgs.point_cloud2 as pc2
+import rclpy
+from rclpy.node import Node
+import sensor_msgs_py.point_cloud2 as pc2
 from ig_handle.msg import SonarProfile
 from sensor_msgs.msg import PointCloud2
 
@@ -17,45 +18,47 @@ from models.ping360_profile_model import (
 )
 
 
-class Ping360ProfileSimulator:
+class Ping360ProfileSimulator(Node):
     def __init__(self):
+        super().__init__("ping360_profile_sim")
+
         self.input_topic = str(
-            rospy.get_param("~input_topic", "/sim/sensors/sonar/ping360_points")
+            self.declare_parameter("input_topic", "/sim/sensors/sonar/ping360_points").value
         )
         self.profile_topic = str(
-            rospy.get_param("~profile_topic", "/sensors/sonar/imaging/profile")
+            self.declare_parameter("profile_topic", "/sensors/sonar/imaging/profile").value
         )
         self.frame_id = (
-            str(rospy.get_param("~frame_id", "ping360_link")).strip().lstrip("/")
+            str(self.declare_parameter("frame_id", "ping360_link").value).strip().lstrip("/")
         )
         self.extrinsic_revision = str(
-            rospy.get_param("~extrinsic_revision", "") or ""
+            self.declare_parameter("extrinsic_revision", "").value or ""
         ).strip()
         if not self.extrinsic_revision:
-            raise ValueError("~extrinsic_revision is required")
+            raise ValueError("extrinsic_revision is required")
         if not self.frame_id:
-            raise ValueError("~frame_id is required")
+            raise ValueError("frame_id is required")
         self.provider = str(
-            rospy.get_param("~provider", "blue_robotics_ping360")
+            self.declare_parameter("provider", "blue_robotics_ping360").value
         ).strip()
-        self.model = str(rospy.get_param("~model", "Ping360")).strip()
+        self.model = str(self.declare_parameter("model", "Ping360").value).strip()
         if not self.provider or not self.model:
-            raise ValueError("~provider and ~model are required")
-        self.sound_speed_mps = float(rospy.get_param("~sound_speed_mps", 1480.0))
-        self.number_of_samples = int(rospy.get_param("~number_of_samples", 1200))
-        self.min_range_m = float(rospy.get_param("~min_range_m", 0.5))
-        self.max_range_m = float(rospy.get_param("~max_range_m", 100.0))
-        self.gain_setting = int(rospy.get_param("~gain_setting", 1))
-        self.transmit_duration_us = int(rospy.get_param("~transmit_duration_us", 11))
+            raise ValueError("provider and model are required")
+        self.sound_speed_mps = float(self.declare_parameter("sound_speed_mps", 1480.0).value)
+        self.number_of_samples = int(self.declare_parameter("number_of_samples", 1200).value)
+        self.min_range_m = float(self.declare_parameter("min_range_m", 0.5).value)
+        self.max_range_m = float(self.declare_parameter("max_range_m", 100.0).value)
+        self.gain_setting = int(self.declare_parameter("gain_setting", 1).value)
+        self.transmit_duration_us = int(self.declare_parameter("transmit_duration_us", 11).value)
         self.transmit_frequency_khz = int(
-            rospy.get_param("~transmit_frequency_khz", 750)
+            self.declare_parameter("transmit_frequency_khz", 750).value
         )
-        self.drop_every_n = int(rospy.get_param("~drop_every_n", 0))
-        self.invalid_every_n = int(rospy.get_param("~invalid_every_n", 0))
+        self.drop_every_n = int(self.declare_parameter("drop_every_n", 0).value)
+        self.invalid_every_n = int(self.declare_parameter("invalid_every_n", 0).value)
         self.sweep = MechanicalSweep(
-            int(rospy.get_param("~start_angle_grad", 0)),
-            int(rospy.get_param("~stop_angle_grad", 399)),
-            int(rospy.get_param("~num_steps", 1)),
+            int(self.declare_parameter("start_angle_grad", 0).value),
+            int(self.declare_parameter("stop_angle_grad", 399).value),
+            int(self.declare_parameter("num_steps", 1).value),
         )
         self.sample_interval_m = self.max_range_m / self.number_of_samples
         self.sample_period_ticks = int(
@@ -64,29 +67,25 @@ class Ping360ProfileSimulator:
         if not 80 <= self.sample_period_ticks <= 40000:
             raise ValueError("simulated sample period is outside Ping360 limits")
         self.sequence = 0
-        self.publisher = rospy.Publisher(
-            self.profile_topic, SonarProfile, queue_size=20
+        self.publisher = self.create_publisher(SonarProfile, self.profile_topic, 20)
+        self.subscriber = self.create_subscription(
+            PointCloud2, self.input_topic, self._cloud_callback, 2
         )
-        self.subscriber = rospy.Subscriber(
-            self.input_topic, PointCloud2, self._cloud_callback, queue_size=2
-        )
-        rospy.loginfo(
-            "ping360_profile_sim input=%s profile=%s frame=%s revision=%s",
-            self.input_topic,
-            self.profile_topic,
-            self.frame_id,
-            self.extrinsic_revision,
+        self.get_logger().info(
+            "ping360_profile_sim input={} profile={} frame={} revision={}".format(
+                self.input_topic, self.profile_topic, self.frame_id, self.extrinsic_revision
+            )
         )
 
     def _cloud_callback(self, cloud):
         source_frame = str(cloud.header.frame_id or "").lstrip("/")
         expected_frame = self.frame_id.lstrip("/")
         if source_frame != expected_frame:
-            rospy.logwarn_throttle(
-                5.0,
-                "ping360_profile_sim dropped profile: source frame '%s' != '%s'",
-                source_frame or "(empty)",
-                expected_frame,
+            self.get_logger().warn(
+                "ping360_profile_sim dropped profile: source frame '{}' != '{}'".format(
+                    source_frame or "(empty)", expected_frame
+                ),
+                throttle_duration_sec=5.0,
             )
             return
         self.sequence += 1
@@ -112,6 +111,9 @@ class Ping360ProfileSimulator:
         invalid = bool(
             self.invalid_every_n and self.sequence % self.invalid_every_n == 0
         )
+        # Raw builtin_interfaces/Time fields (sec, nanosec) are unaffected by
+        # the ROS2 Header changes - only 'seq' was removed 
+        stamp_sec = cloud.header.stamp.sec + cloud.header.stamp.nanosec * 1e-9
         identity = (
             self.provider.encode("utf-8")
             + b"\0"
@@ -124,7 +126,7 @@ class Ping360ProfileSimulator:
             + struct.pack(
                 "<IdHHHH",
                 self.sequence,
-                cloud.header.stamp.to_sec(),
+                stamp_sec,
                 angle_grad,
                 self.sample_period_ticks,
                 self.transmit_frequency_khz,
@@ -168,9 +170,15 @@ class Ping360ProfileSimulator:
 
 
 def main():
-    rospy.init_node("ping360_profile_sim")
-    Ping360ProfileSimulator()
-    rospy.spin()
+    rclpy.init()
+    node = Ping360ProfileSimulator()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == "__main__":

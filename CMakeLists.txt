@@ -1,20 +1,23 @@
 cmake_minimum_required(VERSION 3.13)
 project(heron_simulator)
 
-find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
-  roscpp
-  std_msgs
-)
-catkin_python_setup()
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+
+find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(oracle REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GAZEBO REQUIRED IMPORTED_TARGET gazebo)
 
-catkin_package(CATKIN_DEPENDS geometry_msgs roscpp std_msgs)
-
 #############################################################################
-# Install directories (config, launch, worlds, urdf, models, docs)
+# Build the Gazebo plugins
 #############################################################################
 add_library(RelativeForcePlugin src/RelativeForcePlugin.cpp)
 add_library(PassiveDisturbancePlugin src/PassiveDisturbancePlugin.cpp)
@@ -26,48 +29,52 @@ set(HERON_SIMULATOR_PLUGINS
   SurfaceHydrodynamicsPlugin
 )
 foreach(HERON_SIMULATOR_PLUGIN ${HERON_SIMULATOR_PLUGINS})
-  target_include_directories(${HERON_SIMULATOR_PLUGIN} PRIVATE
-    ${catkin_INCLUDE_DIRS}
-  )
-  target_link_libraries(${HERON_SIMULATOR_PLUGIN}
-    PkgConfig::GAZEBO
-    ${catkin_LIBRARIES}
+  target_link_libraries(${HERON_SIMULATOR_PLUGIN} PkgConfig::GAZEBO)
+  ament_target_dependencies(${HERON_SIMULATOR_PLUGIN}
+    rclcpp
+    geometry_msgs
+    nav_msgs
+    std_msgs
   )
 endforeach()
 
+#############################################################################
+# Install directories (config, launch, worlds, urdf, models, docs)
+#############################################################################
 install(DIRECTORY config docs launch models urdf worlds
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION share/${PROJECT_NAME}
 )
 
 install(TARGETS
   PassiveDisturbancePlugin
   RelativeForcePlugin
   SurfaceHydrodynamicsPlugin
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION lib/${PROJECT_NAME}
 )
 
 #############################################################################
 # Install Python scripts
 #############################################################################
+ament_python_install_package(models PACKAGE_DIR scripts/models)
 
-catkin_install_python(PROGRAMS
+install(PROGRAMS
   scripts/acoustic_marker_model.py
   scripts/drive_to_thrusters.py
   scripts/multibeam_raw.py
   scripts/ping360_profile_sim.py
   scripts/scenarios.py
+  scripts/sim_grounding_evidence_assessor.py
   scripts/sim_sense.py
   scripts/sim_ig_timing.py
+  scripts/simulated_navigation_state.py
   scripts/spawn_acoustic_marker.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(PROGRAMS
   scripts/gazebo_with_xvfb.py
   scripts/profile_env_run.sh
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 install(FILES scripts/scenarios.py
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scripts
+  DESTINATION share/${PROJECT_NAME}/scripts
 )
+
+ament_package()

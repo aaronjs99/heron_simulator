@@ -6,18 +6,16 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, Mapping, Tuple
 
-import rospkg
+from ament_index_python.packages import PackageNotFoundError, get_package_share_directory
 import yaml
 
 from models.parameters import strict_bool
 
-ROS_PACK = rospkg.RosPack()
-
 
 def _package_dir() -> Path:
     try:
-        return Path(ROS_PACK.get_path("heron_simulator"))
-    except rospkg.ResourceNotFound:
+        return Path(get_package_share_directory("heron_simulator"))
+    except PackageNotFoundError:
         return Path(__file__).resolve().parents[1]
 
 
@@ -40,8 +38,8 @@ def _resolve_path(value: str) -> str:
     parts = path.parts
     if len(parts) > 1:
         try:
-            package_root = Path(ROS_PACK.get_path(parts[0]))
-        except rospkg.ResourceNotFound:
+            package_root = Path(get_package_share_directory(parts[0]))
+        except PackageNotFoundError:
             package_root = PACKAGE_DIR.parent / parts[0]
         return str(package_root.joinpath(*parts[1:]))
     return str(PACKAGE_DIR / path)
