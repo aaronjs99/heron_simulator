@@ -11,7 +11,9 @@ Synthetic topics identify source and calibration eligibility.
 
 Scenario YAML carries simulator world, spawn, entity, and map-bound facts
 consumed by ORACLE through GRANDE. That is integration convenience, not
-simulator ownership of mission policy.
+simulator ownership of mission policy. Entity fixtures are accepted only when
+they declare the supported schema, the active planning frame, and metres and
+radians as their units.
 
 Scenario entity YAML and Gazebo geometry duplicate parts of the same scene, and
 no generator proves parity. Evaluation manifests identify both inputs so a
@@ -122,13 +124,13 @@ inside the controlled water volume. The harbor
 profile supports mapping, navigation, exploration, and inspection. Open water
 references external `ned_frame` and `sand_heightmap` models.
 
-The exploration arena is a synthetic, logically bounded, reduced-load frontier
-integration scenario. It uses three finite static structures:
+The exploration arena is a synthetic, logically bounded, reduced-load sensing
+and navigation integration scenario. It uses three finite static structures:
 `exploration_wall`, `exploration_return_wall`, and
 `exploration_south_breakwater`. They provide observable planar geometry and a
-bounded search area while ORACLE discovers frontiers from
-a fresh live map. Entity YAML remains simulator/evaluation reference truth in
-mapless runs rather than a planner-visible semantic prior. Success in this arena
+bounded decision-directed routing area while ORACLE builds a fresh live map.
+Entity YAML remains simulator/evaluation reference truth in mapless runs rather
+than a planner-visible semantic prior. Success in this arena
 exercises software interfaces and the configured simulator plant; it does not
 validate physical sensor error, hydrodynamics, or vehicle performance.
 
