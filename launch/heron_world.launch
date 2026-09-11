@@ -37,9 +37,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="paused" default="false"/>
   <arg name="verbose" default="false"/>
   <arg name="drive_topic" default="/cmd_drive"/>
+  <arg name="propulsion_adapter_enabled" default="true"/>
+  <arg name="simulated_housekeeping_enabled" default="true"/>
   <arg name="left_thruster_topic" default="/thrusters/1/input"/>
   <arg name="right_thruster_topic" default="/thrusters/0/input"/>
-  <arg name="thruster_dynamics_config" default="$(find heron_simulator)/config/thruster_dynamics.yaml"/>
+  <arg name="thruster_dynamics_config" default="$(find heron_simulator)/config/dynamics/thrusters.yaml"/>
   <arg name="hydrodynamics_override_enabled" default="false"/>
   <arg name="base_mass_kg" default="28.0"/>
   <arg name="fluid_density_kg_m3" default="997.7735"/>
@@ -65,8 +67,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="sense_battery_v" default="16.0"/>
   <arg name="vehicle_battery_topic" default="/battery/heron_state"/>
   <arg name="payload_battery_topic" default="/sense_ighandle"/>
-  <arg name="grounding_evidence_models_file" default="$(find heron_simulator)/config/grounding_evidence_models.yaml"/>
+  <arg name="grounding_evidence_assessment_artifact_file" default="$(find heron_simulator)/config/evidence/grounding_validity.simulation.json"/>
   <arg name="grounding_evidence_assess_service" default="/oracle/grounding_evidence/assess"/>
+  <arg name="grounding_evidence_assessor_enabled"
+       default="false"
+       doc="Launch the simulator-only ORACLE grounding-evidence service. The platform composer enables it only when ORACLE is active."/>
   <arg name="grounding_evidence_max_age_sec" default="30.0"/>
   <arg name="grounding_evidence_future_skew_sec" default="0.25"/>
   <arg name="pps_rate_hz" default="1.0"/>
@@ -86,7 +91,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="world_name" default="$(find heron_simulator)/worlds/open_water.world"/>
   <arg name="spawn_acoustic_marker" default="false"/>
   <arg name="acoustic_marker_instance_file"
-       default="$(find range_aid)/config/markers/orion_planetary_instance.yaml"/>
+       default="$(find heron_simulator)/config/scenarios/range_marker_pool/orion_planetary.simulation_instance.yaml"/>
   <arg name="acoustic_marker_descriptor_file"
        default="$(find range_aid)/config/markers/orion_planetary.yaml"/>
   <arg name="acoustic_marker_model_name" default="orion_planetary_marker"/>
@@ -129,6 +134,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="config" value="$(arg config)" />
     <arg name="sensor_frames_file" value="$(arg sensor_frames_file)" />
     <arg name="drive_topic" value="$(arg drive_topic)" />
+    <arg name="propulsion_adapter_enabled" value="$(arg propulsion_adapter_enabled)" />
+    <arg name="simulated_housekeeping_enabled" value="$(arg simulated_housekeeping_enabled)" />
     <arg name="left_thruster_topic" value="$(arg left_thruster_topic)" />
     <arg name="right_thruster_topic" value="$(arg right_thruster_topic)" />
     <arg name="thruster_dynamics_config" value="$(arg thruster_dynamics_config)" />
@@ -175,11 +182,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
          value="$(arg allow_provisional_acoustic_marker)"/>
   </include>
 
-  <node pkg="heron_simulator"
+  <node if="$(arg grounding_evidence_assessor_enabled)"
+        pkg="heron_simulator"
         type="sim_grounding_evidence_assessor.py"
         name="grounding_evidence_assessor"
         output="screen">
-    <param name="models_file" value="$(arg grounding_evidence_models_file)"/>
+    <param name="assessment_artifact_file" value="$(arg grounding_evidence_assessment_artifact_file)"/>
     <param name="service_name" value="$(arg grounding_evidence_assess_service)"/>
     <param name="allowed_caller" value="/manager"/>
     <param name="max_evidence_age_sec" value="$(arg grounding_evidence_max_age_sec)"/>

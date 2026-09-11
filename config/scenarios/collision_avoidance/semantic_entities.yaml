@@ -1,20 +1,10 @@
 schema_version: 2
 frame: map
 units: {pos: m, angles: rad}
-return_entity_id: home
-
-zones:
-  - id: COLLISION_AVOIDANCE_ARENA
-    description: bounded simulator arena for independent static-obstacle clearance evidence
-    bounds: {x_min: -4.5, x_max: 9.5, y_min: -6.0, y_max: 6.0}
-    priority: 10
-    pad_m: 0.5
 
 entities:
   - id: home
     class: HOME
-    virtual: true
-    zone: COLLISION_AVOIDANCE_ARENA
     aliases: [start, base, reference]
     affordances: [NAV, RETURN]
     description: collision campaign start pose
@@ -25,7 +15,6 @@ entities:
   - id: center_post
     class: OBSTACLE
     static: true
-    zone: COLLISION_AVOIDANCE_ARENA
     aliases: [post, collision post]
     affordances: [AVOID]
     description: exact cylindrical obstacle intersecting the direct start-goal hull sweep
@@ -37,7 +26,6 @@ entities:
   - id: north_reference_wall
     class: WALL
     static: true
-    zone: COLLISION_AVOIDANCE_ARENA
     affordances: [AVOID]
     pose:
       position: {x: 2.5, y: 5.0, z: 0.55}
@@ -47,7 +35,6 @@ entities:
   - id: south_reference_wall
     class: WALL
     static: true
-    zone: COLLISION_AVOIDANCE_ARENA
     affordances: [AVOID]
     pose:
       position: {x: 2.5, y: -5.0, z: 0.55}
@@ -57,7 +44,6 @@ entities:
   - id: west_reference_wall
     class: WALL
     static: true
-    zone: COLLISION_AVOIDANCE_ARENA
     affordances: [AVOID]
     pose:
       position: {x: -3.5, y: 0.0, z: 0.55}
@@ -67,7 +53,6 @@ entities:
   - id: east_reference_wall
     class: WALL
     static: true
-    zone: COLLISION_AVOIDANCE_ARENA
     affordances: [AVOID]
     pose:
       position: {x: 8.5, y: 0.0, z: 0.55}

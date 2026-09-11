@@ -28,8 +28,8 @@ Ping360 negative-control boundary are defined once in the
 | File | Relevance | Dependencies | Used by |
 | --- | --- | --- | --- |
 | .gitattributes | Defines simulator text and binary path handling. | Git | Contributors |
-| .gitignore | Excludes generated Gazebo and simulator artifacts. | Git | Contributors |
+| .gitignore | Applies the shared GRANDE exclusions while retaining Gazebo models and documentation as source assets. | Git | Contributors |
 | CMakeLists.txt | Defines the catkin build, target-scoped Gazebo plugin linkage, installed worlds, models, launch files, executable scripts, reusable runtime package, launch-time scenario resolver, and configuration. | CMake 3.13+, catkin, pkg-config, ROS Noetic, Gazebo, setup.py | catkin build and install spaces |
 | LICENSE | Provides the BSD-3-Clause terms for retained Clearpath code and MIT terms for GRANDE-specific extensions. | None | Repository users and redistributors |
 | package.xml | Separates Gazebo/C++ build dependencies from simulator-only runtime integrations, including active-package scenario resolution through rospkg. | ROS Noetic, Gazebo, rospkg | catkin, rosdep |
-| setup.py | Installs the reusable deterministic `models` package through the standard source/devel/install Python path. | catkin_pkg, scripts/models | CMakeLists.txt, simulator entrypoints, static validation |
+| setup.py | Installs deterministic models, shared parameter validation, and scenario resolution through the standard source/devel/install Python path. | catkin_pkg, scripts/models, scripts/scenario | CMakeLists.txt, simulator entrypoints, GRANDE runner, static validation |

@@ -1,0 +1,14 @@
+schema_version: 1
+
+instance:
+  id: orion_planetary_pool_0
+  marker_id: orion_planetary
+  marker_revision: provisional-2026-08-11-v1
+  world_frame: map
+  pose:
+    position_m: {x: 0.0, y: 0.0, z: -1.50}
+    quaternion_xyzw: {x: 0.0, y: 0.0, z: 0.984807753, w: 0.173648178}
+  survey_revision: provisional-simulation-layout-v1
+  surveyed: false
+  runtime_approved: false
+  prior_sigma_m: 0.05

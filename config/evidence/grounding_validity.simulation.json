@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "assessment_model_id": "sim_grounding_entity_truth_v1",
+  "decision_model_id": "grounding_validity_simulation",
+  "calibration_id": "sim_grounding_truth_v1",
+  "scope": "simulation_only",
+  "calibration_eligible_for_physical_use": false,
+  "evidence_source": "declared_simulator_entity_truth",
+  "outcomes": [
+    "reject",
+    "support",
+    "failure"
+  ],
+  "default_decision": "defer",
+  "default_confidence": 0.0,
+  "entity_decisions": {
+    "exploration_wall_target": {
+      "decision": "support",
+      "confidence": 1.0
+    }
+  }
+}

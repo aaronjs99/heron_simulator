@@ -41,9 +41,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="config" default="ig_handle_benchmark" />
   <arg name="sensor_frames_file" default="" />
   <arg name="drive_topic" default="/cmd_drive" />
+  <arg name="propulsion_adapter_enabled" default="true" />
+  <arg name="simulated_housekeeping_enabled" default="true" />
   <arg name="left_thruster_topic" default="/thrusters/1/input" />
   <arg name="right_thruster_topic" default="/thrusters/0/input" />
-  <arg name="thruster_dynamics_config" default="$(find heron_simulator)/config/thruster_dynamics.yaml" />
+  <arg name="thruster_dynamics_config" default="$(find heron_simulator)/config/dynamics/thrusters.yaml" />
   <arg name="hydrodynamics_override_enabled" default="false" />
   <arg name="base_mass_kg" default="28.0" />
   <arg name="fluid_density_kg_m3" default="997.7735" />
@@ -79,6 +81,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="lidar_update_rate_hz" default="10" />
   <arg name="lidar_horizontal_samples" default="1800" />
   <arg name="lidar_vertical_samples" default="16" />
+  <arg name="lidar_v_requested"
+       default="$(eval '0' if '3' in [item.strip() for item in str(arg('disabled_sensor_ids')).split(',')] else '1')" />
   <arg name="camera_f1_requested"
        default="$(eval '0' if '4' in [item.strip() for item in str(arg('disabled_sensor_ids')).split(',')] else '1')" />
   <arg name="camera_f2_requested"
@@ -92,8 +96,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
     <!-- Load the upstream Heron model in simulation mode. The simulator accepts
          /cmd_drive directly; cmd_vel -> cmd_drive belongs to MARINER/top-level
-         bringup. Camera spawn follows the shared disabled_sensor_ids contract
-         without changing the shared hardware benchmark config. -->
+         bringup. Optional simulated sensor plugins follow the shared
+         disabled_sensor_ids contract without changing hardware configuration. -->
     <group if="$(eval arg('namespace') == '')">
       <param name="robot_description"
              command="env HERON_SENSOR_FRAMES_FILE='$(arg sensor_frames_file)'
@@ -103,6 +107,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                           HERON_CAMERA_F2=$(arg camera_f2_requested)
                           HERON_CAMERA_F3=$(arg camera_f3_requested)
                           HERON_CAMERA_F4=$(arg camera_f4_requested)
+                          HERON_LIDAR_V=$(arg lidar_v_requested)
                           HERON_SIM_LIDAR_UPDATE_RATE_HZ=$(arg lidar_update_rate_hz)
                           HERON_SIM_LIDAR_HORIZONTAL_SAMPLES=$(arg lidar_horizontal_samples)
                           HERON_SIM_LIDAR_VERTICAL_SAMPLES=$(arg lidar_vertical_samples)
@@ -121,6 +126,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                           HERON_CAMERA_F2=$(arg camera_f2_requested)
                           HERON_CAMERA_F3=$(arg camera_f3_requested)
                           HERON_CAMERA_F4=$(arg camera_f4_requested)
+                          HERON_LIDAR_V=$(arg lidar_v_requested)
                           HERON_SIM_LIDAR_UPDATE_RATE_HZ=$(arg lidar_update_rate_hz)
                           HERON_SIM_LIDAR_HORIZONTAL_SAMPLES=$(arg lidar_horizontal_samples)
                           HERON_SIM_LIDAR_VERTICAL_SAMPLES=$(arg lidar_vertical_samples)
@@ -148,7 +154,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
           args="-urdf -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)
                 -model $(arg namespace)heron -param robot_description"/>
 
-    <node pkg="heron_simulator" type="drive_to_thrusters.py" name="cmd_drive_to_thrusters" output="screen">
+    <node if="$(arg propulsion_adapter_enabled)"
+          pkg="heron_simulator" type="drive_to_thrusters.py" name="cmd_drive_to_thrusters" output="screen">
       <param name="namespace" value="$(arg namespace)" />
       <param name="drive_topic" value="$(arg drive_topic)" />
       <param name="left_thruster_topic" value="$(arg left_thruster_topic)" />
@@ -186,7 +193,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <param name="max_range_m" value="$(arg sonar_max_range_m)" />
     </node>
 
-    <node pkg="heron_simulator" type="sim_sense.py" name="sim_sense" output="screen">
+    <node if="$(arg simulated_housekeeping_enabled)"
+          pkg="heron_simulator" type="sim_sense.py" name="sim_sense" output="screen">
       <param name="topic" value="$(arg sense_topic)" />
       <param name="rate_hz" value="$(arg sense_rate_hz)" />
       <param name="battery_v" value="$(arg sense_battery_v)" />

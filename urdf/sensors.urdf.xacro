@@ -139,6 +139,9 @@
     <origin xyz="$(optenv HERON_LIDAR_V_XYZ)" rpy="$(optenv HERON_LIDAR_V_RPY)"/>
   </joint>
 
+  <!-- Keep the physical link and TF in the robot model, but omit the Gazebo
+       ray sensor and publisher when inventory sensor 3 is disabled. -->
+  <xacro:if value="$(optenv HERON_LIDAR_V 1)">
   <gazebo reference="lidar_v_link">
     <sensor type="ray" name="lidar_v_sensor">
       <pose>0 0 0 0 0 0</pose>
@@ -181,6 +184,7 @@
       </plugin>
     </sensor>
   </gazebo>
+  </xacro:if>
 
   <!-- ====================================================================== -->
   <!-- Sonar -->

@@ -57,7 +57,6 @@
   <exec_depend>range_aid</exec_depend>
   <exec_depend>ig_handle</exec_depend>
   <exec_depend>mariner</exec_depend>
-  <exec_depend>robot_localization</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
 
   <!-- Robot support -->

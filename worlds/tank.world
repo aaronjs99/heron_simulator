@@ -73,9 +73,15 @@
       <pose>0.0 0.0 0.0 0 0 0</pose>
     </include>
 
-    <!-- Artificial SLAM landmarks plus static floor, sonar, and wall targets. -->
+    <!-- Registration geometry is separate from inspection targets so each
+         model has one simulator responsibility. -->
     <include>
-      <uri>model://tank_targets</uri>
+      <uri>model://pool_registration_landmarks</uri>
+      <pose>-6.42 0 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://pool_inspection_targets</uri>
       <pose>-6.42 0 0 0 0 0</pose>
     </include>
 

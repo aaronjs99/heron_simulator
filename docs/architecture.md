@@ -9,11 +9,11 @@ Gazebo ground truth supports sensor generation and labelled evaluation. It is
 not substituted for MARINER estimator feedback in navigation or control.
 Synthetic topics identify source and calibration eligibility.
 
-Scenario YAML carries simulator world, spawn, entity, and map-bound facts
-consumed by ORACLE through GRANDE. That is integration convenience, not
-simulator ownership of mission policy. Entity fixtures are accepted only when
-they declare the supported schema, the active planning frame, and metres and
-radians as their units.
+Each directory under `config/scenarios` keeps a scenario definition beside its
+semantic fixtures and any simulator-owned placement records. The index retains
+the stable operator-facing names. This is integration convenience, not
+simulator ownership of mission policy. Entity fixtures declare the supported
+schema, active planning frame, and metres and radians as their units.
 
 Scenario entity YAML and Gazebo geometry duplicate parts of the same scene, and
 no generator proves parity. Evaluation manifests identify both inputs so a
@@ -35,6 +35,12 @@ cancellation commands select that graph explicitly.
 `spawn_heron.launch` creates the vehicle and attaches sensor, timing, telemetry,
 and propulsion providers. GUI, headless, RViz, and software-rendering options
 change display behavior but not state or command meaning.
+
+The simulator's grounding-evidence assessor is an optional ORACLE support
+service, not a general simulator dependency. It is disabled by default, and
+GRANDE enables it only when ORACLE is active. MARINER-only simulation therefore
+does not require an ORACLE runtime directory or start an unused semantic
+service.
 
 Simulated messages and propulsion command timeout use ROS simulation time.
 MARINER uses ROS time for selected simulation control loops and monotonic time
@@ -83,13 +89,15 @@ interfaces match physical acquisition.
 
 ### Descriptor-driven range marker
 
-RANGE_AID owns the canonical Orion marker descriptor and its marker-instance
-record. The simulator does not copy either geometry or placement. At launch,
-`acoustic_marker_model.py` consumes RANGE_AID's canonical validation of finite
-dimensions, non-overlap, three-dimensional span, and distinct sphere
-signatures. It then applies only SDF identifier and explicit provisional opt-in
-gates before emitting stable SDF. `spawn_acoustic_marker.py` checks the instance
-against the same ID and revision before calling Gazebo's model-spawn service.
+RANGE_AID owns the canonical Orion marker descriptor and the descriptor and
+instance validation contracts. The simulator owns only the provisional
+placement used by `range_marker_pool`. At launch, `acoustic_marker_model.py`
+consumes RANGE_AID's canonical validation of finite dimensions, non-overlap,
+three-dimensional span, and distinct sphere signatures. It then applies only
+SDF identifier and explicit provisional opt-in gates before emitting stable
+SDF. `spawn_acoustic_marker.py` loads the simulator placement through
+`range_aid.marker.model.load_instance`, checks its ID and revision against the
+descriptor, and then calls Gazebo's model-spawn service.
 
 The provisional marker contains five unequal, asymmetrically placed spheres and
 four thin support struts. Sphere and strut `laser_retro` fields are deterministic
@@ -98,9 +106,9 @@ frequency response, beam pattern, multipath, absorption, scattering, or
 underwater material response.
 
 `range_marker_pool.world` includes the tank and visual water surface but omits
-the legacy `tank_targets` model. Its scenario points to exactly one RANGE_AID
-descriptor and provisional instance at map/world position `(0, 0, -1.50) m`
-with 160 degrees yaw. Ground truth is available for
+the pool registration and inspection fixtures. Its scenario points to exactly
+one RANGE_AID descriptor and one simulator-owned provisional instance at
+map/world position `(0, 0, -1.50) m` with 160 degrees yaw. Ground truth is available for
 synthetic scoring only; it is not fed to marker detection or estimation.
 
 The DT100 proxy provides one vertical cross-track slice per ping, and the
@@ -118,9 +126,15 @@ views, with explicit degeneracy and observability reporting downstream.
 Scenarios bind a Gazebo environment, initial vehicle state, semantic entities,
 and integration settings into a reproducible configuration.
 
-The tank world centers its tank, water-surface, and target models on the
-spawn/map origin so symmetric positive and negative navigation coordinates stay
-inside the controlled water volume. The harbor
+The tank world centers its tank and water-surface models on the spawn/map
+origin so symmetric positive and negative navigation coordinates stay inside
+the controlled water volume. Registration geometry and inspection targets are
+separate models. The former contains five square posts and twelve cylindrical
+pylons; the latter contains only the two floor and two wall targets represented
+in the pool semantic fixture. Two legacy bottom-sonar rigs were removed because
+they had no active consumer after the descriptor-driven marker scenario became
+the maintained acoustic-target path.
+The harbor
 profile supports mapping, navigation, exploration, and inspection. Open water
 references external `ned_frame` and `sand_heightmap` models.
 
@@ -135,8 +149,10 @@ exercises software interfaces and the configured simulator plant; it does not
 validate physical sensor error, hydrodynamics, or vehicle performance.
 
 Scenario YAML supplies initial pose, entities, world selection, offsets, and
-environmental map bounds. Mission and navigation policy comes from named
-GRANDE runtime profiles rather than simulator configuration.
+environmental map bounds. Scenario files and semantic fixtures are colocated;
+the propulsion model is under `config/dynamics`, and simulator-only grounding
+evidence is under `config/evidence`. Mission and navigation policy comes from
+named GRANDE runtime profiles rather than simulator configuration.
 
 Semantic records describe what ORACLE may discover; Gazebo files describe
 collision/visual geometry. No generator currently guarantees parity. Recorded
@@ -152,7 +168,7 @@ The propulsion path converts MARINER's normalized left/right drive request into
 Gazebo forces and synthetic actuator telemetry. It is a simulator plant, not a
 physical-Heron calibration.
 
-`drive_to_thrusters.py` represents direction, deadband, saturation, voltage
+`drive_to_thrusters.py` reads `config/dynamics/thrusters.yaml` and represents direction, deadband, saturation, voltage
 scaling, lag, slew, and reversal blanking and publishes synthetic PWM, RPM,
 current, voltage, thrust, and status. `sim_sense.py` uses the same plant state so
 electrical surfaces remain internally consistent.

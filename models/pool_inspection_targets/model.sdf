@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="pool_inspection_targets">
+    <static>true</static>
+    <link name="floor_circle_mid_tank_link">
+      <pose>6.00 1.40 -3.645 0 0 0</pose>
+      <collision name="target_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.45</radius>
+            <length>0.03</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="target_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.45</radius>
+            <length>0.03</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.88 0.12 0.12 1</ambient>
+          <diffuse>0.98 0.18 0.18 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="floor_rect_far_tank_link">
+      <pose>10.80 -1.50 -3.645 0 0 0</pose>
+      <collision name="target_collision">
+        <geometry>
+          <box>
+            <size>1.20 0.80 0.03</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="target_visual">
+        <geometry>
+          <box>
+            <size>1.20 0.80 0.03</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.96 0.86 0.12 1</ambient>
+          <diffuse>0.98 0.90 0.18 1</diffuse>
+        </material>
+      </visual>
+    </link>
+    <link name="wall_rect_far_east_link">
+      <pose>13.99 -1.80 -1.40 0 0 0</pose>
+      <collision name="target_collision">
+        <geometry>
+          <box>
+            <size>0.04 1.50 1.00</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="target_visual">
+        <geometry>
+          <box>
+            <size>0.04 1.50 1.00</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.12 0.12 0.12 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+          <specular>0.02 0.02 0.02 1</specular>
+        </material>
+      </visual>
+    </link>
+    <link name="wall_circle_north_link">
+      <pose>8.50 3.00 -1.50 1.570796 0 0</pose>
+      <collision name="target_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.50</radius>
+            <length>0.04</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name="target_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.50</radius>
+            <length>0.04</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.95 0.45 0.10 1</ambient>
+          <diffuse>0.98 0.52 0.14 1</diffuse>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

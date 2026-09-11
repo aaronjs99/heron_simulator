@@ -53,7 +53,7 @@
       <pose>0 0 0 0 0 0</pose>
     </include>
 
-    <!-- The descriptor-driven marker is spawned by ROS launch. The legacy
-         tank_targets model is deliberately absent from this isolated scene. -->
+    <!-- The descriptor-driven marker is spawned by ROS launch. Pool
+         registration and inspection fixtures are absent from this scene. -->
   </world>
 </sdf>

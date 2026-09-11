@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="instance_file"
-       default="$(find range_aid)/config/markers/orion_planetary_instance.yaml"/>
+       default="$(find heron_simulator)/config/scenarios/range_marker_pool/orion_planetary.simulation_instance.yaml"/>
   <arg name="descriptor_file"
        default="$(find range_aid)/config/markers/orion_planetary.yaml"/>
   <arg name="model_name" default="orion_planetary_marker"/>

@@ -57,11 +57,9 @@ catkin_install_python(PROGRAMS
   scripts/drive_to_thrusters.py
   scripts/multibeam_raw.py
   scripts/ping360_profile_sim.py
-  scripts/scenarios.py
   scripts/sim_grounding_evidence_assessor.py
   scripts/sim_sense.py
   scripts/sim_ig_timing.py
-  scripts/simulated_navigation_state.py
   scripts/spawn_acoustic_marker.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
@@ -70,8 +68,4 @@ install(PROGRAMS
   scripts/gazebo_with_xvfb.py
   scripts/profile_env_run.sh
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(FILES scripts/scenarios.py
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scripts
 )

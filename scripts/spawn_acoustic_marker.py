@@ -3,104 +3,30 @@
 
 from __future__ import annotations
 
-import math
 from pathlib import Path
-from typing import Any, Mapping, Tuple
 
 import rospy
 import yaml
 from gazebo_msgs.srv import SpawnModel
 from geometry_msgs.msg import Pose
+from range_aid.marker.model import MarkerInstance, load_instance
 
-from models.acoustic_marker_model import (
-    MarkerDescriptorError,
-    load_descriptor,
-    render_sdf,
-)
+from models.acoustic_marker_model import load_descriptor, render_sdf
 from models.parameters import strict_bool
 
 
-class MarkerInstanceError(ValueError):
-    """Raised when a simulator marker instance is incomplete."""
-
-
-def _mapping(value: Any, label: str) -> Mapping[str, Any]:
-    if not isinstance(value, Mapping):
-        raise MarkerInstanceError(f"{label} must be a mapping")
-    return value
-
-
-def _token(value: Any, label: str) -> str:
+def _token(value: object, label: str) -> str:
     token = str(value or "").strip()
     if not token:
-        raise MarkerInstanceError(f"{label} must be non-empty")
+        raise ValueError(f"{label} must be non-empty")
     return token
 
 
-def _number(value: Any, label: str) -> float:
-    try:
-        result = float(value)
-    except (TypeError, ValueError) as exc:
-        raise MarkerInstanceError(f"{label} must be numeric") from exc
-    if not math.isfinite(result):
-        raise MarkerInstanceError(f"{label} must be finite")
-    return result
-
-
-def _xyz(value: Any, label: str) -> Tuple[float, float, float]:
-    mapping = _mapping(value, label)
-    missing = {axis for axis in ("x", "y", "z") if axis not in mapping}
-    if missing:
-        raise MarkerInstanceError(f"{label} is missing {', '.join(sorted(missing))}")
-    return tuple(_number(mapping[axis], f"{label}.{axis}") for axis in ("x", "y", "z"))
-
-
-def _quaternion(value: Any, label: str) -> Tuple[float, float, float, float]:
-    mapping = _mapping(value, label)
-    missing = {axis for axis in ("x", "y", "z", "w") if axis not in mapping}
-    if missing:
-        raise MarkerInstanceError(f"{label} is missing {', '.join(sorted(missing))}")
-    quaternion = tuple(
-        _number(mapping[axis], f"{label}.{axis}") for axis in ("x", "y", "z", "w")
-    )
-    norm = math.sqrt(sum(value * value for value in quaternion))
-    if abs(norm - 1.0) > 1.0e-6:
-        raise MarkerInstanceError(f"{label} must be a unit quaternion")
-    return quaternion
-
-
-def load_instance(path: Path) -> Mapping[str, Any]:
-    with Path(path).open("r", encoding="utf-8") as handle:
-        document = yaml.safe_load(handle) or {}
-    root = _mapping(document, "instance document")
-    schema_version = root.get("schema_version")
-    if isinstance(schema_version, bool) or schema_version != 1:
-        raise MarkerInstanceError("marker instance schema_version must equal 1")
-    instance = _mapping(root.get("instance"), "instance")
-    _token(instance.get("id"), "instance.id")
-    _token(instance.get("marker_id"), "instance.marker_id")
-    _token(instance.get("marker_revision"), "instance.marker_revision")
-    _token(instance.get("world_frame"), "instance.world_frame")
-    pose = _mapping(instance.get("pose"), "instance.pose")
-    _xyz(pose.get("position_m"), "instance.pose.position_m")
-    _quaternion(pose.get("quaternion_xyzw"), "instance.pose.quaternion_xyzw")
-    if not isinstance(instance.get("surveyed"), bool):
-        raise MarkerInstanceError("instance.surveyed must be boolean")
-    if not isinstance(instance.get("runtime_approved"), bool):
-        raise MarkerInstanceError("instance.runtime_approved must be boolean")
-    return instance
-
-
-def _pose_from_instance(instance: Mapping[str, Any]) -> Pose:
-    value = _mapping(instance.get("pose"), "instance.pose")
-    position = _xyz(value.get("position_m"), "instance.pose.position_m")
-    quaternion = _quaternion(
-        value.get("quaternion_xyzw"), "instance.pose.quaternion_xyzw"
-    )
+def _pose_from_instance(instance: MarkerInstance) -> Pose:
     pose = Pose()
-    pose.position.x, pose.position.y, pose.position.z = position
+    pose.position.x, pose.position.y, pose.position.z = instance.position_m
     pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w = (
-        quaternion
+        instance.quaternion_xyzw
     )
     return pose
 
@@ -131,19 +57,17 @@ def main() -> None:
         descriptor = load_descriptor(
             descriptor_path, allow_provisional=allow_provisional
         )
-        if instance["marker_id"] != descriptor.marker_id:
-            raise MarkerInstanceError("instance marker_id does not match descriptor")
-        if instance["marker_revision"] != descriptor.revision:
-            raise MarkerInstanceError(
-                "instance marker_revision does not match descriptor"
-            )
-        if instance["world_frame"] != expected_instance_frame:
-            raise MarkerInstanceError(
+        if instance.marker_id != descriptor.marker_id:
+            raise ValueError("instance marker_id does not match descriptor")
+        if instance.marker_revision != descriptor.revision:
+            raise ValueError("instance marker_revision does not match descriptor")
+        if instance.world_frame != expected_instance_frame:
+            raise ValueError(
                 "instance world_frame does not match the configured scenario frame"
             )
         sdf = render_sdf(descriptor, model_name=model_name)
         pose = _pose_from_instance(instance)
-    except (OSError, yaml.YAMLError, MarkerDescriptorError, MarkerInstanceError) as exc:
+    except (OSError, yaml.YAMLError, ValueError) as exc:
         rospy.logfatal("acoustic marker configuration rejected: %s", exc)
         raise SystemExit(2)
 
@@ -155,7 +79,7 @@ def main() -> None:
         )
     rospy.loginfo(
         "mapping marker instance frame '%s' to Gazebo reference frame '%s'",
-        instance["world_frame"],
+        instance.world_frame,
         reference_frame,
     )
     try:

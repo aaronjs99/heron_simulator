@@ -1,0 +1,11 @@
+schema_version: 1
+default_scenario: harbor
+
+scenarios:
+  collision_avoidance_arena: config/scenarios/collision_avoidance/eastbound.yaml
+  collision_avoidance_arena_westbound: config/scenarios/collision_avoidance/westbound.yaml
+  collision_avoidance_yaw_station: config/scenarios/collision_avoidance/yaw_station.yaml
+  exploration_arena: config/scenarios/exploration/scenario.yaml
+  harbor: config/scenarios/harbor/scenario.yaml
+  pool: config/scenarios/pool/scenario.yaml
+  range_marker_pool: config/scenarios/range_marker_pool/scenario.yaml

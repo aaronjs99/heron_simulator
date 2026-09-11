@@ -18,11 +18,11 @@ def _package_dir() -> Path:
     try:
         return Path(ROS_PACK.get_path("heron_simulator"))
     except rospkg.ResourceNotFound:
-        return Path(__file__).resolve().parents[1]
+        return Path(__file__).resolve().parents[2]
 
 
 PACKAGE_DIR = _package_dir()
-SCENARIO_INDEX_PATH = PACKAGE_DIR / "config" / "scenarios.yaml"
+SCENARIO_INDEX_PATH = PACKAGE_DIR / "config" / "scenarios" / "index.yaml"
 
 
 def _load_yaml(path: Path) -> Dict[str, Any]:

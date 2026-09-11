@@ -1,20 +1,10 @@
 schema_version: 2
 frame: map
 units: {pos: m, angles: rad}
-return_entity_id: home
-
-zones:
-  - id: EXPLORATION_ARENA
-    description: bounded open-water sensing and navigation integration arena
-    bounds: {x_min: -8.0, x_max: 8.0, y_min: -8.0, y_max: 8.0}
-    priority: 10
-    pad_m: 0.5
 
 entities:
   - id: home
     class: HOME
-    virtual: true
-    zone: EXPLORATION_ARENA
     aliases: [start, base, reference]
     affordances: [NAV, RETURN]
     description: origin and return reference
@@ -24,7 +14,6 @@ entities:
 
   - id: exploration_wall
     class: WALL
-    zone: EXPLORATION_ARENA
     aliases: [wall, obstacle]
     affordances: [AVOID]
     description: finite wall providing observable planar navigation geometry
@@ -35,7 +24,6 @@ entities:
 
   - id: exploration_return_wall
     class: WALL
-    zone: EXPLORATION_ARENA
     aliases: [return wall, breakwater return]
     affordances: [AVOID]
     description: perpendicular return that makes the live-LiDAR arena observable without enclosing the boat
@@ -46,7 +34,6 @@ entities:
 
   - id: exploration_south_breakwater
     class: WALL
-    zone: EXPLORATION_ARENA
     aliases: [south breakwater]
     affordances: [AVOID]
     description: range-limited breakwater providing staged geometric visibility

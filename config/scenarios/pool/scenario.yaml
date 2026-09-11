@@ -1,6 +1,6 @@
 scenario_name: pool
 world_file: heron_simulator/worlds/tank.world
-entity_file: heron_simulator/config/entities/pool.yaml
+entity_file: heron_simulator/config/scenarios/pool/semantic_entities.yaml
 map_bounds:
   x_min: -8.42
   x_max: 7.58
