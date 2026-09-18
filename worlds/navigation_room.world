@@ -1,0 +1,97 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="navigation_room">
+    <physics type="ode">
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
+    </physics>
+    <gravity>0 0 -9.80665</gravity>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <include>
+      <uri>model://water_surface</uri>
+    </include>
+    <model name="north">
+      <static>true</static>
+      <pose>0 3.2 0.75 0 0 0</pose>
+      <link name="wall">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>6.8 0.2 1.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>6.8 0.2 1.5</size>
+            </box>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+    <model name="south">
+      <static>true</static>
+      <pose>0 -3.2 0.75 0 0 0</pose>
+      <link name="wall">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>6.8 0.2 1.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>6.8 0.2 1.5</size>
+            </box>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+    <model name="east">
+      <static>true</static>
+      <pose>3.2 0 0.75 0 0 0</pose>
+      <link name="wall">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.2 6.8 1.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.2 6.8 1.5</size>
+            </box>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+    <model name="west">
+      <static>true</static>
+      <pose>-3.2 0 0.75 0 0 0</pose>
+      <link name="wall">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.2 6.8 1.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.2 6.8 1.5</size>
+            </box>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

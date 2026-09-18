@@ -1,0 +1,25 @@
+schema_version: 2
+frame: map
+units: {pos: m, angles: rad}
+entities:
+  - id: island_inspection_target
+    class: PANEL
+    aliases: [island inspection face, west island face]
+    affordances: [INSPECT]
+    description: West face of the central island, expressed in the Test 1.1 map frame.
+    pose:
+      position: {x: 4.80, y: 0.0, z: 0.55}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [0.05, 2.4, 1.2]
+    reachable_viewpoints:
+      - {x: 2.00, y: -1.40, z: 0.55, yaw: 0.463648}
+      - {x: 3.00, y: -0.40, z: 0.55, yaw: 0.218669}
+      - {x: 3.60, y: 0.00, z: 0.55, yaw: 0.0}
+    decision_support_area_m2: 3.0
+    decision_support_elements_disjoint: true
+    decision_support_elements:
+      - {id: island_west_0, x: 4.79, y: -1.0, measure_m2: 0.6}
+      - {id: island_west_1, x: 4.79, y: -0.5, measure_m2: 0.6}
+      - {id: island_west_2, x: 4.79, y: 0.0, measure_m2: 0.6}
+      - {id: island_west_3, x: 4.79, y: 0.5, measure_m2: 0.6}
+      - {id: island_west_4, x: 4.79, y: 1.0, measure_m2: 0.6}

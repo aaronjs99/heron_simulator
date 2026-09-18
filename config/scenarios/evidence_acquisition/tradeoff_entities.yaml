@@ -1,0 +1,25 @@
+schema_version: 2
+frame: map
+units: {pos: m, angles: rad}
+entities:
+  - id: exploration_wall_target
+    class: PANEL
+    aliases: [inspection wall, target wall]
+    affordances: [INSPECT]
+    description: Wide target support creating a route-length and visibility tradeoff.
+    pose:
+      position: {x: 3.75, y: 0.0, z: 0.55}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [0.05, 4.8, 1.2]
+    reachable_viewpoints:
+      - {x: 2.1, y: -1.4, z: 0.55, yaw: 0.0}
+      - {x: 1.2, y: -0.4, z: 0.55, yaw: 0.0}
+      - {x: 0.3, y: 0.0, z: 0.55, yaw: 0.0}
+    decision_support_area_m2: 6.0
+    decision_support_elements_disjoint: true
+    decision_support_elements:
+      - {id: wide_0, x: 3.74, y: -2.0, measure_m2: 1.2}
+      - {id: wide_1, x: 3.74, y: -1.0, measure_m2: 1.2}
+      - {id: wide_2, x: 3.74, y: 0.0, measure_m2: 1.2}
+      - {id: wide_3, x: 3.74, y: 1.0, measure_m2: 1.2}
+      - {id: wide_4, x: 3.74, y: 2.0, measure_m2: 1.2}

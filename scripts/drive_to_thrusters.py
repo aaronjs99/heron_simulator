@@ -68,7 +68,7 @@ class DriveToThrusters:
             1e-6, float(rospy.get_param("~simulated_voltage_v", 16.0))
         )
         self.direction_change_blank_sec = max(
-            0.0, float(rospy.get_param("~direction_change_blank_sec", 0.25))
+            0.0, float(rospy.get_param("~direction_change_blank_sec", 0.0))
         )
         self.regimes = {}
         for side in ("left", "right"):

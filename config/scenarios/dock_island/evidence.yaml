@@ -1,0 +1,6 @@
+scenario_name: dock_island_evidence
+world_file: heron_simulator/worlds/dock_island.world
+entity_file: heron_simulator/config/scenarios/dock_island/evidence_entities.yaml
+map_bounds: {x_min: -2.85, x_max: 13.15, y_min: -7.0, y_max: 7.0}
+spawn_pose: {x: -5.15, y: 0.0, yaw_rad: 0.0}
+world_offset: {x: 0.0, y: 0.0}

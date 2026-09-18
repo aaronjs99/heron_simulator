@@ -12,10 +12,13 @@ max_bck_thrust: 19.88
 left_scale: 1.0
 right_scale: 1.0
 response_time_constant_sec: 0.45
-max_drive_delta_per_sec: 1.25
+# The final MARINER output owner already applies the command ramp and reversal
+# blank.  The plant models only actuator response here, avoiding two serial
+# copies of the same software behavior.
+max_drive_delta_per_sec: 0.0
 nominal_voltage_v: 16.0
 simulated_voltage_v: 16.0
-direction_change_blank_sec: 0.25
+direction_change_blank_sec: 0.0
 regimes:
   left_forward: {deadband: 0.10, force_exponent: 1.25, max_force_n: 33.6, max_current_a: 6.2, max_rpm: 5500.0, nominal_voltage_v: 16.0, voltage_exponent: 2.0}
   right_forward: {deadband: 0.15, force_exponent: 1.25, max_force_n: 33.6, max_current_a: 6.0, max_rpm: 5500.0, nominal_voltage_v: 16.0, voltage_exponent: 2.0}

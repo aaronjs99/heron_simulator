@@ -107,6 +107,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <include unless="$(arg gazebo_headless_rendering)"
              file="$(find gazebo_ros)/launch/empty_world.launch">
       <arg name="world_name" value="$(arg world_name)"/>
+      <arg name="server_required" value="true"/>
       <arg name="paused" value="$(arg paused)"/>
       <arg name="use_sim_time" value="true"/>
       <arg name="gui" value="$(arg gui)"/>
@@ -122,6 +123,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
           name="gazebo"
           pkg="heron_simulator"
           type="gazebo_with_xvfb.py"
+          required="true"
           output="screen"
           args="$(find gazebo_ros)/../../lib/gazebo_ros/gzserver -e ode $(arg gazebo_extra_args) $(arg world_name)"/>
   </group>

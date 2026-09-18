@@ -2,10 +2,18 @@ schema_version: 1
 default_scenario: harbor
 
 scenarios:
+  navigation_room: config/scenarios/navigation/scenario.yaml
   collision_avoidance_arena: config/scenarios/collision_avoidance/eastbound.yaml
   collision_avoidance_arena_westbound: config/scenarios/collision_avoidance/westbound.yaml
   collision_avoidance_yaw_station: config/scenarios/collision_avoidance/yaw_station.yaml
   exploration_arena: config/scenarios/exploration/scenario.yaml
+  dock_island: config/scenarios/dock_island/scenario.yaml
+  dock_island_evidence: config/scenarios/dock_island/evidence.yaml
+  open_water_course: config/scenarios/open_water_course/scenario.yaml
+  evidence_aligned: config/scenarios/evidence_acquisition/aligned.yaml
+  evidence_tradeoff: config/scenarios/evidence_acquisition/tradeoff.yaml
+  evidence_disagreement: config/scenarios/evidence_acquisition/disagreement.yaml
+  evidence_stop: config/scenarios/evidence_acquisition/stop.yaml
   harbor: config/scenarios/harbor/scenario.yaml
   pool: config/scenarios/pool/scenario.yaml
   range_marker_pool: config/scenarios/range_marker_pool/scenario.yaml

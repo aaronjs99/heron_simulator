@@ -8,3 +8,4 @@
 | open_water.world | Defines the default open-water Gazebo environment. | ned_frame, water_surface, sand_heightmap models | heron_simulator/launch/heron_world.launch |
 | range_marker_pool.world | Defines an isolated controlled tank without pool registration or inspection fixtures; launch spawns the descriptor-driven marker separately. | tank and water_surface models | heron_simulator/config/scenarios/range_marker_pool/scenario.yaml |
 | tank.world | Defines the controlled tank environment and composes the tank, registration-landmark, inspection-target, and water-surface models. | tank, pool_registration_landmarks, pool_inspection_targets, water_surface models | heron_simulator/config/scenarios/pool/scenario.yaml |
+| navigation_room.world | Defines a clear bounded room observable within the 6 m mapping limit for nominal translation and turn tests. | water_surface model | navigation_room scenario |

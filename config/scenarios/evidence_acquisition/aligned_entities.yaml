@@ -1,0 +1,25 @@
+schema_version: 2
+frame: map
+units: {pos: m, angles: rad}
+entities:
+  - id: exploration_wall_target
+    class: PANEL
+    aliases: [inspection wall, target wall]
+    affordances: [INSPECT]
+    description: Compact target support for the aligned-objective fixture.
+    pose:
+      position: {x: 3.75, y: 0.0, z: 0.55}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    extent: [0.05, 2.4, 1.2]
+    reachable_viewpoints:
+      - {x: 0.8, y: 0.0, z: 0.55, yaw: 0.0}
+      - {x: 1.4, y: 0.0, z: 0.55, yaw: 0.0}
+      - {x: 2.0, y: 0.0, z: 0.55, yaw: 0.0}
+    decision_support_area_m2: 3.0
+    decision_support_elements_disjoint: true
+    decision_support_elements:
+      - {id: center_0, x: 3.74, y: -1.0, measure_m2: 0.6}
+      - {id: center_1, x: 3.74, y: -0.5, measure_m2: 0.6}
+      - {id: center_2, x: 3.74, y: 0.0, measure_m2: 0.6}
+      - {id: center_3, x: 3.74, y: 0.5, measure_m2: 0.6}
+      - {id: center_4, x: 3.74, y: 1.0, measure_m2: 0.6}

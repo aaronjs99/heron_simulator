@@ -1,0 +1,6 @@
+scenario_name: open_water_course
+world_file: heron_simulator/worlds/open_water_course.world
+entity_file: heron_simulator/config/scenarios/open_water_course/entities.yaml
+map_bounds: {x_min: -5.5, x_max: 5.5, y_min: -5.5, y_max: 5.5}
+spawn_pose: {x: 0.0, y: 0.0, yaw_rad: 0.0}
+world_offset: {x: 0.0, y: 0.0}

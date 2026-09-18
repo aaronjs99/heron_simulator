@@ -1,0 +1,15 @@
+scenario_name: navigation_room
+world_file: heron_simulator/worlds/navigation_room.world
+entity_file: heron_simulator/config/scenarios/navigation/entities.yaml
+map_bounds:
+  x_min: -3.4
+  x_max: 3.4
+  y_min: -3.4
+  y_max: 3.4
+spawn_pose:
+  x: 0.0
+  y: 0.0
+  yaw_rad: 0.0
+world_offset:
+  x: 0.0
+  y: 0.0
