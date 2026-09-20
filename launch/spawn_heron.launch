@@ -111,6 +111,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                           HERON_SIM_LIDAR_UPDATE_RATE_HZ=$(arg lidar_update_rate_hz)
                           HERON_SIM_LIDAR_HORIZONTAL_SAMPLES=$(arg lidar_horizontal_samples)
                           HERON_SIM_LIDAR_VERTICAL_SAMPLES=$(arg lidar_vertical_samples)
+                      HERON_SIM_MULTIBEAM_ENABLED=$(arg simulate_multibeam_raw)
+                      HERON_SIM_PING360_ENABLED=$(arg simulate_ping360)
                       HERON_SIM_SONAR_RAY_TOPIC=$(arg sonar_ray_topic)
                       HERON_SIM_PING360_RAY_TOPIC=$(arg ping360_ray_topic)
                       xacro '$(find heron_description)/urdf/heron.urdf.xacro'
@@ -130,6 +132,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
                           HERON_SIM_LIDAR_UPDATE_RATE_HZ=$(arg lidar_update_rate_hz)
                           HERON_SIM_LIDAR_HORIZONTAL_SAMPLES=$(arg lidar_horizontal_samples)
                           HERON_SIM_LIDAR_VERTICAL_SAMPLES=$(arg lidar_vertical_samples)
+                      HERON_SIM_MULTIBEAM_ENABLED=$(arg simulate_multibeam_raw)
+                      HERON_SIM_PING360_ENABLED=$(arg simulate_ping360)
                       HERON_SIM_SONAR_RAY_TOPIC=$(arg sonar_ray_topic)
                       HERON_SIM_PING360_RAY_TOPIC=$(arg ping360_ray_topic)
                       xacro '$(find heron_description)/urdf/heron.urdf.xacro'

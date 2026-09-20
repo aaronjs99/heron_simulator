@@ -210,6 +210,7 @@
     <origin xyz="$(optenv HERON_DT100_XYZ)" rpy="$(optenv HERON_DT100_RPY)"/>
   </joint>
 
+  <xacro:if value="$(optenv HERON_SIM_MULTIBEAM_ENABLED true)">
   <gazebo reference="dt100_link">
     <sensor type="ray" name="dt100">
       <update_rate>20</update_rate>
@@ -246,6 +247,7 @@
       </plugin>
     </sensor>
   </gazebo>
+  </xacro:if>
 
   <link name="ping360_link">
     <visual>
@@ -263,6 +265,7 @@
     <origin xyz="$(optenv HERON_PING360_XYZ)" rpy="$(optenv HERON_PING360_RPY)"/>
   </joint>
 
+  <xacro:if value="$(optenv HERON_SIM_PING360_ENABLED true)">
   <gazebo reference="ping360_link">
     <!-- Separate full-circle environment sampler for the canonical Ping360
          simulator. It does not fabricate vendor wire packets: the simulator
@@ -301,6 +304,7 @@
       </plugin>
     </sensor>
   </gazebo>
+  </xacro:if>
 
   <!-- ====================================================================== -->
   <!-- Camera Mount Pole -->

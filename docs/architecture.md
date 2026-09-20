@@ -68,6 +68,10 @@ Gazebo plugins provide LiDAR, camera, IMU, and vehicle observations.
 publishes explicitly synthetic Heron telemetry tied to the selected propulsion
 plant.
 
+The existing `simulate_multibeam_raw` and `simulate_ping360` options enable both
+the provider and its Gazebo ray sensor. Disabled sensors retain their mounting
+links and inertias but generate no rays.
+
 Multibeam and Ping360 providers translate Gazebo rays into their canonical
 profile meanings. They represent geometry and transport, not acoustic
 propagation, transducer response, multipath, turbidity, or real latency.
