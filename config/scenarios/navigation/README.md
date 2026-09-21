@@ -1,11 +1,6 @@
-# Navigation room
+# File Structure
 
-A nominal navigation fixture with four visible walls, each 3.1 m from the origin to its inner face. The existing simulated LiDAR and IMU build the map and odometry; this fixture supplies no occupancy map. Wall returns around the two central test motions lie within the shared 6 m mapping limit. It isolates ordinary navigation from frontier coverage and tight-wall edge cases.
-
-## File Structure
-
-| File | Purpose |
-|---|---|
-| README.md | Scope and fixture interpretation. |
-| scenario.yaml | Existing simulator scenario interface: world, bounds and spawn. |
-| entities.yaml | Empty semantic catalog; navigation uses measured relative poses. |
+| File | Relevance | Dependencies | Used by |
+| --- | --- | --- | --- |
+| entities.yaml | Declares an empty semantic catalog so navigation uses measured relative poses. | Scenario schema | Navigation-room scenario |
+| scenario.yaml | Selects a bounded room whose wall inner faces are 3.1 m from the origin, within the 6 m mapping range; simulated LiDAR/IMU build the map and state without a privileged occupancy map. | navigation_room.world, simulator scenario interface | S8.5 nominal navigation cases |
