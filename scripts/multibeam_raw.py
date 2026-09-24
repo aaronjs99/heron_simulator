@@ -246,9 +246,9 @@ class MultibeamRawNode:
 
     def __init__(self) -> None:
         self.input_topic = rospy.get_param(
-            "~input_topic", "/sim/sensors/sonar/multibeam_points"
+            "~input_topic", "/sim/sensors/sonar/echosounder/rays"
         )
-        self.raw_topic = rospy.get_param("~raw_topic", "/sensors/sonar/raw")
+        self.raw_topic = rospy.get_param("~raw_topic", "/sensors/sonar/echosounder/raw")
         self.frame_id = (
             str(rospy.get_param("~frame_id", "dt100_link")).strip().lstrip("/")
         )

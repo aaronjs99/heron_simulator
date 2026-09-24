@@ -20,7 +20,7 @@ from models.ping360_profile_model import (
 class Ping360ProfileSimulator:
     def __init__(self):
         self.input_topic = str(
-            rospy.get_param("~input_topic", "/sim/sensors/sonar/ping360_points")
+            rospy.get_param("~input_topic", "/sim/sensors/sonar/imaging/rays")
         )
         self.profile_topic = str(
             rospy.get_param("~profile_topic", "/sensors/sonar/imaging/profile")

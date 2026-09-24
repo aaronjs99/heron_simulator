@@ -47,9 +47,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="fluid_density_kg_m3" default="997.7735"/>
   <arg name="linear_damping_x" default="-25.0"/>
   <arg name="quadratic_damping_x" default="-5.0"/>
-  <arg name="sonar_ray_topic" default="/sim/sensors/sonar/multibeam_points"/>
-  <arg name="sonar_raw_topic" default="/sensors/sonar/raw"/>
-  <arg name="ping360_ray_topic" default="/sim/sensors/sonar/ping360_points"/>
+  <arg name="sonar_ray_topic" default="/sim/sensors/sonar/echosounder/rays"/>
+  <arg name="sonar_raw_topic" default="/sensors/sonar/echosounder/raw"/>
+  <arg name="ping360_ray_topic" default="/sim/sensors/sonar/imaging/rays"/>
   <arg name="sonar_profile_topic" default="/sensors/sonar/imaging/profile"/>
   <arg name="simulate_ping360" default="true"/>
   <arg name="simulate_multibeam_raw" default="true"/>
