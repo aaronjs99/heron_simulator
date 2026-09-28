@@ -1,7 +1,17 @@
 <?xml version="1.0" ?>
-<sdf version="1.6">
+<sdf version="1.10">
   <world name="tank">
-    <physics type="ode">
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+    <plugin filename="gz-sim-navsat-system" name="gz::sim::systems::NavSat"/>
+    <plugin filename="gz-sim-magnetometer-system" name="gz::sim::systems::Magnetometer"/>
+
+    <physics type="ignored">
       <max_step_size>0.004</max_step_size>
       <real_time_factor>1.0</real_time_factor>
       <real_time_update_rate>250</real_time_update_rate>
@@ -49,14 +59,6 @@
       </attenuation>
       <cast_shadows>false</cast_shadows>
     </light>
-
-    <gui fullscreen='0'>
-      <camera name='user_camera'>
-        <pose frame=''>6.4 -15.0 9.5 0.0 0.45 1.57</pose>
-        <view_controller>orbit</view_controller>
-        <projection_type>perspective</projection_type>
-      </camera>
-    </gui>
 
     <!-- Tank dimensions: 25ft x 50ft x 12ft => 7.62m x 15.24m x 3.66m.
          This approximates the Fathomwerx-style controlled tank geometry.

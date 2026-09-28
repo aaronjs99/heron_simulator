@@ -7,7 +7,9 @@ import json
 
 from geometry_msgs.msg import Wrench
 from heron_msgs.msg import Drive
-import rospy
+import rclpy
+from rclpy.duration import Duration
+from rclpy.node import Node
 from std_msgs.msg import String
 
 from models.four_regime_propulsion import propulsion_output
@@ -23,11 +25,11 @@ def slew_toward(current, target, max_delta):
     return current + clamp(target - current, -max_delta, max_delta)
 
 
-class DriveToThrusters:
+class DriveToThrusters(Node):
     """Translate normalized Drive commands to thruster wrench inputs.
 
     Active sim path:
-      /cmd_drive -> /thrusters/{1,0}/input
+      /cmd_drive -> /thrusters/{left,right}/input
 
     The default simulation plant applies four independent static propulsion
     regimes (left/right by forward/reverse):
@@ -43,32 +45,34 @@ class DriveToThrusters:
     """
 
     def __init__(self):
-        rospy.init_node("cmd_drive_to_thrusters")
+        super().__init__("cmd_drive_to_thrusters")
 
-        namespace = rospy.get_param("~namespace", "")
+        namespace = self._parameter("namespace", "")
 
         prefix = f"/{namespace}" if namespace else ""
 
-        self.rate_hz = float(rospy.get_param("~rate", 30.0))
-        self.cmd_timeout = float(rospy.get_param("~cmd_timeout", 0.75))
-        self.max_fwd_thrust = float(rospy.get_param("~max_fwd_thrust", 45.0))
-        self.max_bck_thrust = float(rospy.get_param("~max_bck_thrust", 25.0))
-        self.left_scale = float(rospy.get_param("~left_scale", 1.0))
-        self.right_scale = float(rospy.get_param("~right_scale", 1.0))
+        self.rate_hz = float(self._parameter("rate", 30.0))
+        if self.rate_hz <= 0.0:
+            raise ValueError("rate must be positive")
+        self.cmd_timeout = float(self._parameter("cmd_timeout", 0.75))
+        self.max_fwd_thrust = float(self._parameter("max_fwd_thrust", 45.0))
+        self.max_bck_thrust = float(self._parameter("max_bck_thrust", 25.0))
+        self.left_scale = float(self._parameter("left_scale", 1.0))
+        self.right_scale = float(self._parameter("right_scale", 1.0))
         self.response_time_constant_sec = max(
-            0.0, float(rospy.get_param("~response_time_constant_sec", 0.0))
+            0.0, float(self._parameter("response_time_constant_sec", 0.0))
         )
         self.max_drive_delta_per_sec = max(
-            0.0, float(rospy.get_param("~max_drive_delta_per_sec", 0.0))
+            0.0, float(self._parameter("max_drive_delta_per_sec", 0.0))
         )
         self.nominal_voltage_v = max(
-            1e-6, float(rospy.get_param("~nominal_voltage_v", 16.0))
+            1e-6, float(self._parameter("nominal_voltage_v", 16.0))
         )
         self.simulated_voltage_v = max(
-            1e-6, float(rospy.get_param("~simulated_voltage_v", 16.0))
+            1e-6, float(self._parameter("simulated_voltage_v", 16.0))
         )
         self.direction_change_blank_sec = max(
-            0.0, float(rospy.get_param("~direction_change_blank_sec", 0.0))
+            0.0, float(self._parameter("direction_change_blank_sec", 0.0))
         )
         self.regimes = {}
         for side in ("left", "right"):
@@ -76,20 +80,20 @@ class DriveToThrusters:
                 key = "{}_{}".format(side, direction)
                 self.regimes[key] = {
                     "deadband": float(
-                        rospy.get_param("~regimes/{}/deadband".format(key), 0.1)
+                        self._parameter("regimes.{}.deadband".format(key), 0.1)
                     ),
                     "force_exponent": float(
-                        rospy.get_param("~regimes/{}/force_exponent".format(key), 1.25)
+                        self._parameter("regimes.{}.force_exponent".format(key), 1.25)
                     ),
                     "max_current_a": float(
-                        rospy.get_param(
-                            "~regimes/{}/max_current_a".format(key),
+                        self._parameter(
+                            "regimes.{}.max_current_a".format(key),
                             6.0 if direction == "forward" else 1.2,
                         )
                     ),
                     "max_force_n": float(
-                        rospy.get_param(
-                            "~regimes/{}/max_force_n".format(key),
+                        self._parameter(
+                            "regimes.{}.max_force_n".format(key),
                             (
                                 self.max_fwd_thrust
                                 if direction == "forward"
@@ -98,69 +102,69 @@ class DriveToThrusters:
                         )
                     ),
                     "nominal_voltage_v": float(
-                        rospy.get_param(
-                            "~regimes/{}/nominal_voltage_v".format(key),
+                        self._parameter(
+                            "regimes.{}.nominal_voltage_v".format(key),
                             self.nominal_voltage_v,
                         )
                     ),
                     "voltage_exponent": float(
-                        rospy.get_param("~regimes/{}/voltage_exponent".format(key), 2.0)
+                        self._parameter("regimes.{}.voltage_exponent".format(key), 2.0)
                     ),
                     "max_rpm": float(
-                        rospy.get_param("~regimes/{}/max_rpm".format(key), 5500.0)
+                        self._parameter("regimes.{}.max_rpm".format(key), 5500.0)
                     ),
                 }
         self.synthetic_current_a = {"left": 0.0, "right": 0.0}
         self.synthetic_rpm = {"left": 0.0, "right": 0.0}
         self.synthetic_pwm_us = {"left": 1500.0, "right": 1500.0}
         self.direction_sign = {"left": 0, "right": 0}
+        zero_time = self.get_clock().now()
         self.direction_blank_until = {
-            "left": rospy.Time(0),
-            "right": rospy.Time(0),
+            "left": zero_time,
+            "right": zero_time,
         }
 
         default_left_topic = (
-            f"{prefix}/thrusters/1/input" if prefix else "/thrusters/1/input"
+            f"{prefix}/thrusters/left/input" if prefix else "/thrusters/left/input"
         )
         default_right_topic = (
-            f"{prefix}/thrusters/0/input" if prefix else "/thrusters/0/input"
+            f"{prefix}/thrusters/right/input" if prefix else "/thrusters/right/input"
         )
         default_drive_topic = "cmd_drive"
 
-        left_topic = rospy.get_param("~left_thruster_topic", default_left_topic)
-        right_topic = rospy.get_param("~right_thruster_topic", default_right_topic)
-        drive_topic = rospy.get_param("~drive_topic", default_drive_topic)
+        left_topic = self._parameter("left_thruster_topic", default_left_topic)
+        right_topic = self._parameter("right_thruster_topic", default_right_topic)
+        drive_topic = self._parameter("drive_topic", default_drive_topic)
 
-        self.p_left = rospy.Publisher(left_topic, Wrench, queue_size=1)
-        self.p_right = rospy.Publisher(right_topic, Wrench, queue_size=1)
-        self.actuator_state_pub = rospy.Publisher(
-            "~actuator_state", String, queue_size=10
-        )
+        self.p_left = self.create_publisher(Wrench, left_topic, 1)
+        self.p_right = self.create_publisher(Wrench, right_topic, 1)
+        self.actuator_state_pub = self.create_publisher(String, "~/actuator_state", 10)
 
-        self.sub = rospy.Subscriber(drive_topic, Drive, self.callback)
+        self.sub = self.create_subscription(Drive, drive_topic, self.callback, 10)
         self.target_left = 0.0
         self.target_right = 0.0
         self.actual_left = 0.0
         self.actual_right = 0.0
-        self.last_cmd_time = rospy.Time.now()
-        self.last_update_time = rospy.Time.now()
-        self.timer = rospy.Timer(rospy.Duration(1.0 / self.rate_hz), self.update)
-        rospy.loginfo(
-            "Drive-to-thrusters bridge initialized for namespace: %s drive=%s left=%s right=%s left_scale=%.3f right_scale=%.3f tau=%.3fs max_delta=%.3f/s",
-            namespace,
-            drive_topic,
-            left_topic,
-            right_topic,
-            self.left_scale,
-            self.right_scale,
-            self.response_time_constant_sec,
-            self.max_drive_delta_per_sec,
+        self.last_cmd_time = self.get_clock().now()
+        self.last_update_time = self.get_clock().now()
+        self.timer = self.create_timer(1.0 / self.rate_hz, self.update)
+        self.get_logger().info(
+            "Drive-to-thrusters bridge initialized: "
+            f"namespace={namespace} drive={drive_topic} left={left_topic} "
+            f"right={right_topic} left_scale={self.left_scale:.3f} "
+            f"right_scale={self.right_scale:.3f} "
+            f"tau={self.response_time_constant_sec:.3f}s "
+            f"max_delta={self.max_drive_delta_per_sec:.3f}/s"
         )
+
+    def _parameter(self, name, default):
+        self.declare_parameter(name, default)
+        return self.get_parameter(name).value
 
     def callback(self, msg):
         self.target_left = self.shape_drive(msg.left, self.left_scale)
         self.target_right = self.shape_drive(msg.right, self.right_scale)
-        self.last_cmd_time = rospy.Time.now()
+        self.last_cmd_time = self.get_clock().now()
 
     def shape_drive(self, cmd, scale):
         cmd = clamp(float(cmd), -1.0, 1.0)
@@ -194,14 +198,16 @@ class DriveToThrusters:
         self.last_cmd_time = now
         self.last_update_time = now
 
-    def update(self, _event):
-        now = rospy.Time.now()
+    def update(self):
+        now = self.get_clock().now()
         if now < self.last_update_time or now < self.last_cmd_time:
-            rospy.logwarn("Simulation time rolled back; clearing thruster state")
+            self.get_logger().warning(
+                "Simulation time rolled back; clearing thruster state"
+            )
             self.reset_actuator_epoch(now)
-        dt = max(0.0, (now - self.last_update_time).to_sec())
+        dt = max(0.0, (now - self.last_update_time).nanoseconds / 1e9)
         self.last_update_time = now
-        if (now - self.last_cmd_time).to_sec() > self.cmd_timeout:
+        if (now - self.last_cmd_time).nanoseconds / 1e9 > self.cmd_timeout:
             self.target_left = 0.0
             self.target_right = 0.0
 
@@ -232,8 +238,8 @@ class DriveToThrusters:
         ):
             sign = 1 if drive > 0.0 else -1 if drive < 0.0 else 0
             if sign and self.direction_sign[side] and sign != self.direction_sign[side]:
-                self.direction_blank_until[side] = now + rospy.Duration(
-                    self.direction_change_blank_sec
+                self.direction_blank_until[side] = now + Duration(
+                    seconds=self.direction_change_blank_sec
                 )
             if sign:
                 self.direction_sign[side] = sign
@@ -286,9 +292,18 @@ class DriveToThrusters:
         )
 
 
-if __name__ == "__main__":
+def main(args=None):
+    rclpy.init(args=args)
+    node = DriveToThrusters()
     try:
-        DriveToThrusters()
-        rospy.spin()
-    except rospy.ROSInterruptException:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
         pass
+    finally:
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()

@@ -8,11 +8,11 @@ import struct
 from datetime import datetime, timezone
 from typing import List, Sequence, Tuple
 
-import rospy
-import sensor_msgs.point_cloud2 as pc2
+import rclpy
 from ig_handle.msg import SonarRawPacket as SonarRawPacketMessage
-from rospy.exceptions import ROSException
-from sensor_msgs.msg import PointCloud2
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+from sensor_msgs.msg import LaserScan
 
 from models.parameters import strict_bool
 
@@ -208,136 +208,147 @@ def encode_profile_packet(
     return packet
 
 
-def point_records_from_cloud(
-    cloud: PointCloud2,
+def point_records_from_scan(
+    scan: LaserScan,
     *,
     min_range_m: float,
     max_range_m: float,
 ) -> List[PointRecord]:
-    """Extract finite sonar-frame returns from a Gazebo ray PointCloud2."""
+    """Convert Gazebo's one-row LaserScan into sonar-frame XY returns."""
 
-    field_names = {field.name for field in cloud.fields}
-    read_fields = (
-        ("x", "y", "z", "intensity") if "intensity" in field_names else ("x", "y", "z")
-    )
-    min_range_sq = float(min_range_m) * float(min_range_m)
-    max_range_sq = float(max_range_m) * float(max_range_m)
     records: List[PointRecord] = []
-
-    for point in pc2.read_points(cloud, field_names=read_fields, skip_nans=True):
-        x, y, z = (float(point[0]), float(point[1]), float(point[2]))
-        if not all(math.isfinite(value) for value in (x, y, z)):
+    for index, measured_range in enumerate(scan.ranges):
+        range_m = float(measured_range)
+        if not math.isfinite(range_m) or not min_range_m <= range_m <= max_range_m:
             continue
-        range_sq = x * x + y * y + z * z
-        if range_sq < min_range_sq or range_sq > max_range_sq:
-            continue
-        intensity = (
-            int(point[3])
-            if len(read_fields) == 4 and math.isfinite(float(point[3]))
-            else 0
+        angle = float(scan.angle_min) + index * float(scan.angle_increment)
+        intensity = 0
+        if index < len(scan.intensities) and math.isfinite(scan.intensities[index]):
+            intensity = int(round(scan.intensities[index]))
+        records.append(
+            (range_m * math.cos(angle), range_m * math.sin(angle), 0.0, intensity)
         )
-        records.append((x, y, z, intensity))
 
     return records
 
 
-class MultibeamRawNode:
+class MultibeamRawNode(Node):
     """Bridge Gazebo's DT100 ray profile into the hardware raw-data contract."""
 
     def __init__(self) -> None:
-        self.input_topic = rospy.get_param(
-            "~input_topic", "/sim/sensors/sonar/echosounder/rays"
+        super().__init__("multibeam_raw")
+        self.input_topic = str(
+            self._parameter("input_topic", "/sim/sensors/sonar/echosounder/rays")
         )
-        self.raw_topic = rospy.get_param("~raw_topic", "/sensors/sonar/echosounder/raw")
+        self.raw_topic = str(
+            self._parameter("raw_topic", "/sensors/sonar/echosounder/raw")
+        )
         self.frame_id = (
-            str(rospy.get_param("~frame_id", "dt100_link")).strip().lstrip("/")
+            str(self._parameter("frame_id", "dt100_link")).strip().lstrip("/")
         )
         self.extrinsic_revision = str(
-            rospy.get_param("~extrinsic_revision", "") or ""
+            self._parameter("extrinsic_revision", "") or ""
         ).strip()
         if not self.frame_id or not self.extrinsic_revision:
             raise ValueError("~frame_id and ~extrinsic_revision are required")
-        self.provider = str(rospy.get_param("~provider", "imagenex_dt100")).strip()
-        self.model = str(rospy.get_param("~model", "Imagenex DT100")).strip()
+        self.provider = str(self._parameter("provider", "imagenex_dt100")).strip()
+        self.model = str(self._parameter("model", "Imagenex DT100")).strip()
         if not self.provider or not self.model:
             raise ValueError("~provider and ~model are required")
-        self.source_endpoint = str(
-            rospy.get_param("~source_endpoint", "gazebo://dt100")
-        )
-        self.beam_count = int(rospy.get_param("~beam_count", 480))
-        self.samples_per_beam = int(rospy.get_param("~samples_per_beam", 5000))
-        self.sector_size_deg = float(rospy.get_param("~sector_size_deg", 120.0))
-        self.start_angle_deg = float(rospy.get_param("~start_angle_deg", -60.0))
+        self.source_endpoint = str(self._parameter("source_endpoint", "gazebo://dt100"))
+        self.beam_count = int(self._parameter("beam_count", 480))
+        self.samples_per_beam = int(self._parameter("samples_per_beam", 5000))
+        self.sector_size_deg = float(self._parameter("sector_size_deg", 120.0))
+        self.start_angle_deg = float(self._parameter("start_angle_deg", -60.0))
         self.angle_increment_deg = float(
-            rospy.get_param(
-                "~angle_increment_deg", self.sector_size_deg / self.beam_count
+            self._parameter(
+                "angle_increment_deg", self.sector_size_deg / self.beam_count
             )
         )
-        self.min_range_m = float(rospy.get_param("~min_range_m", 0.5))
-        self.max_range_m = float(rospy.get_param("~max_range_m", 100.0))
-        self.range_resolution_mm = int(rospy.get_param("~range_resolution_mm", 20))
+        self.min_range_m = float(self._parameter("min_range_m", 0.5))
+        self.max_range_m = float(self._parameter("max_range_m", 100.0))
+        self.range_resolution_mm = int(self._parameter("range_resolution_mm", 20))
         self.acoustic_frequency_khz = int(
-            rospy.get_param("~acoustic_frequency_khz", 240)
+            self._parameter("acoustic_frequency_khz", 240)
         )
-        self.sound_speed_m_s = float(rospy.get_param("~sound_speed_m_s", 1500.0))
+        self.sound_speed_m_s = float(self._parameter("sound_speed_m_s", 1500.0))
         self.ping_latency_units = _u16(
-            rospy.get_param("~ping_latency_units", 0), "ping_latency_units"
+            self._parameter("ping_latency_units", 0), "ping_latency_units"
         )
         self.center_ping_offset_units = _u16(
-            rospy.get_param("~center_ping_offset_units", 0),
+            self._parameter("center_ping_offset_units", 0),
             "center_ping_offset_units",
         )
         self.include_intensity = strict_bool(
-            rospy.get_param("~include_intensity", True), name="~include_intensity"
+            self._parameter("include_intensity", True), name="include_intensity"
         )
         self.sequence = 0
+        self.last_frame_warning_sec = -float("inf")
+        self.last_latency_warning_sec = -float("inf")
 
-        self.publisher = rospy.Publisher(
-            self.raw_topic, SonarRawPacketMessage, queue_size=20
+        self.publisher = self.create_publisher(
+            SonarRawPacketMessage, self.raw_topic, 20
         )
-        self.subscriber = rospy.Subscriber(
-            self.input_topic, PointCloud2, self._cloud_cb, queue_size=5
+        self.subscriber = self.create_subscription(
+            LaserScan, self.input_topic, self._scan_cb, qos_profile_sensor_data
         )
-        rospy.loginfo(
-            "multibeam_raw 83P input=%s raw=%s frame=%s beams=%d range=[%.2f, %.2f]",
-            self.input_topic,
-            self.raw_topic,
-            self.frame_id,
-            self.beam_count,
-            self.min_range_m,
-            self.max_range_m,
+        self.get_logger().info(
+            "multibeam_raw 83P input=%s raw=%s frame=%s beams=%d range=[%.2f, %.2f]"
+            % (
+                self.input_topic,
+                self.raw_topic,
+                self.frame_id,
+                self.beam_count,
+                self.min_range_m,
+                self.max_range_m,
+            )
         )
 
-    def _cloud_cb(self, cloud: PointCloud2) -> None:
-        if rospy.is_shutdown():
-            return
-        source_frame = str(cloud.header.frame_id or "").lstrip("/")
+    def _parameter(self, name: str, default):
+        self.declare_parameter(name, default)
+        return self.get_parameter(name).value
+
+    @staticmethod
+    def _stamp_seconds(stamp) -> float:
+        return float(stamp.sec) + float(stamp.nanosec) * 1.0e-9
+
+    def _warn_throttled(self, field: str, message: str) -> None:
+        now = self.get_clock().now().nanoseconds * 1.0e-9
+        previous = getattr(self, field)
+        if now - previous >= 5.0:
+            self.get_logger().warning(message)
+            setattr(self, field, now)
+
+    def _scan_cb(self, scan: LaserScan) -> None:
+        source_frame = str(scan.header.frame_id or "").lstrip("/")
         expected_frame = self.frame_id.lstrip("/")
         if source_frame != expected_frame:
-            rospy.logwarn_throttle(
-                5.0,
-                "multibeam_raw dropped profile: source frame '%s' != '%s'",
-                source_frame or "(empty)",
-                expected_frame,
+            self._warn_throttled(
+                "last_frame_warning_sec",
+                "multibeam_raw dropped profile: source frame '%s' != '%s'"
+                % (source_frame or "(empty)", expected_frame),
             )
             return
-        receipt_stamp = rospy.Time.now()
-        measurement_stamp = cloud.header.stamp
-        if measurement_stamp == rospy.Time():
+        receipt_stamp = self.get_clock().now().to_msg()
+        measurement_stamp = scan.header.stamp
+        if measurement_stamp.sec == 0 and measurement_stamp.nanosec == 0:
             measurement_stamp = receipt_stamp
-        age_sec = max(0.0, (receipt_stamp - measurement_stamp).to_sec())
+        age_sec = max(
+            0.0,
+            self._stamp_seconds(receipt_stamp) - self._stamp_seconds(measurement_stamp),
+        )
         age_units = int(round(age_sec / LATENCY_UNIT_SEC))
         data_latency_units = age_units + self.ping_latency_units
         if data_latency_units > 0xFFFF:
-            rospy.logwarn_throttle(
-                5.0,
-                "multibeam_raw dropped profile: %.6f s latency exceeds 83P field",
-                age_sec,
+            self._warn_throttled(
+                "last_latency_warning_sec",
+                "multibeam_raw dropped profile: %.6f s latency exceeds 83P field"
+                % age_sec,
             )
             return
 
-        points = point_records_from_cloud(
-            cloud,
+        points = point_records_from_scan(
+            scan,
             min_range_m=self.min_range_m,
             max_range_m=self.max_range_m,
         )
@@ -352,7 +363,7 @@ class MultibeamRawNode:
             min_range_m=self.min_range_m,
             max_range_m=self.max_range_m,
         )
-        interrogation_time_sec = measurement_stamp.to_sec() - (
+        interrogation_time_sec = self._stamp_seconds(measurement_stamp) - (
             self.ping_latency_units * LATENCY_UNIT_SEC
         )
         packet = encode_profile_packet(
@@ -374,7 +385,6 @@ class MultibeamRawNode:
             include_intensity=self.include_intensity,
         )
         msg = SonarRawPacketMessage()
-        msg.header.seq = self.sequence & 0xFFFFFFFF
         msg.header.stamp = receipt_stamp
         msg.header.frame_id = self.frame_id
         msg.provider = self.provider
@@ -385,25 +395,29 @@ class MultibeamRawNode:
         msg.sequence = self.sequence
         msg.payload = list(packet)
         self.sequence += 1
-        try:
-            self.publisher.publish(msg)
-        except ROSException as exc:
-            if rospy.is_shutdown() or "closed topic" in str(exc):
-                return
-            raise
-        rospy.logdebug(
-            "multibeam_raw 83P returns=%d beams=%d bytes=%d latency_units=%d",
-            sum(1 for sample in ranges if sample),
-            self.beam_count,
-            len(packet),
-            data_latency_units,
+        self.publisher.publish(msg)
+        self.get_logger().debug(
+            "multibeam_raw 83P returns=%d beams=%d bytes=%d latency_units=%d"
+            % (
+                sum(1 for sample in ranges if sample),
+                self.beam_count,
+                len(packet),
+                data_latency_units,
+            )
         )
 
 
 def main() -> None:
-    rospy.init_node("multibeam_raw")
-    MultibeamRawNode()
-    rospy.spin()
+    rclpy.init()
+    node = MultibeamRawNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":

@@ -1,23 +1,29 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<sdf version="1.6">
+<sdf version="1.10">
   <world name="harbor">
-    <gui fullscreen="0">
-      <camera name="user_camera">
-        <pose frame="">0 -16 9 0 0.42 1.57</pose>
-        <view_controller>orbit</view_controller>
-        <projection_type>perspective</projection_type>
-      </camera>
-    </gui>
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+    <plugin filename="gz-sim-navsat-system" name="gz::sim::systems::NavSat"/>
+    <plugin filename="gz-sim-magnetometer-system" name="gz::sim::systems::Magnetometer"/>
 
-    <physics type="ode">
+    <physics type="ignored">
       <max_step_size>0.004</max_step_size>
       <real_time_factor>1.0</real_time_factor>
       <real_time_update_rate>250</real_time_update_rate>
     </physics>
 
-    <include>
-      <uri>model://sun</uri>
-    </include>
+    <light type="directional" name="sun">
+      <pose>50 0 150 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <direction>0.3 0.3 -1</direction>
+      <cast_shadows>false</cast_shadows>
+    </light>
 
     <include>
       <uri>model://water_surface</uri>

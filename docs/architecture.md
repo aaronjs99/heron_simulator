@@ -24,17 +24,17 @@ mismatch remains an authoring defect rather than hidden uncertainty.
 The simulator normally starts through GRANDE:
 
 ```bash
-cd ~/catkin_ws/heron_ws/src/grande/grande
-python3 run.py bringup --mode sim --scenario harbor
+cd ~/ros2_ws/src/grande
+ros2 launch heron_simulator heron_world.launch.py world:=harbor.world
 ```
 
-The runner uses an isolated ROS master, normally port `11312`. Status, goal, and
-cancellation commands select that graph explicitly.
+The launch uses the active ROS 2 domain and simulation clock. Scenario selection
+is provided by the world launch argument.
 
-`heron_world.launch` selects world, rendering, time, and profile environment.
-`spawn_heron.launch` creates the vehicle and attaches sensor, timing, telemetry,
-and propulsion providers. GUI, headless, RViz, and software-rendering options
-change display behavior but not state or command meaning.
+`heron_world.launch.py` selects world, rendering, time, and profile environment,
+then creates the vehicle and attaches bridged sensors, synthetic telemetry,
+timing, and propulsion. GUI and headless rendering options change display
+behavior but not state or command meaning.
 
 The simulator's grounding-evidence assessor is an optional ORACLE support
 service, not a general simulator dependency. It is disabled by default, and
@@ -61,9 +61,12 @@ claim that Gazebo reproduces full physical error distributions.
 `urdf/sensors.urdf.xacro` defines simulated sensor additions and imports the
 canonical sensor poses from IG Handle. Frame names, geometry, and topic meanings
 therefore remain aligned with the physical sensor contract. Gazebo measurement,
-noise, rendering, and transport behavior are simulator-owned artifacts.
+noise, rendering, and transport behavior are simulator-owned artifacts. Camera
+outputs use the supported Harmonic pinhole renderer; Brown-Conrady lens
+distortion is not simulated.
 
-Gazebo plugins provide LiDAR, camera, IMU, and vehicle observations.
+Gazebo Harmonic sensors and `ros_gz_bridge` provide LiDAR, camera, IMU, and
+vehicle observations.
 `sim_ig_timing.py` publishes IG Handle-style timing surfaces. `sim_sense.py`
 publishes explicitly synthetic Heron telemetry tied to the selected propulsion
 plant.
@@ -78,7 +81,7 @@ propagation, transducer response, multipath, turbidity, or real latency.
 The DT100 transport publishes only `dt100_link` with extrinsic revision
 `dt100-seed-2026-08-11-v1`; Ping360 publishes only `ping360_link` with revision
 `ping360-seed-2026-08-11-v1`. Both revisions are provisional, unmeasured seeds.
-Each provider rejects a Gazebo cloud whose source frame differs from its
+Each provider rejects a Gazebo scan whose source frame differs from its
 configured frame. The strict 83P packet and normalized Ping360 profile carry
 the matching revision, and the Ping360 profile identity hash also binds the
 provider, model, frame, and revision. Provider and model values match the

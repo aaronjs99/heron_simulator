@@ -59,11 +59,13 @@
   </joint>
 
   <gazebo reference="lidar_h_link">
-    <sensor type="ray" name="lidar_h_sensor">
+    <sensor type="gpu_lidar" name="lidar_h_sensor">
       <pose>0 0 0 0 0 0</pose>
+      <always_on>true</always_on>
       <visualize>false</visualize>
       <update_rate>$(optenv HERON_SIM_LIDAR_UPDATE_RATE_HZ 10)</update_rate>
-      <ray>
+      <topic>/sensors/lidar/hori</topic>
+      <lidar>
         <scan>
           <horizontal>
             <samples>$(optenv HERON_SIM_LIDAR_HORIZONTAL_SAMPLES 1800)</samples>
@@ -88,16 +90,7 @@
           <mean>0.0</mean>
           <stddev>0.01</stddev>
         </noise>
-      </ray>
-      <plugin name="gazebo_ros_lidar_h_controller" filename="libgazebo_ros_velodyne_laser.so">
-        <topicName>/sensors/lidar/hori/points</topicName>
-        <frameName>lidar_h_link</frameName>
-        <min_range>0.1</min_range>
-        <max_range>200.0</max_range>
-        <gaussianNoise>0.005</gaussianNoise>
-        <organize_cloud>false</organize_cloud>
-        <min_intensity>0.0</min_intensity>
-      </plugin>
+      </lidar>
     </sensor>
   </gazebo>
 
@@ -143,11 +136,13 @@
        ray sensor and publisher when inventory sensor 3 is disabled. -->
   <xacro:if value="$(optenv HERON_LIDAR_V 1)">
   <gazebo reference="lidar_v_link">
-    <sensor type="ray" name="lidar_v_sensor">
+    <sensor type="gpu_lidar" name="lidar_v_sensor">
       <pose>0 0 0 0 0 0</pose>
+      <always_on>true</always_on>
       <visualize>false</visualize>
       <update_rate>$(optenv HERON_SIM_LIDAR_UPDATE_RATE_HZ 10)</update_rate>
-      <ray>
+      <topic>/sensors/lidar/vert</topic>
+      <lidar>
         <scan>
           <horizontal>
             <samples>$(optenv HERON_SIM_LIDAR_HORIZONTAL_SAMPLES 1800)</samples>
@@ -172,16 +167,7 @@
           <mean>0.0</mean>
           <stddev>0.01</stddev>
         </noise>
-      </ray>
-      <plugin name="gazebo_ros_lidar_v_controller" filename="libgazebo_ros_velodyne_laser.so">
-        <topicName>/sensors/lidar/vert/points</topicName>
-        <frameName>lidar_v_link</frameName>
-        <min_range>0.1</min_range>
-        <max_range>200.0</max_range>
-        <gaussianNoise>0.005</gaussianNoise>
-        <organize_cloud>false</organize_cloud>
-        <min_intensity>0.0</min_intensity>
-      </plugin>
+      </lidar>
     </sensor>
   </gazebo>
   </xacro:if>
@@ -212,9 +198,11 @@
 
   <xacro:if value="$(optenv HERON_SIM_MULTIBEAM_ENABLED true)">
   <gazebo reference="dt100_link">
-    <sensor type="ray" name="dt100">
+    <sensor type="gpu_lidar" name="dt100">
+      <always_on>true</always_on>
+      <topic>$(optenv HERON_SIM_SONAR_RAY_TOPIC /sim/sensors/sonar/echosounder/rays)</topic>
       <update_rate>20</update_rate>
-      <ray>
+      <lidar>
          <scan>
             <horizontal>
                <samples>480</samples>
@@ -235,16 +223,7 @@
             <max>100.0</max>
             <resolution>0.02</resolution>
          </range>
-      </ray>
-      <plugin name="sonar_plugin" filename="libgazebo_ros_velodyne_laser.so">
-        <topicName>$(optenv HERON_SIM_SONAR_RAY_TOPIC /sim/sensors/sonar/echosounder/rays)</topicName>
-        <frameName>dt100_link</frameName>
-        <min_range>0.5</min_range>
-        <max_range>100.0</max_range>
-        <gaussianNoise>0.003</gaussianNoise>
-        <organize_cloud>false</organize_cloud>
-        <min_intensity>0.0</min_intensity>
-      </plugin>
+      </lidar>
     </sensor>
   </gazebo>
   </xacro:if>
@@ -270,9 +249,11 @@
     <!-- Separate full-circle environment sampler for the canonical Ping360
          simulator. It does not fabricate vendor wire packets: the simulator
          publishes normalized profiles one mechanical angle at a time. -->
-    <sensor type="ray" name="ping360_environment">
+    <sensor type="gpu_lidar" name="ping360_environment">
+      <always_on>true</always_on>
+      <topic>$(optenv HERON_SIM_PING360_RAY_TOPIC /sim/sensors/sonar/imaging/rays)</topic>
       <update_rate>20</update_rate>
-      <ray>
+      <lidar>
         <scan>
           <horizontal>
             <samples>400</samples>
@@ -292,16 +273,7 @@
           <max>100.0</max>
           <resolution>0.02</resolution>
         </range>
-      </ray>
-      <plugin name="ping360_environment_plugin" filename="libgazebo_ros_velodyne_laser.so">
-        <topicName>$(optenv HERON_SIM_PING360_RAY_TOPIC /sim/sensors/sonar/imaging/rays)</topicName>
-        <frameName>ping360_link</frameName>
-        <min_range>0.5</min_range>
-        <max_range>100.0</max_range>
-        <gaussianNoise>0.003</gaussianNoise>
-        <organize_cloud>false</organize_cloud>
-        <min_intensity>0.0</min_intensity>
-      </plugin>
+      </lidar>
     </sensor>
   </gazebo>
   </xacro:if>
@@ -325,8 +297,11 @@
     <origin xyz="$(optenv HERON_CAMERA_MOUNT_XYZ)" rpy="$(optenv HERON_CAMERA_MOUNT_RPY)"/>
   </joint>
 
+  <!-- Gazebo Harmonic's Ogre2 sensor renderer supports pinhole cameras only;
+       lens distortion is deliberately kept out of SDF to avoid unsupported
+       render passes and misleading camera outputs. -->
   <xacro:macro name="ig_handle_forge_camera"
-               params="id xyz rpy optical_rpy topic_suffix camera_name distortion_k1 distortion_k2 distortion_k3">
+               params="id xyz rpy optical_rpy topic_suffix camera_name">
     <link name="${id}">
       <visual>
         <geometry><box size="0.06 0.06 0.04"/></geometry>
@@ -352,8 +327,11 @@
 
     <gazebo reference="${id}">
       <sensor type="camera" name="camera_${id}_sensor">
+        <always_on>true</always_on>
         <update_rate>10.0</update_rate>
+        <topic>/sensors/camera/${topic_suffix}/image_raw</topic>
         <camera name="${camera_name}">
+          <camera_info_topic>/sensors/camera/${topic_suffix}/camera_info</camera_info_topic>
           <horizontal_fov>1.60</horizontal_fov>
           <image>
             <width>640</width>
@@ -364,27 +342,12 @@
             <near>0.02</near>
             <far>100</far>
           </clip>
-          <visibility_mask>4294967294</visibility_mask>
           <noise>
             <type>gaussian</type>
             <mean>0.0</mean>
             <stddev>0.007</stddev>
           </noise>
         </camera>
-        <plugin name="camera_${id}_controller" filename="libgazebo_ros_camera.so">
-          <alwaysOn>true</alwaysOn>
-          <updateRate>10.0</updateRate>
-          <cameraName>sensors/camera/${topic_suffix}</cameraName>
-          <imageTopicName>image_raw</imageTopicName>
-          <cameraInfoTopicName>camera_info</cameraInfoTopicName>
-          <frameName>${id}_optical</frameName>
-          <hackBaseline>0.07</hackBaseline>
-          <distortionK1>${distortion_k1}</distortionK1>
-          <distortionK2>${distortion_k2}</distortionK2>
-          <distortionK3>${distortion_k3}</distortionK3>
-          <distortionT1>0.0</distortionT1>
-          <distortionT2>0.0</distortionT2>
-        </plugin>
       </sensor>
     </gazebo>
   </xacro:macro>
@@ -402,10 +365,7 @@
                                   rpy="$(optenv HERON_CAMERA_F1_RPY)"
                                   optical_rpy="$(optenv HERON_CAMERA_FORWARD_OPTICAL_RPY)"
                                   topic_suffix="f1"
-                                  camera_name="forward_starboard"
-                                  distortion_k1="-0.0100"
-                                  distortion_k2="0.0030"
-                                  distortion_k3="-0.0020"/>
+                                  camera_name="forward_starboard"/>
   </xacro:if>
   <xacro:if value="$(optenv HERON_CAMERA_F2 1)">
     <xacro:ig_handle_forge_camera id="F2"
@@ -413,10 +373,7 @@
                                   rpy="$(optenv HERON_CAMERA_F2_RPY)"
                                   optical_rpy="$(optenv HERON_CAMERA_FORWARD_OPTICAL_RPY)"
                                   topic_suffix="f2"
-                                  camera_name="forward_port"
-                                  distortion_k1="-0.0090"
-                                  distortion_k2="0.0028"
-                                  distortion_k3="-0.0019"/>
+                                  camera_name="forward_port"/>
   </xacro:if>
   <xacro:if value="$(optenv HERON_CAMERA_F3 1)">
     <xacro:ig_handle_forge_camera id="F3"
@@ -424,10 +381,7 @@
                                   rpy="$(optenv HERON_CAMERA_F3_RPY)"
                                   optical_rpy="$(optenv HERON_CAMERA_UPWARD_OPTICAL_RPY)"
                                   topic_suffix="f3"
-                                  camera_name="upward_port"
-                                  distortion_k1="-0.0100"
-                                  distortion_k2="0.0030"
-                                  distortion_k3="-0.0020"/>
+                                  camera_name="upward_port"/>
   </xacro:if>
   <xacro:if value="$(optenv HERON_CAMERA_F4 1)">
     <xacro:ig_handle_forge_camera id="F4"
@@ -435,10 +389,7 @@
                                   rpy="$(optenv HERON_CAMERA_F4_RPY)"
                                   optical_rpy="$(optenv HERON_CAMERA_UPWARD_OPTICAL_RPY)"
                                   topic_suffix="f4"
-                                  camera_name="upward_starboard"
-                                  distortion_k1="-0.0090"
-                                  distortion_k2="0.0028"
-                                  distortion_k3="-0.0019"/>
+                                  camera_name="upward_starboard"/>
   </xacro:if>
 
   <!-- ====================================================================== -->
@@ -466,19 +417,24 @@
     <origin xyz="$(optenv HERON_IMU_XYZ)" rpy="$(optenv HERON_IMU_RPY)"/>
   </joint>
 
-  <gazebo>
-    <plugin name="imu_controller_ighandle" filename="libhector_gazebo_ros_imu.so">
-      <updateRate>50.0</updateRate>
-      <bodyName>imu_link</bodyName>
-      <frameId>imu_link</frameId>
-      <topicName>/sensors/imu/data</topicName>
-      <accelDrift>0.005 0.005 0.005</accelDrift>
-      <accelGaussianNoise>0.005 0.005 0.005</accelGaussianNoise>
-      <rateDrift>0.005 0.005 0.005 </rateDrift>
-      <rateGaussianNoise>0.005 0.005 0.005 </rateGaussianNoise>
-      <headingDrift>0.005</headingDrift>
-      <headingGaussianNoise>0.005</headingGaussianNoise>
-    </plugin>
+  <gazebo reference="imu_link">
+    <sensor name="ig_handle_imu" type="imu">
+      <always_on>true</always_on>
+      <update_rate>50</update_rate>
+      <topic>/sensors/imu/data</topic>
+      <imu>
+        <angular_velocity>
+          <x><noise type="gaussian"><stddev>0.005</stddev></noise></x>
+          <y><noise type="gaussian"><stddev>0.005</stddev></noise></y>
+          <z><noise type="gaussian"><stddev>0.005</stddev></noise></z>
+        </angular_velocity>
+        <linear_acceleration>
+          <x><noise type="gaussian"><stddev>0.005</stddev></noise></x>
+          <y><noise type="gaussian"><stddev>0.005</stddev></noise></y>
+          <z><noise type="gaussian"><stddev>0.005</stddev></noise></z>
+        </linear_acceleration>
+      </imu>
+    </sensor>
   </gazebo>
 
 </robot>

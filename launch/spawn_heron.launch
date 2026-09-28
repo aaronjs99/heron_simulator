@@ -43,8 +43,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="drive_topic" default="/cmd_drive" />
   <arg name="propulsion_adapter_enabled" default="true" />
   <arg name="simulated_housekeeping_enabled" default="true" />
-  <arg name="left_thruster_topic" default="/thrusters/1/input" />
-  <arg name="right_thruster_topic" default="/thrusters/0/input" />
+  <arg name="left_thruster_topic" default="/thrusters/left/input" />
+  <arg name="right_thruster_topic" default="/thrusters/right/input" />
   <arg name="thruster_dynamics_config" default="$(find heron_simulator)/config/dynamics/thrusters.yaml" />
   <arg name="hydrodynamics_override_enabled" default="false" />
   <arg name="base_mass_kg" default="28.0" />
