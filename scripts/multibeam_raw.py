@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import math
 import struct
+import uuid
 from datetime import datetime, timezone
 from typing import List, Sequence, Tuple
 
@@ -291,6 +292,7 @@ class MultibeamRawNode:
             rospy.get_param("~include_intensity", True), name="~include_intensity"
         )
         self.sequence = 0
+        self.source_session_id = uuid.uuid4().hex
 
         self.publisher = rospy.Publisher(
             self.raw_topic, SonarRawPacketMessage, queue_size=20
@@ -378,6 +380,8 @@ class MultibeamRawNode:
         msg.header.stamp = receipt_stamp
         msg.header.frame_id = self.frame_id
         msg.provider = self.provider
+        msg.source_session_id = self.source_session_id
+        msg.synthetic = True
         msg.model = self.model
         msg.packet_kind = PACKET_KIND.decode("ascii")
         msg.source_endpoint = self.source_endpoint

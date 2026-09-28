@@ -40,6 +40,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="namespace" default=""/>
   <arg name="config" default="ig_handle_benchmark" />
   <arg name="sensor_frames_file" default="" />
+  <arg name="sensor_contract_file" default="$(find ig_handle)/config/sensors/platform/sensor_contract.yaml" />
   <arg name="drive_topic" default="/cmd_drive" />
   <arg name="propulsion_adapter_enabled" default="true" />
   <arg name="simulated_housekeeping_enabled" default="true" />
@@ -64,8 +65,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="use_ig_timing" default="true" />
   <arg name="pps_time_topic" default="/sensors/pps/time" />
   <arg name="camera_time_topic" default="/sensors/camera/time" />
-  <arg name="imu_time_topic" default="/sensors/imu/time" />
+  <arg name="imu_sample_time_topic" default="/sensors/imu/sample_time" />
   <arg name="imu_topic" default="/sensors/imu/data" />
+  <arg name="timed_imu_topic" default="/sensors/imu/data_timed" />
+  <arg name="timing_events_topic" default="/sensors/timing/events" />
   <arg name="sense_topic" default="/sense" />
   <arg name="sense_rate_hz" default="10.0" />
   <arg name="sense_battery_v" default="16.0" />
@@ -74,8 +77,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="status_topic" default="/status" />
   <arg name="status_rate_hz" default="1.0" />
   <arg name="pps_rate_hz" default="1.0" />
-  <arg name="camera_time_image_topics"
-       default="/sensors/camera/f1/image_raw,/sensors/camera/f2/image_raw,/sensors/camera/f3/image_raw,/sensors/camera/f4/image_raw" />
   <arg name="use_joint_state_fallback" default="false" />
   <arg name="disabled_sensor_ids" default="" />
   <arg name="lidar_update_rate_hz" default="10" />
@@ -213,10 +214,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
           name="sim_ig_timing" output="screen">
       <param name="pps_time_topic" value="$(arg pps_time_topic)" />
       <param name="camera_time_topic" value="$(arg camera_time_topic)" />
-      <param name="imu_time_topic" value="$(arg imu_time_topic)" />
+      <param name="imu_sample_time_topic" value="$(arg imu_sample_time_topic)" />
       <param name="imu_topic" value="$(arg imu_topic)" />
+      <param name="timed_imu_topic" value="$(arg timed_imu_topic)" />
+      <param name="timing_events_topic" value="$(arg timing_events_topic)" />
+      <param name="sensor_contract_file" value="$(arg sensor_contract_file)" />
       <param name="pps_rate_hz" value="$(arg pps_rate_hz)" />
-      <param name="camera_image_topics" value="$(arg camera_time_image_topics)" />
     </node>
 
   </group>

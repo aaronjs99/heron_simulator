@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import struct
+import uuid
 
 import rospy
 import sensor_msgs.point_cloud2 as pc2
@@ -64,6 +65,7 @@ class Ping360ProfileSimulator:
         if not 80 <= self.sample_period_ticks <= 40000:
             raise ValueError("simulated sample period is outside Ping360 limits")
         self.sequence = 0
+        self.source_session_id = uuid.uuid4().hex
         self.publisher = rospy.Publisher(
             self.profile_topic, SonarProfile, queue_size=20
         )
@@ -137,6 +139,7 @@ class Ping360ProfileSimulator:
         msg.header.frame_id = self.frame_id
         msg.profile_id = hashlib.sha256(identity).hexdigest()
         msg.provider = self.provider
+        msg.source_session_id = self.source_session_id
         msg.model = self.model
         msg.extrinsic_revision = self.extrinsic_revision
         msg.synthetic = True
