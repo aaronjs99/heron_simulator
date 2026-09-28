@@ -81,6 +81,7 @@ class Ping360ProfileSimulator:
         )
 
     def _cloud_callback(self, cloud):
+        receipt_stamp = rospy.Time.now()
         source_frame = str(cloud.header.frame_id or "").lstrip("/")
         expected_frame = self.frame_id.lstrip("/")
         if source_frame != expected_frame:
@@ -115,7 +116,9 @@ class Ping360ProfileSimulator:
             self.invalid_every_n and self.sequence % self.invalid_every_n == 0
         )
         identity = (
-            self.provider.encode("utf-8")
+            self.source_session_id.encode("utf-8")
+            + b"\0"
+            + self.provider.encode("utf-8")
             + b"\0"
             + self.model.encode("utf-8")
             + b"\0"
@@ -135,8 +138,17 @@ class Ping360ProfileSimulator:
             + intensities
         )
         msg = SonarProfile()
-        msg.header = cloud.header
+        msg.header.seq = cloud.header.seq
+        msg.header.stamp = receipt_stamp
         msg.header.frame_id = self.frame_id
+        msg.acquisition_time_valid = cloud.header.stamp.to_nsec() > 0
+        msg.acquisition_time = (
+            cloud.header.stamp if msg.acquisition_time_valid else rospy.Time()
+        )
+        msg.timing_uncertainty_known = msg.acquisition_time_valid
+        msg.timing_uncertainty_sec = (
+            0.0  # Declared simulator timing; not measured hardware precision.
+        )
         msg.profile_id = hashlib.sha256(identity).hexdigest()
         msg.provider = self.provider
         msg.source_session_id = self.source_session_id

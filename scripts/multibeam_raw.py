@@ -7,7 +7,7 @@ import math
 import struct
 import uuid
 from datetime import datetime, timezone
-from typing import List, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 import rospy
 import sensor_msgs.point_cloud2 as pc2
@@ -32,7 +32,11 @@ def _u16(value: int, field_name: str) -> int:
     return value
 
 
-def _timestamp_fields(header: bytearray, interrogation_time_sec: float) -> None:
+def _timestamp_fields(
+    header: bytearray, interrogation_time_sec: Optional[float]
+) -> None:
+    if interrogation_time_sec is None:
+        return
     stamp = datetime.fromtimestamp(
         max(0.0, float(interrogation_time_sec)), tz=timezone.utc
     )
@@ -112,7 +116,7 @@ def encode_profile_packet(
     ranges: Sequence[int],
     intensities: Sequence[int],
     *,
-    interrogation_time_sec: float,
+    interrogation_time_sec: Optional[float],
     samples_per_beam: int,
     sector_size_deg: float,
     start_angle_deg: float,
@@ -325,18 +329,20 @@ class MultibeamRawNode:
             return
         receipt_stamp = rospy.Time.now()
         measurement_stamp = cloud.header.stamp
-        if measurement_stamp == rospy.Time():
-            measurement_stamp = receipt_stamp
-        age_sec = max(0.0, (receipt_stamp - measurement_stamp).to_sec())
-        age_units = int(round(age_sec / LATENCY_UNIT_SEC))
-        data_latency_units = age_units + self.ping_latency_units
-        if data_latency_units > 0xFFFF:
+        acquisition_valid = measurement_stamp.to_nsec() > 0
+        age_sec = (
+            (receipt_stamp - measurement_stamp).to_sec() if acquisition_valid else None
+        )
+        # Unsigned wire latency cannot encode a reset/future stamp or a long backlog.
+        # Preserve the original acquisition record even when the wire field is unavailable.
+        age_units = int(round(age_sec / LATENCY_UNIT_SEC)) if age_sec is not None else 0
+        if not 0 <= age_units <= 0xFFFF - self.ping_latency_units:
             rospy.logwarn_throttle(
                 5.0,
-                "multibeam_raw dropped profile: %.6f s latency exceeds 83P field",
-                age_sec,
+                "multibeam_raw latency cannot fit 83P; source timing remains in metadata",
             )
-            return
+            age_units = 0
+        data_latency_units = age_units + self.ping_latency_units
 
         points = point_records_from_cloud(
             cloud,
@@ -354,8 +360,10 @@ class MultibeamRawNode:
             min_range_m=self.min_range_m,
             max_range_m=self.max_range_m,
         )
-        interrogation_time_sec = measurement_stamp.to_sec() - (
-            self.ping_latency_units * LATENCY_UNIT_SEC
+        interrogation_time_sec = (
+            measurement_stamp.to_sec() - self.ping_latency_units * LATENCY_UNIT_SEC
+            if acquisition_valid
+            else None
         )
         packet = encode_profile_packet(
             ranges,
@@ -379,6 +387,12 @@ class MultibeamRawNode:
         msg.header.seq = self.sequence & 0xFFFFFFFF
         msg.header.stamp = receipt_stamp
         msg.header.frame_id = self.frame_id
+        msg.acquisition_time_valid = acquisition_valid
+        msg.acquisition_time = measurement_stamp if acquisition_valid else rospy.Time()
+        msg.timing_uncertainty_known = acquisition_valid
+        msg.timing_uncertainty_sec = (
+            0.0  # Declared simulator timing; not measured hardware precision.
+        )
         msg.provider = self.provider
         msg.source_session_id = self.source_session_id
         msg.synthetic = True
