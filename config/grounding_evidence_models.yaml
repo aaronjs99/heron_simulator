@@ -1,0 +1,12 @@
+schema_version: 1
+models:
+  grounding_validity_simulation:
+    runtime_modes: [sim]
+    enabled: true
+    unavailable_reason: ""
+    default_decision: defer
+    default_confidence: 0.0
+    entity_decisions:
+      exploration_wall_target:
+        decision: support
+        confidence: 1.0

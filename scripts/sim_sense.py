@@ -90,6 +90,21 @@ class SimSense(Node):
         self.status_timer = self.create_timer(
             1.0 / self.status_rate_hz, self._status_tick
         )
+        self.timer = self.create_timer(1.0 / self.rate_hz, self._tick)
+
+    def _battery_state(self, stamp, fraction: float, location: str) -> BatteryState:
+        """Build explicitly synthetic, fresh battery telemetry for simulation."""
+        state = BatteryState()
+        state.header.stamp = stamp
+        state.voltage = self.battery_v
+        state.percentage = min(1.0, max(0.0, float(fraction)))
+        state.present = True
+        state.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_UNKNOWN
+        state.power_supply_health = BatteryState.POWER_SUPPLY_HEALTH_GOOD
+        state.power_supply_technology = BatteryState.POWER_SUPPLY_TECHNOLOGY_UNKNOWN
+        state.location = location
+        state.serial_number = "synthetic_simulation"
+        return state
 
         self.get_logger().info(
             "sim_sense topic=%s rate=%.1fHz status_topic=%s status_rate=%.1fHz "

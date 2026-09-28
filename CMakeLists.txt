@@ -63,6 +63,9 @@ ament_export_libraries(${HERON_SIMULATOR_PLUGINS})
 ament_python_install_package(models PACKAGE_DIR scripts/models)
 ament_python_install_package(scenario PACKAGE_DIR scripts/scenario)
 
+#############################################################################
+# Install directories (config, launch, worlds, urdf, models, docs)
+#############################################################################
 install(DIRECTORY config docs launch models urdf worlds
   DESTINATION share/${PROJECT_NAME}
   PATTERN "*.launch" EXCLUDE

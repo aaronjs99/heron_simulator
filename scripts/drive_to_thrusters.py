@@ -89,7 +89,7 @@ class DriveToThrusters(Node):
                         self._parameter(
                             "regimes.{}.max_current_a".format(key),
                             6.0 if direction == "forward" else 1.2,
-                        )
+                        ).value
                     ),
                     "max_force_n": float(
                         self._parameter(
@@ -99,13 +99,13 @@ class DriveToThrusters(Node):
                                 if direction == "forward"
                                 else self.max_bck_thrust
                             ),
-                        )
+                        ).value
                     ),
                     "nominal_voltage_v": float(
                         self._parameter(
                             "regimes.{}.nominal_voltage_v".format(key),
                             self.nominal_voltage_v,
-                        )
+                        ).value
                     ),
                     "voltage_exponent": float(
                         self._parameter("regimes.{}.voltage_exponent".format(key), 2.0)

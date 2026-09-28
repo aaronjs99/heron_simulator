@@ -37,9 +37,9 @@ class Ping360ProfileSimulator(Node):
             self._parameter("extrinsic_revision", "") or ""
         ).strip()
         if not self.extrinsic_revision:
-            raise ValueError("~extrinsic_revision is required")
+            raise ValueError("extrinsic_revision is required")
         if not self.frame_id:
-            raise ValueError("~frame_id is required")
+            raise ValueError("frame_id is required")
         self.provider = str(
             self._parameter("provider", "blue_robotics_ping360")
         ).strip()
@@ -131,6 +131,9 @@ class Ping360ProfileSimulator(Node):
         invalid = bool(
             self.invalid_every_n and self.sequence % self.invalid_every_n == 0
         )
+        # Raw builtin_interfaces/Time fields (sec, nanosec) are unaffected by
+        # the ROS2 Header changes - only 'seq' was removed 
+        stamp_sec = cloud.header.stamp.sec + cloud.header.stamp.nanosec * 1e-9
         identity = (
             self.provider.encode("utf-8")
             + b"\0"
