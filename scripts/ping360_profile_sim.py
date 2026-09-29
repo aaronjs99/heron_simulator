@@ -7,9 +7,10 @@ import hashlib
 import math
 import struct
 import time
-from copy import deepcopy
+import uuid
 
 import rclpy
+from builtin_interfaces.msg import Time
 from ig_handle.msg import SonarProfile
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
@@ -69,6 +70,7 @@ class Ping360ProfileSimulator(Node):
         if not 80 <= self.sample_period_ticks <= 40000:
             raise ValueError("simulated sample period is outside Ping360 limits")
         self.sequence = 0
+        self.source_session_id = uuid.uuid4().hex
         self.last_frame_warning_wall_sec = -float("inf")
         self.publisher = self.create_publisher(SonarProfile, self.profile_topic, 20)
         self.subscriber = self.create_subscription(
@@ -89,6 +91,7 @@ class Ping360ProfileSimulator(Node):
         return self.get_parameter(name).value
 
     def _scan_callback(self, scan: LaserScan) -> None:
+        receipt_stamp = self.get_clock().now().to_msg()
         source_frame = str(scan.header.frame_id or "").lstrip("/")
         expected_frame = self.frame_id.lstrip("/")
         if source_frame != expected_frame:
@@ -131,11 +134,10 @@ class Ping360ProfileSimulator(Node):
         invalid = bool(
             self.invalid_every_n and self.sequence % self.invalid_every_n == 0
         )
-        # Raw builtin_interfaces/Time fields (sec, nanosec) are unaffected by
-        # the ROS2 Header changes - only 'seq' was removed 
-        stamp_sec = cloud.header.stamp.sec + cloud.header.stamp.nanosec * 1e-9
         identity = (
-            self.provider.encode("utf-8")
+            self.source_session_id.encode("utf-8")
+            + b"\0"
+            + self.provider.encode("utf-8")
             + b"\0"
             + self.model.encode("utf-8")
             + b"\0"
@@ -156,8 +158,13 @@ class Ping360ProfileSimulator(Node):
             + intensities
         )
         msg = SonarProfile()
-        msg.header = deepcopy(scan.header)
+        msg.header.stamp = receipt_stamp
         msg.header.frame_id = self.frame_id
+        msg.acquisition_time_valid = bool(scan.header.stamp.sec or scan.header.stamp.nanosec)
+        msg.acquisition_time = scan.header.stamp if msg.acquisition_time_valid else Time()
+        msg.timing_uncertainty_known = msg.acquisition_time_valid
+        msg.timing_uncertainty_sec = 0.0
+        msg.source_session_id = self.source_session_id
         msg.profile_id = hashlib.sha256(identity).hexdigest()
         msg.provider = self.provider
         msg.model = self.model

@@ -24,6 +24,8 @@
   <build_depend>gz_sim_vendor</build_depend>
   <build_depend>gz_transport_vendor</build_depend>
 
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>builtin_interfaces</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>heron_description</exec_depend>
   <exec_depend>heron_msgs</exec_depend>
@@ -50,7 +52,5 @@
 
   <export>
     <build_type>ament_cmake</build_type>
-    <gazebo_ros gazebo_model_path="${prefix}/models"
-                plugin_path="${prefix}/../../lib/heron_simulator"/>
   </export>
 </package>

@@ -5,10 +5,12 @@ from __future__ import annotations
 
 import math
 import struct
+import uuid
 from datetime import datetime, timezone
-from typing import List, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 import rclpy
+from builtin_interfaces.msg import Time
 from ig_handle.msg import SonarRawPacket as SonarRawPacketMessage
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
@@ -111,7 +113,7 @@ def encode_profile_packet(
     ranges: Sequence[int],
     intensities: Sequence[int],
     *,
-    interrogation_time_sec: float,
+    interrogation_time_sec: Optional[float],
     samples_per_beam: int,
     sector_size_deg: float,
     start_angle_deg: float,
@@ -208,26 +210,35 @@ def encode_profile_packet(
     return packet
 
 
-def point_records_from_scan(
-    scan: LaserScan,
+def point_records_from_cloud(
+    cloud: PointCloud2,
     *,
     min_range_m: float,
     max_range_m: float,
 ) -> List[PointRecord]:
-    """Convert Gazebo's one-row LaserScan into sonar-frame XY returns."""
+    """Extract finite sonar-frame returns from a Gazebo ray PointCloud2."""
 
+    field_names = {field.name for field in cloud.fields}
+    read_fields = (
+        ("x", "y", "z", "intensity") if "intensity" in field_names else ("x", "y", "z")
+    )
+    min_range_sq = float(min_range_m) * float(min_range_m)
+    max_range_sq = float(max_range_m) * float(max_range_m)
     records: List[PointRecord] = []
-    for index, measured_range in enumerate(scan.ranges):
-        range_m = float(measured_range)
-        if not math.isfinite(range_m) or not min_range_m <= range_m <= max_range_m:
+
+    for point in pc2.read_points(cloud, field_names=read_fields, skip_nans=True):
+        x, y, z = (float(point[0]), float(point[1]), float(point[2]))
+        if not all(math.isfinite(value) for value in (x, y, z)):
             continue
-        angle = float(scan.angle_min) + index * float(scan.angle_increment)
-        intensity = 0
-        if index < len(scan.intensities) and math.isfinite(scan.intensities[index]):
-            intensity = int(round(scan.intensities[index]))
-        records.append(
-            (range_m * math.cos(angle), range_m * math.sin(angle), 0.0, intensity)
+        range_sq = x * x + y * y + z * z
+        if range_sq < min_range_sq or range_sq > max_range_sq:
+            continue
+        intensity = (
+            int(point[3])
+            if len(read_fields) == 4 and math.isfinite(float(point[3]))
+            else 0
         )
+        records.append((x, y, z, intensity))
 
     return records
 
@@ -283,6 +294,7 @@ class MultibeamRawNode(Node):
             self._parameter("include_intensity", True), name="include_intensity"
         )
         self.sequence = 0
+        self.source_session_id = uuid.uuid4().hex
         self.last_frame_warning_sec = -float("inf")
         self.last_latency_warning_sec = -float("inf")
 
@@ -331,21 +343,19 @@ class MultibeamRawNode(Node):
             return
         receipt_stamp = self.get_clock().now().to_msg()
         measurement_stamp = scan.header.stamp
-        if measurement_stamp.sec == 0 and measurement_stamp.nanosec == 0:
-            measurement_stamp = receipt_stamp
-        age_sec = max(
-            0.0,
-            self._stamp_seconds(receipt_stamp) - self._stamp_seconds(measurement_stamp),
+        acquisition_valid = bool(measurement_stamp.sec or measurement_stamp.nanosec)
+        age_sec = (
+            self._stamp_seconds(receipt_stamp) - self._stamp_seconds(measurement_stamp)
+            if acquisition_valid else None
         )
-        age_units = int(round(age_sec / LATENCY_UNIT_SEC))
-        data_latency_units = age_units + self.ping_latency_units
-        if data_latency_units > 0xFFFF:
+        age_units = int(round(age_sec / LATENCY_UNIT_SEC)) if age_sec is not None else 0
+        if not 0 <= age_units <= 0xFFFF - self.ping_latency_units:
             self._warn_throttled(
                 "last_latency_warning_sec",
-                "multibeam_raw dropped profile: %.6f s latency exceeds 83P field"
-                % age_sec,
+                "multibeam_raw latency cannot fit 83P; source timing remains in metadata",
             )
-            return
+            age_units = 0
+        data_latency_units = age_units + self.ping_latency_units
 
         points = point_records_from_scan(
             scan,
@@ -363,8 +373,9 @@ class MultibeamRawNode(Node):
             min_range_m=self.min_range_m,
             max_range_m=self.max_range_m,
         )
-        interrogation_time_sec = self._stamp_seconds(measurement_stamp) - (
-            self.ping_latency_units * LATENCY_UNIT_SEC
+        interrogation_time_sec = (
+            self._stamp_seconds(measurement_stamp) - self.ping_latency_units * LATENCY_UNIT_SEC
+            if acquisition_valid else None
         )
         packet = encode_profile_packet(
             ranges,
@@ -387,6 +398,12 @@ class MultibeamRawNode(Node):
         msg = SonarRawPacketMessage()
         msg.header.stamp = receipt_stamp
         msg.header.frame_id = self.frame_id
+        msg.acquisition_time_valid = acquisition_valid
+        msg.acquisition_time = measurement_stamp if acquisition_valid else Time()
+        msg.timing_uncertainty_known = acquisition_valid
+        msg.timing_uncertainty_sec = 0.0
+        msg.source_session_id = self.source_session_id
+        msg.synthetic = True
         msg.provider = self.provider
         msg.model = self.model
         msg.packet_kind = PACKET_KIND.decode("ascii")
