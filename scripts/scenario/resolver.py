@@ -161,7 +161,6 @@ def hull_vertices(mesh):
     return [list(point) for point in hull]
 
 
-
 def _finite_vector(raw, length, name, *, positive=False):
     if not isinstance(raw, (list, tuple)) or len(raw) != length:
         raise ValueError(f"{name} must contain exactly {length} values")
@@ -214,9 +213,7 @@ def _write_box_world(output, boxes, *, world_name):
     for box in normalized:
         model = ET.SubElement(world, "model", name=box["name"])
         ET.SubElement(model, "static").text = "true"
-        ET.SubElement(model, "pose").text = (
-            " ".join(map(str, box["center"])) + " 0 0 0"
-        )
+        ET.SubElement(model, "pose").text = " ".join(map(str, box["center"])) + " 0 0 0"
         link = ET.SubElement(model, "link", name="body")
         for tag in ("collision", "visual"):
             geom = ET.SubElement(ET.SubElement(link, tag, name=tag), "geometry")
@@ -302,6 +299,7 @@ def _materialize_static_obstacle_scene(declaration, output):
     path = output / "scenario.yaml"
     path.write_text(yaml.safe_dump(scenario, sort_keys=False), encoding="utf-8")
     return str(path), scenario
+
 
 def materialize_scenario(declaration, output_dir):
     """Build a declared wall scene from hull clearances and ordinary SDF boxes.
