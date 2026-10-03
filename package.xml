@@ -1,37 +1,30 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>heron_simulator</name>
-  <version>0.4.0</version>
+  <version>1.0.0</version>
   <description>
     Gazebo simulation for the Heron USV hull, thruster bridge, and simulated
     sensor publishers. Based on heron_simulator by Clearpath Robotics.
   </description>
-
   <!-- Project maintainer -->
   <maintainer email="aaronjs@g.ucla.edu">Aaron John Sabu</maintainer>
-
   <!-- Original Clearpath authors -->
   <author email="gstoppi@clearpathrobotics.com">Guy Stoppi (Clearpath Robotics)</author>
   <author email="yanma@clearpathrobotics.com">Yan Ma (Clearpath Robotics)</author>
   <author email="mpurvis@clearpathrobotics.com">Mike Purvis (Clearpath Robotics)</author>
-
   <!-- Dual license: BSD for Clearpath code, MIT for local extensions -->
   <license>BSD-3-Clause</license>
   <license>MIT</license>
-
   <url type="repository">https://github.com/aaronjs99/heron_simulator</url>
   <url type="bugtracker">https://github.com/aaronjs99/heron_simulator/issues</url>
-
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>gazebo</build_depend>
   <build_depend>pkg-config</build_depend>
-
   <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>oracle</depend>
   <depend>roscpp</depend>
   <depend>std_msgs</depend>
-
   <!-- Core Gazebo -->
   <exec_depend>roslaunch</exec_depend>
   <exec_depend>gazebo_ros</exec_depend>
@@ -39,15 +32,12 @@
   <exec_depend>gazebo_msgs</exec_depend>
   <exec_depend>velodyne_gazebo_plugins</exec_depend>
   <exec_depend>xvfb</exec_depend>
-
   <!-- Heron packages (Clearpath) -->
   <exec_depend>heron_description</exec_depend>
   <exec_depend>heron_msgs</exec_depend>
-
   <!-- Sensor plugins -->
   <exec_depend>hector_gazebo_plugins</exec_depend>
   <exec_depend>imu_filter_madgwick</exec_depend>
-
   <!-- ROS core -->
   <exec_depend>rospkg</exec_depend>
   <exec_depend>rospy</exec_depend>
@@ -60,13 +50,11 @@
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>spinnaker_camera_driver</exec_depend>
   <exec_depend>wfov_camera_msgs</exec_depend>
-
   <!-- Robot support -->
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>joint_state_publisher</exec_depend>
   <exec_depend>urdf</exec_depend>
   <exec_depend>xacro</exec_depend>
-
   <export>
     <gazebo_ros gazebo_model_path="${prefix}/models"/>
   </export>

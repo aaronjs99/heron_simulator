@@ -1,35 +1,43 @@
 # Heron Simulator
 
-Heron Simulator owns Gazebo vehicle physics, scenarios, synthetic sensors,
-simulated timing, and the simulator-only drive-to-thruster plant. GRANDE selects
-the scenario, MARINER consumes canonical surfaces, and ORACLE owns mission
-meaning.
+Heron Simulator provides Gazebo vehicle physics, configurable scenarios,
+synthetic sensors, simulated timing, and a simulated drive-to-thruster plant.
 
 ```text
-scenario/vehicle -> Gazebo -> synthetic sensors -> MARINER state/navigation
-  -> normalized drive -> simulator propulsion -> Gazebo forces
+scenario and vehicle -> Gazebo -> simulated sensors and state
+  -> drive command -> propulsion model -> Gazebo forces
 ```
+
+## Quick start
+
+Build this package in a ROS Noetic Catkin workspace with Gazebo available.
+Choose a world and scenario from this repository's launch, config, and worlds
+directories.
 
 ## Documentation
 
-- [Architecture](docs/architecture.md) describes ownership, integration, ground truth, and architectural debt.
+- [Architecture](docs/architecture.md) describes package components, scenario flow, ground truth, and known limitations.
+- Scenario guides under config/ explain the available simulation setups.
 
-The simulator demonstrates software behavior within a declared configuration;
-it does not validate physical thrust, sensor accuracy, or field safety. Markdown
-is canonical and each narrative document has an adjacent PDF.
+## Simulation limits
 
-The `range_marker_pool` scenario renders RANGE_AID's provisional marker
-contract for synthetic multi-view testing. Geometry, observability, and the
-Ping360 negative-control boundary are defined once in the
-[architecture reference](docs/architecture.md#descriptor-driven-range-marker).
+Simulation demonstrates software behavior for a declared configuration. It does
+not establish physical thrust, sensor accuracy, or field safety. The
+range_marker_pool scenario provides synthetic marker targets for repeatable
+multi-view tests.
 
-# File Structure
+## License
 
-| File | Relevance | Dependencies | Used by |
+Inherited Clearpath code retains BSD 3-Clause terms; local extensions use MIT.
+See LICENSE and preserve applicable file-level notices.
+
+## File Structure
+
+| File | Purpose | Dependencies | Used by |
 | --- | --- | --- | --- |
-| .gitattributes | Defines simulator text and binary path handling. | Git | Contributors |
-| .gitignore | Applies the shared GRANDE exclusions while retaining Gazebo models and documentation as source assets. | Git | Contributors |
-| CMakeLists.txt | Defines the catkin build, target-scoped Gazebo plugin linkage, installed worlds, models, launch files, executable scripts, reusable runtime package, launch-time scenario resolver, and configuration. | CMake 3.13+, catkin, pkg-config, ROS Noetic, Gazebo, setup.py | catkin build and install spaces |
-| LICENSE | Provides the BSD-3-Clause terms for retained Clearpath code and MIT terms for GRANDE-specific extensions. | None | Repository users and redistributors |
-| package.xml | Separates Gazebo/C++ build dependencies from simulator-only runtime integrations, including active-package scenario resolution through rospkg. | ROS Noetic, Gazebo, rospkg | catkin, rosdep |
-| setup.py | Installs deterministic models, shared parameter validation, and scenario resolution through the standard source/devel/install Python path. | catkin_pkg, scripts/models, scripts/scenario | CMakeLists.txt, simulator entrypoints, GRANDE runner, static validation |
+| `.gitattributes` | Defines text and binary handling for simulator assets. | Git | Repository contributors |
+| `.gitignore` | Excludes local build products while retaining simulator source assets. | Git | Repository contributors |
+| `CMakeLists.txt` | Defines the catkin build, target-scoped Gazebo plugin linkage, installed worlds, models, launch files, executable scripts, reusable runtime package, launch-time scenario resolver, and configuration. | CMake 3.13+, catkin, pkg-config, ROS Noetic, Gazebo, setup.py | catkin build and install spaces |
+| `LICENSE` | Provides the BSD-3-Clause terms for inherited code and MIT terms for locally developed extensions. | None | Repository users and redistributors |
+| `package.xml` | Separates Gazebo/C++ build dependencies from simulator-only runtime integrations, including active-package scenario resolution through rospkg. | ROS Noetic, Gazebo, rospkg | catkin, rosdep |
+| `setup.py` | Installs simulator model helpers, parameter validation, and scenario resolution. | catkin_pkg | CMakeLists.txt and simulator entrypoints |
