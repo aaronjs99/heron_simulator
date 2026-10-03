@@ -210,35 +210,26 @@ def encode_profile_packet(
     return packet
 
 
-def point_records_from_cloud(
-    cloud: PointCloud2,
+def point_records_from_scan(
+    scan: LaserScan,
     *,
     min_range_m: float,
     max_range_m: float,
 ) -> List[PointRecord]:
-    """Extract finite sonar-frame returns from a Gazebo ray PointCloud2."""
+    """Convert Gazebo's one-row LaserScan into sonar-frame XY returns."""
 
-    field_names = {field.name for field in cloud.fields}
-    read_fields = (
-        ("x", "y", "z", "intensity") if "intensity" in field_names else ("x", "y", "z")
-    )
-    min_range_sq = float(min_range_m) * float(min_range_m)
-    max_range_sq = float(max_range_m) * float(max_range_m)
     records: List[PointRecord] = []
-
-    for point in pc2.read_points(cloud, field_names=read_fields, skip_nans=True):
-        x, y, z = (float(point[0]), float(point[1]), float(point[2]))
-        if not all(math.isfinite(value) for value in (x, y, z)):
+    for index, measured_range in enumerate(scan.ranges):
+        range_m = float(measured_range)
+        if not math.isfinite(range_m) or not min_range_m <= range_m <= max_range_m:
             continue
-        range_sq = x * x + y * y + z * z
-        if range_sq < min_range_sq or range_sq > max_range_sq:
-            continue
-        intensity = (
-            int(point[3])
-            if len(read_fields) == 4 and math.isfinite(float(point[3]))
-            else 0
+        angle = float(scan.angle_min) + index * float(scan.angle_increment)
+        intensity = 0
+        if index < len(scan.intensities) and math.isfinite(scan.intensities[index]):
+            intensity = int(round(scan.intensities[index]))
+        records.append(
+            (range_m * math.cos(angle), range_m * math.sin(angle), 0.0, intensity)
         )
-        records.append((x, y, z, intensity))
 
     return records
 
@@ -346,7 +337,8 @@ class MultibeamRawNode(Node):
         acquisition_valid = bool(measurement_stamp.sec or measurement_stamp.nanosec)
         age_sec = (
             self._stamp_seconds(receipt_stamp) - self._stamp_seconds(measurement_stamp)
-            if acquisition_valid else None
+            if acquisition_valid
+            else None
         )
         age_units = int(round(age_sec / LATENCY_UNIT_SEC)) if age_sec is not None else 0
         if not 0 <= age_units <= 0xFFFF - self.ping_latency_units:
@@ -374,8 +366,10 @@ class MultibeamRawNode(Node):
             max_range_m=self.max_range_m,
         )
         interrogation_time_sec = (
-            self._stamp_seconds(measurement_stamp) - self.ping_latency_units * LATENCY_UNIT_SEC
-            if acquisition_valid else None
+            self._stamp_seconds(measurement_stamp)
+            - self.ping_latency_units * LATENCY_UNIT_SEC
+            if acquisition_valid
+            else None
         )
         packet = encode_profile_packet(
             ranges,

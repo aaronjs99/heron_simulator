@@ -71,10 +71,12 @@ def _launch(context, *args, **kwargs):
             "status_rate_hz",
             "pps_time_topic",
             "camera_time_topic",
-            "imu_time_topic",
+            "imu_sample_time_topic",
             "imu_topic",
             "pps_rate_hz",
-            "camera_time_image_topics",
+            "sensor_contract_file",
+            "timed_imu_topic",
+            "timing_events_topic",
             "disabled_sensor_ids",
             "lidar_update_rate_hz",
             "lidar_horizontal_samples",
@@ -395,10 +397,12 @@ def _launch(context, *args, **kwargs):
                         "use_sim_time": True,
                         "pps_time_topic": values["pps_time_topic"],
                         "camera_time_topic": values["camera_time_topic"],
-                        "imu_time_topic": values["imu_time_topic"],
+                        "imu_sample_time_topic": values["imu_sample_time_topic"],
                         "imu_topic": values["imu_topic"],
                         "pps_rate_hz": float(values["pps_rate_hz"]),
-                        "camera_image_topics": values["camera_time_image_topics"],
+                        "sensor_contract_file": values["sensor_contract_file"],
+                        "timed_imu_topic": values["timed_imu_topic"],
+                        "timing_events_topic": values["timing_events_topic"],
                     }
                 ],
                 output="screen",
@@ -499,10 +503,18 @@ _ARGUMENTS = {
     "status_rate_hz": "1.0",
     "pps_time_topic": "/sensors/pps/time",
     "camera_time_topic": "/sensors/camera/time",
-    "imu_time_topic": "/sensors/imu/time",
+    "imu_sample_time_topic": "/sensors/imu/sample_time",
     "imu_topic": "/sensors/imu/data",
     "pps_rate_hz": "1.0",
-    "camera_time_image_topics": "/sensors/camera/f1/image_raw,/sensors/camera/f2/image_raw,/sensors/camera/f3/image_raw,/sensors/camera/f4/image_raw",
+    "sensor_contract_file": str(
+        Path(get_package_share_directory("ig_handle"))
+        / "config"
+        / "sensors"
+        / "platform"
+        / "sensor_contract.yaml"
+    ),
+    "timed_imu_topic": "/sensors/imu/data_timed",
+    "timing_events_topic": "/sensors/timing/events",
     "disabled_sensor_ids": "",
     "lidar_update_rate_hz": "10",
     "lidar_horizontal_samples": "1800",

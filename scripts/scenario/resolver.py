@@ -10,22 +10,12 @@ import math
 import struct
 import xml.etree.ElementTree as ET
 
-import rospkg
+from ament_index_python.packages import get_package_share_directory
 import yaml
 
 from models.parameters import strict_bool
 
-ROS_PACK = rospkg.RosPack()
-
-
-def _package_dir() -> Path:
-    try:
-        return Path(ROS_PACK.get_path("heron_simulator"))
-    except rospkg.ResourceNotFound:
-        return Path(__file__).resolve().parents[2]
-
-
-PACKAGE_DIR = _package_dir()
+PACKAGE_DIR = Path(get_package_share_directory("heron_simulator"))
 SCENARIO_INDEX_PATH = PACKAGE_DIR / "config" / "scenarios" / "index.yaml"
 
 
@@ -36,24 +26,7 @@ def _load_yaml(path: Path) -> Dict[str, Any]:
 
 @lru_cache(maxsize=None)
 def _package_path(name: str) -> Path:
-    try:
-        return Path(ROS_PACK.get_path(name))
-    except rospkg.ResourceNotFound:
-        source_root = next(
-            (
-                path
-                for path in (PACKAGE_DIR, *PACKAGE_DIR.parents)
-                if path.name == "src"
-            ),
-            PACKAGE_DIR.parent,
-        )
-        for manifest in source_root.rglob("package.xml"):
-            try:
-                if ET.parse(str(manifest)).getroot().findtext("name") == name:
-                    return manifest.parent
-            except ET.ParseError:
-                continue
-        raise FileNotFoundError("ROS package is unavailable: " + name)
+    return Path(get_package_share_directory(name))
 
 
 def _resolve_path(value: str) -> str:
@@ -161,7 +134,6 @@ def hull_vertices(mesh):
     return [list(point) for point in hull]
 
 
-
 def _finite_vector(raw, length, name, *, positive=False):
     if not isinstance(raw, (list, tuple)) or len(raw) != length:
         raise ValueError(f"{name} must contain exactly {length} values")
@@ -214,9 +186,7 @@ def _write_box_world(output, boxes, *, world_name):
     for box in normalized:
         model = ET.SubElement(world, "model", name=box["name"])
         ET.SubElement(model, "static").text = "true"
-        ET.SubElement(model, "pose").text = (
-            " ".join(map(str, box["center"])) + " 0 0 0"
-        )
+        ET.SubElement(model, "pose").text = " ".join(map(str, box["center"])) + " 0 0 0"
         link = ET.SubElement(model, "link", name="body")
         for tag in ("collision", "visual"):
             geom = ET.SubElement(ET.SubElement(link, tag, name=tag), "geometry")
@@ -302,6 +272,7 @@ def _materialize_static_obstacle_scene(declaration, output):
     path = output / "scenario.yaml"
     path.write_text(yaml.safe_dump(scenario, sort_keys=False), encoding="utf-8")
     return str(path), scenario
+
 
 def materialize_scenario(declaration, output_dir):
     """Build a declared wall scene from hull clearances and ordinary SDF boxes.

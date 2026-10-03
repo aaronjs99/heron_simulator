@@ -85,4 +85,6 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(FILES LICENSE DESTINATION share/${PROJECT_NAME})
+
 ament_package()

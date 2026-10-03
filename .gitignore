@@ -1,5 +1,7 @@
-# BEGIN GRANDE SHARED IGNORE RULES
-# Keep this block identical across GRANDE-owned repositories.
+# Repository-specific rules
+
+# Generated demo artifacts
+/outputs/
 
 # Operating-system and editor state
 .DS_Store
@@ -94,9 +96,3 @@ compile_commands.json
 *.pid
 docs/_build/
 node_modules/
-
-# END GRANDE SHARED IGNORE RULES
-
-# Repository-specific rules
-
-# None. Gazebo models and documentation are source assets.
